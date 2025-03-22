@@ -6,36 +6,22 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "shader.hpp"
 
-#define SCREEN_HEIGHT 600
-#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 1000
 
-// camera
-glm::vec3 cam_pos = glm::vec3(0.0f, 1.0f, 3.0f);
-glm::vec3 cam_front = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cam_up = glm::vec3(0.0f, 1.0f, 0.0f);
+const char* vertex_shader_source = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"}\0";
 
-float delta = 0.0f;
-float last_frame = 0.0f;
-
-void frame_buffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-void process_input(GLFWwindow* window) {
-    float cam_speed = 2.5 * delta;
-    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cam_pos += cam_speed * cam_front;
-    }
-    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cam_pos -= cam_speed * cam_front;
-    }
-    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cam_pos -= glm::normalize(glm::cross(cam_front, cam_up)) * cam_speed;
-    }
-    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cam_pos += glm::normalize(glm::cross(cam_front, cam_up)) * cam_speed;
-    }
-}
+const char* fragment_shader_source = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
+"}\n\0";
 
 
 int main(void) {
@@ -50,6 +36,23 @@ int main(void) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
+    GLfloat vertices[] = 
+    {
+        -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,     // Lower left
+        0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,     // Lower right
+        0.0f, 0.5f * float(sqrt(3)) * 2/ 3, 0.0f,   // Upper
+        -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,  // Inner left
+        0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,  // Inner right
+        0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,     // Inner down
+    };
+
+    GLuint indices[] = 
+    {
+        0, 3, 5,    // Lower left triangle
+        3, 2, 4,    // Lower right triangle    
+        5, 4, 1,    // Upper triangle
+    };
+
     GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "3D Space", nullptr, nullptr);
     if(!window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -57,91 +60,79 @@ int main(void) {
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" <<std::endl;
         return -1;
     }
 
-
-    // shader program
-    Shader shader_program("shader.vs", "shader.fs");
-
-
-    // enable depth testing
-    glEnable(GL_DEPTH_TEST);
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    
+    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
+    glCompileShader(vertex_shader);
 
 
-    float plane_vertices[] =  {
-        -5.0f, 0.0f, -5.0f,
-         5.0f, 0.0f, -5.0f,
-         5.0f, 0.0f,  5.0f,
-        -5.0f, 0.0f,  5.0f
-    };
+    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
+    glCompileShader(fragment_shader);
 
-    unsigned int plane_indices[] = { 0, 1, 2, 2, 3, 0 };
 
-    unsigned int VBO, VAO, EBO;
+    GLuint shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+    
+
+    GLuint VAO, VBO, EBO;
+
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
+
     glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(plane_vertices), plane_vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(plane_indices), plane_indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
 
-   // Main render loop
+    glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(shader_program);
+
     while(!glfwWindowShouldClose(window)) {
-        // Calculate delta time for smooth movement
-        float curr_frame = glfwGetTime();
-        delta = curr_frame - last_frame;
-        last_frame = curr_frame;
 
-        // Process user input
-        process_input(window);
+        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(shader_program);
 
-        // Clear screen
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);  // Dark background
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Use our shader program
-        shader_program.use();
-
-        // Create and set transformation matrices
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::lookAt(cam_pos, cam_pos + cam_front, cam_up);
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 
-                                               static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT), 
-                                               0.1f, 100.0f);
-
-        // Pass matrices to shader
-        shader_program.setMat4("model", model);
-        shader_program.setMat4("view", view);
-        shader_program.setMat4("projection", projection);
-        
-        // Render the plane
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
 
-        // Swap buffers and poll for events
+        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    glDeleteProgram(shader_program);
+
     return 0;
 }
 
