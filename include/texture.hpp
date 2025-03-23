@@ -11,7 +11,7 @@ class Texture {
         GLuint ID;
         GLenum type;
         Texture(const char* image, GLenum tex_type, GLenum slot, GLenum format, GLenum pixel_type);
-        void tex_unit(Shader shader, const char* uniform, GLuint unit);
+        void tex_unit(Shader& shader, const char* uniform, GLuint unit);
         void bind();
         void unbind();
         void delete_texture();
