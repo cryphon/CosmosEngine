@@ -14,6 +14,7 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/VAO.cpp
     ${SRC_DIR}/VBO.cpp
     ${SRC_DIR}/EBO.cpp
+    ${SRC_DIR}/stb.cpp
 )
 
 find_package(PkgConfig REQUIRED)
