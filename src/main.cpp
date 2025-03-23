@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "shader.hpp"
+#include "texture.hpp"
 #include "VAO.hpp"
 #include "VBO.hpp"
 #include "EBO.hpp"
@@ -71,31 +72,8 @@ int main(void) {
 
     GLuint uniID = glGetUniformLocation(shader_program.ID, "scale");
 
-    // texture 
-    int width_img, height_img, num_cols_img;
-    unsigned char* bytes = stbi_load("pop_cat.png", &width_img, &height_img, &num_cols_img, 0);
-
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_img, height_img, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(bytes);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GLuint tex0uni = glGetUniformLocation(shader_program.ID, "tex0");
-    shader_program.activate_shader();
-    glUniform1i(tex0uni, 0);
+    Texture tex("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    tex.tex_unit(shader_program, "tex0", 0);
 
     while(!glfwWindowShouldClose(window)) {
 
@@ -104,7 +82,9 @@ int main(void) {
 
         shader_program.activate_shader();
         glUniform1f(uniID, 0.5f);
-        glBindTexture(GL_TEXTURE_2D, texture);
+
+
+        tex.bind();
         VAO1.bind();
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -116,7 +96,7 @@ int main(void) {
     VAO1.delete_vao();
     VBO1.delete_vbo();
     EBO1.delete_ebo();
-    glDeleteTextures(1, &texture);
+    tex.delete_texture();
     shader_program.delete_shader();
 
     return 0;

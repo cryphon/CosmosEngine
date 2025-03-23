@@ -15,6 +15,7 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/VBO.cpp
     ${SRC_DIR}/EBO.cpp
     ${SRC_DIR}/stb.cpp
+    ${SRC_DIR}/texture.cpp
 )
 
 find_package(PkgConfig REQUIRED)
