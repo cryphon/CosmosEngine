@@ -10,6 +10,10 @@ include_directories(${INCLUDE_DIR})
 
 set(MAIN_SOURCE_FILES
     ${SRC_DIR}/main.cpp
+    ${SRC_DIR}/shader.cpp
+    ${SRC_DIR}/VAO.cpp
+    ${SRC_DIR}/VBO.cpp
+    ${SRC_DIR}/EBO.cpp
 )
 
 find_package(PkgConfig REQUIRED)
