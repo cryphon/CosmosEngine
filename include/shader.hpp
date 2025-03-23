@@ -19,6 +19,8 @@ public:
 
     void activate_shader();
     void delete_shader();
+
+    void compile_errors(unsigned int shader, const char* type);
 };
 
 #endif
