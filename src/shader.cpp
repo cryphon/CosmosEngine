@@ -51,6 +51,15 @@ void Shader::delete_shader() {
     glDeleteProgram(ID);
 }
 
+
+void Shader::set_bool(const std::string &name, bool value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), static_cast<int>(value));
+}
+
+void Shader::set_int(const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+}
+
 void Shader::compile_errors(unsigned int shader, const char* type) {
     GLint compiled;
     char log[1024];

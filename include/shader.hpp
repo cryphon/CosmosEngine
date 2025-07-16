@@ -20,6 +20,9 @@ public:
     void activate_shader();
     void delete_shader();
 
+    void set_bool(const std::string &name, bool value) const;
+    void set_int(const std::string &name, int value) const;
+
     void compile_errors(unsigned int shader, const char* type);
 };
 

@@ -58,6 +58,8 @@ void Renderer::render(float scale, float rotation, glm::vec3 camPos, int width, 
     glm::mat4 view = glm::translate(glm::mat4(1.0f), camPos);
     glm::mat4 proj = glm::perspective(glm::radians(60.0f), (float)width / height, 0.1f, 100.0f);
 
+    shader->set_bool("use_texture", true);
+
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
