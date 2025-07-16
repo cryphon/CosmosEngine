@@ -21,6 +21,11 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/stb.cpp
     ${SRC_DIR}/texture.cpp
 
+    ${SRC_DIR}/application.cpp
+    ${SRC_DIR}/engine.cpp
+    ${SRC_DIR}/renderer.cpp
+    ${SRC_DIR}/ui.cpp
+
     # ImGui core
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_draw.cpp
