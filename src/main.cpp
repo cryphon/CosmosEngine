@@ -1,7 +1,16 @@
-#include <iostream>
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+
 #include <glad/glad.h>
-#include <stb/stb_image.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
+#include <cmath>
+
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
+
+#include <stb/stb_image.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -37,6 +46,15 @@ GLuint indices[] =
 	3, 0, 4
 };
 
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+
+
 int main(void) {
     if(!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -56,11 +74,25 @@ int main(void) {
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" <<std::endl;
         return -1;
     }
+
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+    static float cam_x = 0.0f, cam_y = -0.5f, cam_z = -2.0f;
+    static float scale = 1.0f;
+
+
 
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     
@@ -90,15 +122,33 @@ int main(void) {
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window)) {
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+
 
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Settings");
+        ImGui::SliderFloat("Camera X", &cam_x, -10.0f, 10.0f);
+        ImGui::SliderFloat("Camera Y", &cam_y, -10.0f, 10.0f);
+        ImGui::SliderFloat("Camera Z", &cam_z, -10.0f, 10.0f);
+        ImGui::SliderFloat("Pyramid Scale", &scale, 0.1f, 5.0f);
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         shader_program.activate_shader();
 
         double curr_time = glfwGetTime();
-        if(curr_time = prev_time >= 1 / 60) {
-            rotation += 0.1f;
+        if(curr_time - prev_time >= 1.0 / 60.0) {
+            rotation += 0.05f;
             prev_time = curr_time;
         }
 
@@ -106,9 +156,10 @@ int main(void) {
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 proj = glm::mat4(1.0f);
 
+        model = glm::scale(model, glm::vec3(scale));
         model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
-        proj = glm::perspective(glm::radians(45.0f), (float)(SCREEN_WIDTH / SCREEN_HEIGHT), 0.1f, 100.0f);
+        view = glm::translate(view, glm::vec3(cam_x, cam_y, cam_z));
+        proj = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 100.0f);
 
         // output matrices to shader
         int model_loc = glGetUniformLocation(shader_program.ID, "model");
@@ -135,6 +186,10 @@ int main(void) {
     EBO1.delete_ebo();
     tex.delete_texture();
     shader_program.delete_shader();
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     return 0;
 }
