@@ -10,9 +10,10 @@ void UI::initialize(GLFWwindow* window) {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui::SetNextWindowSize(ImVec2(300, 400));
 }
 
-void UI::render(float& camX, float& camY, float& camZ, float& scale) {
+void UI::render(float& camX, float& camY, float& camZ, float& scale, float& rotation) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -22,6 +23,7 @@ void UI::render(float& camX, float& camY, float& camZ, float& scale) {
     ImGui::SliderFloat("Camera Y", &camY, -10.0f, 10.0f);
     ImGui::SliderFloat("Camera Z", &camZ, -10.0f, 10.0f);
     ImGui::SliderFloat("Pyramid Scale", &scale, 0.1f, 5.0f);
+    ImGui::SliderFloat("Rotation Speed", &rotation, -5.0f, 5.0f);
     ImGui::End();
 
     ImGui::Render();

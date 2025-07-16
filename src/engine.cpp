@@ -52,11 +52,11 @@ void Engine::run() {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ui.render(cam_x, cam_y, cam_z, scale);
+        ui.render(cam_x, cam_y, cam_z, scale, rotation_speed);
 
         double curr_time = glfwGetTime();
         if (curr_time - prev_time >= 1.0 / 60.0) {
-            rotation += 0.05f;
+            rotation += rotation_speed;
             prev_time = curr_time;
         }
 
