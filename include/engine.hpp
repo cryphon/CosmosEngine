@@ -19,7 +19,7 @@ class Engine {
         UI ui;
 
 
-        std::unique_ptr<Camera> camera;
+        std::shared_ptr<Camera> camera;
         float scale = 1.0f;
         float rotation = 0.0f;
         float rotation_speed = 0.05f;

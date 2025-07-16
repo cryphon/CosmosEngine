@@ -11,6 +11,5 @@ class Camera {
         virtual glm::mat4 get_view_matrix() const = 0;
         virtual glm::mat4 get_projection_matrix(int width, int height) const = 0;
 };
-
 #endif
         

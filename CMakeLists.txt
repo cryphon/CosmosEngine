@@ -27,6 +27,7 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/application.cpp
     ${SRC_DIR}/engine.cpp
     ${SRC_DIR}/renderer.cpp
+    ${SRC_DIR}/perspective_camera.cpp
     ${SRC_DIR}/ui.cpp
 
     # ImGui core
@@ -83,6 +84,8 @@ add_custom_target(run
     COMMENT "Build and run 3DSpace"
 )
 
+
+file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # Custom GDB run target
 add_custom_target(debug
   COMMAND gdb ${PROJECT_NAME}

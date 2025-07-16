@@ -2,6 +2,58 @@
 #include <iostream>
 #include "perspective_camera.hpp"
 
+
+// TODO: move this to other file or smth
+float last_x = 400.0f, last_y = 400.0f;
+bool first_mouse = true;
+float delta_time = 0.0f;
+float last_frame = 0.0f;
+
+std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    static float sensitivity = 0.03f;
+
+    if (first_mouse) {
+        last_x = xpos;
+        last_y = ypos;
+        first_mouse = false;
+    }
+
+    float xoffset = xpos - last_x;
+    float yoffset = last_y - ypos;
+
+    last_x = xpos;
+    last_y = ypos;
+
+    g_camera->yaw += xoffset * sensitivity;
+    g_camera->pitch += yoffset * sensitivity;
+
+    if (g_camera->pitch > 89.0f) g_camera->pitch = 89.0f;
+    if (g_camera->pitch < -89.0f) g_camera->pitch = -89.0f;
+
+    g_camera->update_direction();
+}
+
+void process_input(GLFWwindow* window, PerspectiveCamera& cam) {
+    float speed = 5.0f * delta_time;
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cam.position += cam.front * speed;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cam.position -= cam.front * speed;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cam.position -= cam.right * speed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cam.position += cam.right * speed;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        cam.position -= cam.up * speed;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        cam.position += cam.up * speed;
+}
+
+
+
 Engine::Engine() {}
 Engine::~Engine() {
     ui.shutdown();
@@ -30,6 +82,23 @@ bool Engine::init() {
         glViewport(0, 0, w, h);
     });
 
+    // register input and mouse callback
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
+    // setup camera
+    camera = std::make_shared<PerspectiveCamera>(
+    glm::vec3(0.0f, 1.0f, 3.0f),  // position
+    glm::vec3(0.0f, 0.0f, 0.0f),  // target
+    glm::vec3(0.0f, 1.0f, 0.0f)   // up
+    );
+    auto persp_camera = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
+    if (persp_camera) persp_camera->update_direction();
+
+
+    g_camera = persp_camera;  // assign to global pointer for callback access
+
 
     std::cout << "Window: " << window << std::endl;
 
@@ -41,12 +110,6 @@ bool Engine::init() {
     std::cout << "GLAD loaded" << std::endl;
 
     glEnable(GL_DEPTH_TEST);
-
-    camera = std::make_unique<PerspectiveCamera>(
-        glm::vec3(0.0f, 1.0f, 3.0f),  // camera position
-        glm::vec3(0.0f, 0.0f, 0.0f),  // look at origin
-        glm::vec3(0.0f, 1.0f, 0.0f)   // up direction
-    );
 
     renderer.initialize();
     ui.initialize(window);
@@ -67,7 +130,17 @@ void Engine::run() {
             prev_time = curr_time;
         }
 
-        renderer.render(scale, rotation, *camera, 800, 800);
+        float current_frame = glfwGetTime();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+
+        ::process_input(window, *g_camera);
+        if (!camera) {
+            std::cerr << "Camera is null!" << std::endl;
+        } else {
+            renderer.render(scale, rotation, *camera, 800, 800);
+        }
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
