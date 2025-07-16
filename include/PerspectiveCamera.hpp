@@ -1,7 +1,7 @@
 #ifndef PERSPECTIVE_CAMERA_HPP
 #define PERSPECTIVE_CAMERA_HPP
 
-#include "camera.hpp"
+#include "Camera.hpp"
 
 class PerspectiveCamera : public Camera {
 public:

@@ -1,6 +1,6 @@
-#include "engine.hpp"
+#include "Engine.hpp"
 #include <iostream>
-#include "perspective_camera.hpp"
+#include "PerspectiveCamera.hpp"
 
 
 // TODO: move this to other file or smth
@@ -8,31 +8,58 @@ float last_x = 400.0f, last_y = 400.0f;
 bool first_mouse = true;
 float delta_time = 0.0f;
 float last_frame = 0.0f;
+bool rotate_drag = false;   // true while holding RMB
+bool first_drag = true;     // reset delta to avoid jump
+
 
 std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    static float sensitivity = 0.03f;
+    static float sensitivity = 0.003f; // slower look
 
-    if (first_mouse) {
+    if (!rotate_drag) {
+        // Not dragging: keep last positions up to date so we don't get a jump on next drag
         last_x = xpos;
         last_y = ypos;
-        first_mouse = false;
+        return;
     }
 
-    float xoffset = xpos - last_x;
-    float yoffset = last_y - ypos;
+    if (first_drag) {
+        last_x = xpos;
+        last_y = ypos;
+        first_drag = false;
+    }
+
+    float xoffset = float(xpos - last_x);
+    float yoffset = float(last_y - ypos); // inverted y
 
     last_x = xpos;
     last_y = ypos;
 
-    g_camera->yaw += xoffset * sensitivity;
+    g_camera->yaw   += xoffset * sensitivity;
     g_camera->pitch += yoffset * sensitivity;
 
-    if (g_camera->pitch > 89.0f) g_camera->pitch = 89.0f;
+    if (g_camera->pitch > 89.0f)  g_camera->pitch = 89.0f;
     if (g_camera->pitch < -89.0f) g_camera->pitch = -89.0f;
 
     g_camera->update_direction();
+}
+
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+   // using ImGui, ignore when it wants the mouse:
+    if (ImGui::GetIO().WantCaptureMouse) return;
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (action == GLFW_PRESS) {
+            rotate_drag = true;
+            first_drag = true;                // reset ref point
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        } else if (action == GLFW_RELEASE) {
+            rotate_drag = false;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+    }
 }
 
 void process_input(GLFWwindow* window, PerspectiveCamera& cam) {
@@ -84,7 +111,8 @@ bool Engine::init() {
 
     // register input and mouse callback
     glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 
     // setup camera
@@ -138,7 +166,7 @@ void Engine::run() {
         if (!camera) {
             std::cerr << "Camera is null!" << std::endl;
         } else {
-            renderer.render(scale, rotation, *camera, 800, 800);
+            renderer.render(scale, rotation, *camera, 1000, 1000);
         }
 
 

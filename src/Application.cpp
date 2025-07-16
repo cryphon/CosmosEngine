@@ -1,4 +1,4 @@
-#include "application.hpp"
+#include "Application.hpp"
 #include <iostream>
 
 int Application::run() {

@@ -1,4 +1,4 @@
-#include "perspective_camera.hpp"
+#include "PerspectiveCamera.hpp"
 
 
 PerspectiveCamera::PerspectiveCamera(glm::vec3 pos) : position(pos) {

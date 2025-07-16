@@ -1,13 +1,13 @@
 #pragma once
 
-#include "shader.hpp"
-#include "texture.hpp"
+#include "Shader.hpp"
+#include "Texture.hpp"
 #include "VAO.hpp"
 #include "VBO.hpp"
 #include "EBO.hpp"
 #include <glm/glm.hpp>
 #include <memory>
-#include "camera.hpp"
+#include "Camera.hpp"
 
 class Renderer {
 public:

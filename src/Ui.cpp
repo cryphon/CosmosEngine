@@ -1,4 +1,4 @@
-#include "ui.hpp"
+#include "Ui.hpp"
 
 UI::UI() {}
 UI::~UI() {}

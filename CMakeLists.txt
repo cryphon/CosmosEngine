@@ -17,18 +17,18 @@ include_directories(${INCLUDE_DIR})
 # 🔧 All source files including ImGui and your engine
 set(MAIN_SOURCE_FILES
     ${SRC_DIR}/main.cpp
-    ${SRC_DIR}/shader.cpp
+    ${SRC_DIR}/Shader.cpp
     ${SRC_DIR}/VAO.cpp
     ${SRC_DIR}/VBO.cpp
     ${SRC_DIR}/EBO.cpp
     ${SRC_DIR}/stb.cpp
-    ${SRC_DIR}/texture.cpp
+    ${SRC_DIR}/Texture.cpp
 
-    ${SRC_DIR}/application.cpp
-    ${SRC_DIR}/engine.cpp
-    ${SRC_DIR}/renderer.cpp
-    ${SRC_DIR}/perspective_camera.cpp
-    ${SRC_DIR}/ui.cpp
+    ${SRC_DIR}/Application.cpp
+    ${SRC_DIR}/Engine.cpp
+    ${SRC_DIR}/Renderer.cpp
+    ${SRC_DIR}/PerspectiveCamera.cpp
+    ${SRC_DIR}/Ui.cpp
 
     # ImGui core
     ${IMGUI_DIR}/imgui.cpp
