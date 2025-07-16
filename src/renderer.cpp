@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "perspective_camera.hpp"
 
 static GLfloat vertices[] = {
     -0.5f, 0.0f,  0.5f,  0.83f, 0.70f, 0.44f, 0.0f, 0.0f,
@@ -48,15 +49,15 @@ void Renderer::initialize() {
     uniID = glGetUniformLocation(shader->ID, "scale");
 }
 
-void Renderer::render(float scale, float rotation, glm::vec3 camPos, int width, int height) {
+void Renderer::render(float scale, float rotation, const Camera& camera, int width, int height) {
     shader->activate_shader();
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(scale));
     model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), camPos);
-    glm::mat4 proj = glm::perspective(glm::radians(60.0f), (float)width / height, 0.1f, 100.0f);
+    glm::mat4 view = camera.get_view_matrix();
+    glm::mat4 proj = camera.get_projection_matrix(width, height);
 
     shader->set_bool("use_texture", true);
 

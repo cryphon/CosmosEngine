@@ -7,6 +7,7 @@
 #include "EBO.hpp"
 #include <glm/glm.hpp>
 #include <memory>
+#include "camera.hpp"
 
 class Renderer {
 public:
@@ -14,7 +15,7 @@ public:
     ~Renderer();
 
     void initialize(); 
-    void render(float scale, float rotation, glm::vec3 camPos, int screenWidth, int screenHeight);
+    void render(float scale, float rotation, const Camera& camera, int screenWidth, int screenHeight);
 
 private:
     std::unique_ptr<Shader> shader;

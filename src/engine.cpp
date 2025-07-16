@@ -1,5 +1,6 @@
 #include "engine.hpp"
 #include <iostream>
+#include "perspective_camera.hpp"
 
 Engine::Engine() {}
 Engine::~Engine() {
@@ -41,6 +42,12 @@ bool Engine::init() {
 
     glEnable(GL_DEPTH_TEST);
 
+    camera = std::make_unique<PerspectiveCamera>(
+        glm::vec3(0.0f, 1.0f, 3.0f),  // camera position
+        glm::vec3(0.0f, 0.0f, 0.0f),  // look at origin
+        glm::vec3(0.0f, 1.0f, 0.0f)   // up direction
+    );
+
     renderer.initialize();
     ui.initialize(window);
     prev_time = glfwGetTime();
@@ -52,7 +59,7 @@ void Engine::run() {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ui.render(cam_x, cam_y, cam_z, scale, rotation_speed);
+        ui.render(scale, rotation_speed);
 
         double curr_time = glfwGetTime();
         if (curr_time - prev_time >= 1.0 / 60.0) {
@@ -60,7 +67,7 @@ void Engine::run() {
             prev_time = curr_time;
         }
 
-        renderer.render(scale, rotation, glm::vec3(cam_x, cam_y, cam_z), 800, 800);
+        renderer.render(scale, rotation, *camera, 800, 800);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

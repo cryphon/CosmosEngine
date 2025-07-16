@@ -18,7 +18,8 @@ class Engine {
         Renderer renderer;
         UI ui;
 
-        float cam_x = 0.0f, cam_y = -0.5f, cam_z = -2.0f;
+
+        std::unique_ptr<Camera> camera;
         float scale = 1.0f;
         float rotation = 0.0f;
         float rotation_speed = 0.05f;
