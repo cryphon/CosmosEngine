@@ -6,6 +6,7 @@
 #include "VBO.hpp"
 #include "EBO.hpp"
 #include <glm/glm.hpp>
+#include <memory>
 
 class Renderer {
 public:
@@ -16,11 +17,11 @@ public:
     void render(float scale, float rotation, glm::vec3 camPos, int screenWidth, int screenHeight);
 
 private:
-    Shader shader;
-    Texture texture;
+    std::unique_ptr<Shader> shader;
+    std::unique_ptr<Texture> texture;
     VAO vao;
-    VBO vbo;
-    EBO ebo;
+    std::unique_ptr<VBO> vbo;
+    std::unique_ptr<EBO> ebo;
     GLuint uniID;
 };
 

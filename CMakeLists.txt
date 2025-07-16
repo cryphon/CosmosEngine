@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(3DSpace)
 
+
+set(CMAKE_BUILD_TYPE Debug)
+
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 set(IMGUI_DIR ${SRC_DIR}/imgui)
@@ -79,4 +82,13 @@ add_custom_target(run
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Build and run 3DSpace"
 )
+
+# Custom GDB run target
+add_custom_target(debug
+  COMMAND gdb ${PROJECT_NAME}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS ${PROJECT_NAME}
+  COMMENT "Run ${PROJECT_NAME} in GDB"
+)
+
 
