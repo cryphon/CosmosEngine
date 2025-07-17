@@ -10,6 +10,5 @@ public:
     ~UI();
 
     void initialize(GLFWwindow* window);
-    void render(float& scale, float& rotation_speed);
     void shutdown();
 };
