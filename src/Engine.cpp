@@ -159,20 +159,12 @@ void Engine::run() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-
-
-        double curr_time = glfwGetTime();
-        if (curr_time - prev_time >= 1.0 / 60.0) {
-            rotation += rotation_speed;
-            prev_time = curr_time;
-        }
-
         float current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
         if(g_camera) {
-        ::process_input(window, *g_camera);
+            ::process_input(window, *g_camera);
         }
 
         scene_manager.update(delta_time);
@@ -182,6 +174,8 @@ void Engine::run() {
         
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // --- ImGui Frame End ---
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
