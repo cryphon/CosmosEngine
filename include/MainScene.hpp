@@ -32,6 +32,6 @@ class MainScene : public Scene {
         Renderer* renderer;
         std::shared_ptr<Camera> camera;
         float rotation = 0.0f;
-        float rotation_speed = 0.05f;
+        float rotation_speed = 0.1f;
         float scale = 1.0f;
 };

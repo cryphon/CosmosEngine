@@ -1,8 +1,8 @@
 #include "Engine.hpp"
 #include <iostream>
 #include "PerspectiveCamera.hpp"
-#include "SceneManager.hpp"
 #include "MainScene.hpp"
+
 
 // TODO: move this to other file or smth
 float last_x = 400.0f, last_y = 400.0f;
@@ -12,7 +12,6 @@ float last_frame = 0.0f;
 bool rotate_drag = false;   // true while holding RMB
 bool first_drag = true;     // reset delta to avoid jump
 
-SceneManager scene_manager;
 
 std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
 
@@ -111,13 +110,7 @@ bool Engine::init() {
         glViewport(0, 0, w, h);
     });
 
-    // register input and mouse callback
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-
-    // setup camera
+    // --- Setup Camera ---
     camera = std::make_shared<PerspectiveCamera>(
     glm::vec3(0.0f, 1.0f, 3.0f),  // position
     glm::vec3(0.0f, 0.0f, 0.0f),  // target
@@ -125,26 +118,26 @@ bool Engine::init() {
     );
     auto persp_camera = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
     if (persp_camera) persp_camera->update_direction();
-
-
     g_camera = persp_camera;  // assign to global pointer for callback access
 
+    // --- Setup Input Manager ---
+    input = std::make_unique<InputManager>(window, persp_camera);
 
-    std::cout << "Window: " << window << std::endl;
-
+    // --- Load GLAD ---
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return false;
     }
 
-    std::cout << "GLAD loaded" << std::endl;
-
     glEnable(GL_DEPTH_TEST);
 
-    scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
 
+    // --- Set Scene, Init Render & UI ---
+    scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
     renderer.initialize();
     ui.initialize(window);
+
+
     prev_time = glfwGetTime();
     return true;
 }
@@ -163,10 +156,7 @@ void Engine::run() {
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
-        if(g_camera) {
-            ::process_input(window, *g_camera);
-        }
-
+        input->update(delta_time);
         scene_manager.update(delta_time);
         scene_manager.render();
         scene_manager.render_ui();

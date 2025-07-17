@@ -28,6 +28,7 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/Engine.cpp
     ${SRC_DIR}/Renderer.cpp
     ${SRC_DIR}/PerspectiveCamera.cpp
+    ${SRC_DIR}/InputManager.cpp
     ${SRC_DIR}/Ui.cpp
 
     # ImGui core

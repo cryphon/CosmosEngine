@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include "Renderer.hpp"
+#include "SceneManager.hpp"
+#include "InputManager.hpp"
 #include "Ui.hpp"
 
 class Engine {
@@ -16,13 +18,12 @@ class Engine {
     private:
         GLFWwindow* window;
         Renderer renderer;
+        SceneManager scene_manager;
+        std::unique_ptr<InputManager> input;
+        std::shared_ptr<Camera> camera;
         UI ui;
 
 
-        std::shared_ptr<Camera> camera;
-        float scale = 1.0f;
-        float rotation = 0.0f;
-        float rotation_speed = 0.05f;
         double prev_time = 0.0;
 
         void process_input();
