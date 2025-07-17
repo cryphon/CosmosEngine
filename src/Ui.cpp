@@ -13,20 +13,6 @@ void UI::initialize(GLFWwindow* window) {
     ImGui::SetNextWindowSize(ImVec2(300, 400));
 }
 
-void UI::render(float& scale, float& rotation) {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    ImGui::Begin("Settings");
-    ImGui::SliderFloat("Pyramid Scale", &scale, 0.1f, 5.0f);
-    ImGui::SliderFloat("Rotation Speed", &rotation, -5.0f, 5.0f);
-    ImGui::End();
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
 void UI::shutdown() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

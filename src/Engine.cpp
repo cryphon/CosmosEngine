@@ -1,7 +1,8 @@
 #include "Engine.hpp"
 #include <iostream>
 #include "PerspectiveCamera.hpp"
-
+#include "SceneManager.hpp"
+#include "MainScene.hpp"
 
 // TODO: move this to other file or smth
 float last_x = 400.0f, last_y = 400.0f;
@@ -11,6 +12,7 @@ float last_frame = 0.0f;
 bool rotate_drag = false;   // true while holding RMB
 bool first_drag = true;     // reset delta to avoid jump
 
+SceneManager scene_manager;
 
 std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
 
@@ -139,6 +141,8 @@ bool Engine::init() {
 
     glEnable(GL_DEPTH_TEST);
 
+    scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
+
     renderer.initialize();
     ui.initialize(window);
     prev_time = glfwGetTime();
@@ -150,7 +154,12 @@ void Engine::run() {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ui.render(scale, rotation_speed);
+        // --- ImGui Frame Start ---
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+
 
         double curr_time = glfwGetTime();
         if (curr_time - prev_time >= 1.0 / 60.0) {
@@ -162,14 +171,17 @@ void Engine::run() {
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
+        if(g_camera) {
         ::process_input(window, *g_camera);
-        if (!camera) {
-            std::cerr << "Camera is null!" << std::endl;
-        } else {
-            renderer.render(scale, rotation, *camera, 1000, 1000);
         }
 
+        scene_manager.update(delta_time);
+        scene_manager.render();
+        scene_manager.render_ui();
 
+        
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
