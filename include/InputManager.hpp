@@ -20,7 +20,7 @@ class InputManager {
         double last_x = 400.0, last_y = 400.0;
         bool first_drag = true;
         bool rotating = false;
-        float sensitivity = 0.003f;
+        float sensitivity = 0.01f;
 
         void handle_mouse(double pos_x, double pos_y);
         void handle_mouse_button(int button, int action, int mods);
