@@ -12,19 +12,54 @@ class MainScene : public Scene {
 
         void initialize() override { 
             // Simple textured quad
+            // pos         | normal     | color       | texcoord
             static float vertices[] = {
-                //  pos        | color      | tex coords
-                -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-                0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-                0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-                -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f
+                // pos              | normal         | color       | tex coords
+                // Front face (+Z)
+                -0.5f, -0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   0, 0,
+                0.5f, -0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   1, 0,
+                0.5f,  0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   1, 1,
+                -0.5f,  0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   0, 1,
+
+                // Back face (-Z)
+                -0.5f, -0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   1, 0,
+                0.5f, -0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   0, 0,
+                0.5f,  0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   0, 1,
+                -0.5f,  0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   1, 1,
+
+                // Left face (-X)
+                -0.5f, -0.5f, -0.5f, -1, 0, 0,   1, 1, 1,   0, 0,
+                -0.5f, -0.5f,  0.5f, -1, 0, 0,   1, 1, 1,   1, 0,
+                -0.5f,  0.5f,  0.5f, -1, 0, 0,   1, 1, 1,   1, 1,
+                -0.5f,  0.5f, -0.5f, -1, 0, 0,   1, 1, 1,   0, 1,
+
+                // Right face (+X)
+                0.5f, -0.5f, -0.5f,  1, 0, 0,   1, 1, 1,   1, 0,
+                0.5f, -0.5f,  0.5f,  1, 0, 0,   1, 1, 1,   0, 0,
+                0.5f,  0.5f,  0.5f,  1, 0, 0,   1, 1, 1,   0, 1,
+                0.5f,  0.5f, -0.5f,  1, 0, 0,   1, 1, 1,   1, 1,
+
+                // Top face (+Y)
+                -0.5f,  0.5f, -0.5f,  0, 1, 0,   1, 1, 1,   0, 1,
+                0.5f,  0.5f, -0.5f,  0, 1, 0,   1, 1, 1,   1, 1,
+                0.5f,  0.5f,  0.5f,  0, 1, 0,   1, 1, 1,   1, 0,
+                -0.5f,  0.5f,  0.5f,  0, 1, 0,   1, 1, 1,   0, 0,
+
+                // Bottom face (-Y)
+                -0.5f, -0.5f, -0.5f,  0, -1, 0,  1, 1, 1,   0, 0,
+                0.5f, -0.5f, -0.5f,  0, -1, 0,  1, 1, 1,   1, 0,
+                0.5f, -0.5f,  0.5f,  0, -1, 0,  1, 1, 1,   1, 1,
+                -0.5f, -0.5f,  0.5f,  0, -1, 0,  1, 1, 1,   0, 1,
             };
 
             static unsigned int indices[] = {
-                0, 1, 2,
-                2, 3, 0
+                0, 1, 2, 2, 3, 0,        // front
+                4, 5, 6, 6, 7, 4,        // back
+                8, 9,10,10,11, 8,        // left
+                12,13,14,14,15,12,        // right
+                16,17,18,18,19,16,        // top
+                20,21,22,22,23,20         // bottom
             };
-
             quad_mesh = std::make_shared<Mesh>();
             quad_mesh->init(vertices, sizeof(vertices), indices, sizeof(indices));
 
@@ -50,7 +85,7 @@ class MainScene : public Scene {
         void render_ui() override {
             ImGui::Begin("Simulation Settings");
             ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
-            ImGui::SliderFloat("Rotation Speed", &rotation_speed, -5.0f, 5.0f);
+            ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
             ImGui::End();
         }
 
