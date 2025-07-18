@@ -11,7 +11,7 @@ void VAO::create() {
     glGenVertexArrays(1, &ID);
 }
 
-void VAO::bind() {
+void VAO::bind() const {
     glBindVertexArray(ID);
 }
 
