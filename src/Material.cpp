@@ -3,6 +3,7 @@
 
 Material::Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture)
     : shader(shader), texture(texture) {
+    // Optional: any initialization or logging
 }
 
 

@@ -11,16 +11,35 @@ void Renderer::submit(const RenderCommand& render_cmd) {
 }
 
 void Renderer::render_all(const Camera& camera, int screen_width, int screen_height) {
-    for (const auto& rend : render_queue) {
-        rend.material->bind();
+    // View and projection matrices
+    glm::mat4 view = camera.get_view_matrix();
+    glm::mat4 projection = camera.get_projection_matrix(screen_width, screen_height);
 
-        // Upload model, view, proj matrices
-        rend.material->shader->set_mat4("model", rend.transform);
-        rend.material->shader->set_mat4("view", camera.get_view_matrix());
-        rend.material->shader->set_mat4("proj", camera.get_projection_matrix(screen_width, screen_height));
+    // Light properties (temporary static light)
+    glm::vec3 light_pos(2.0f, 2.0f, 2.0f);
+    glm::vec3 light_color(1.0f, 1.0f, 1.0f);
+    glm::vec3 view_pos = camera.get_position();
 
-        rend.mesh->draw();
+    for (const auto& cmd : render_queue) {
+        auto shader = cmd.material->shader;
+
+        shader->activate_shader();
+
+        // Set per-frame uniforms
+        shader->set_mat4("view", view);
+        shader->set_mat4("projection", projection);
+        shader->set_vec3("lightPos", light_pos);
+        shader->set_vec3("lightColor", light_color);
+        shader->set_vec3("viewPos", view_pos);
+
+        // Set per-object uniforms
+        shader->set_mat4("model", cmd.transform);
+
+        cmd.material->bind(); // binds texture and such
+        cmd.mesh->draw();
     }
+
+    render_queue.clear(); // empty for next frame
 }
 
 void Renderer::clear() {
