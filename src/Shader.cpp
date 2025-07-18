@@ -60,6 +60,12 @@ void Shader::set_int(const std::string &name, int value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
+void Shader::set_mat4(const std::string& name, const glm::mat4& matrix) const {
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+
+
 void Shader::compile_errors(unsigned int shader, const char* type) {
     GLint compiled;
     char log[1024];

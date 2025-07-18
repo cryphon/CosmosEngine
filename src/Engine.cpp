@@ -67,7 +67,6 @@ bool Engine::init() {
 
     // --- Set Scene, Init Render & UI ---
     scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
-    renderer.initialize();
     ui.initialize(window);
 
 

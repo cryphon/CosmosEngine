@@ -7,22 +7,21 @@
 #include "EBO.hpp"
 #include <glm/glm.hpp>
 #include <memory>
+#include <vector>
 #include "Camera.hpp"
+#include "RenderCommand.hpp"
 
 class Renderer {
 public:
     Renderer();
     ~Renderer();
 
-    void initialize(); 
-    void render(float scale, float rotation, const Camera& camera, int screenWidth, int screenHeight);
+    void submit(const RenderCommand& render_cmd);
+    void render_all(const Camera& camera, int screen_width, int screen_height);
+    void clear();
 
 private:
-    std::unique_ptr<Shader> shader;
-    std::unique_ptr<Texture> texture;
-    VAO vao;
-    std::unique_ptr<VBO> vbo;
-    std::unique_ptr<EBO> ebo;
-    GLuint uniID;
+    std::vector<RenderCommand> render_queue;
+
 };
 

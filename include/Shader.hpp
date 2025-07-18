@@ -1,7 +1,10 @@
 #ifndef SHADER_H
 #define SHADER_H
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
+#include <memory>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -22,6 +25,7 @@ public:
 
     void set_bool(const std::string &name, bool value) const;
     void set_int(const std::string &name, int value) const;
+    void set_mat4(const std::string& name, const glm::mat4& matrix) const;
 
     void compile_errors(unsigned int shader, const char* type);
 };
