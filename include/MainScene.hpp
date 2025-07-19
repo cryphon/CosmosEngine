@@ -86,6 +86,12 @@ class MainScene : public Scene {
             ImGui::Begin("Simulation Settings");
             ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
             ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
+            if (ImGui::Button("Reset Cam")) {
+                std::shared_ptr<PerspectiveCamera> perspCam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
+                if (perspCam) {
+                    perspCam->resetCamera();
+                };
+            };
             ImGui::End();
         }
 
@@ -101,5 +107,5 @@ class MainScene : public Scene {
 
         float rotation = 0.0f;
         float rotation_speed = 0.1f;
-        float scale = 1.0f;
+        float scale = 1.0f;   
 };
