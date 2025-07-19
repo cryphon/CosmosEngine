@@ -2,6 +2,7 @@
 #include "Skybox.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
 
 Renderer::Renderer() {}
 
@@ -56,6 +57,29 @@ void Renderer::init_skybox(const std::vector<std::string>& faces, std::shared_pt
 
 }
 
+void Renderer::init_grid(std::shared_ptr<Shader> shader, float size, float step){
+    std::vector<float> grid_vertices;
+
+    for (float i = -size; i <= size; i += step) {
+        // lines parallel to X axis (vary Z)
+        grid_vertices.insert(grid_vertices.end(), { -size, 0.0f, i, size, 0.0f, i });
+        // lines parallel to Z axis (vary X)
+        grid_vertices.insert(grid_vertices.end(), { i, 0.0f, -size, i, 0.0f, size });
+    }
+
+    grid_shader = shader;
+    grid_vert_cnt = grid_vertices.size() / 3; // 3 floats per vertex
+
+    grid_vao.create();
+    grid_vao.bind();
+
+    grid_vbo = std::make_unique<VBO>(grid_vertices.data(), grid_vertices.size() * sizeof(float));
+    grid_vao.link_attr(*grid_vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+
+    grid_vao.unbind();
+    grid_vbo->unbind();}
+    
+
 
 void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_height) {
     if (!skybox_enabled || !skybox_shader || !skybox_texture || !skybox_mesh) {
@@ -80,6 +104,19 @@ void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_
 
     // Reset depth function
     glDepthFunc(GL_LESS);
+}
+
+void Renderer::render_grid(const Camera& camera, int screen_width, int screen_height, float size, float step) {
+    if (!grid_enabled) return;
+
+    grid_shader->activate_shader();
+    grid_shader->set_mat4("view", camera.get_view_matrix());
+    grid_shader->set_mat4("projection", camera.get_projection_matrix(screen_width, screen_height));
+    grid_shader->set_vec3("gridColor", glm::vec3(0.4f)); // gray
+
+    grid_vao.bind();
+    glDrawArrays(GL_LINES, 0, grid_vert_cnt);
+    grid_vao.unbind();
 }
 
 void Renderer::clear() {

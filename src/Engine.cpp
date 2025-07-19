@@ -64,10 +64,7 @@ bool Engine::init() {
 
     glEnable(GL_DEPTH_TEST);
 
-
-    // --- Set Scene, Init Render & UI ---
-    scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
-
+    std::cout << "Starting skybox rendering..." << std::endl;
     // --- Set SkyBox
     std::vector<std::string> faces = {
     "textures/skybox/right.jpg",
@@ -79,6 +76,17 @@ bool Engine::init() {
     };
     auto skybox_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
     renderer.init_skybox(faces, skybox_shader);
+    std::cout << "Skybox rendered" <<std::endl;
+
+    // --- Set Grid
+    auto grid_shader = std::make_shared<Shader>("shaders/grid.vert", "shaders/grid.frag");
+    renderer.init_grid(grid_shader);
+
+
+    // --- Set Scene, Init Render & UI ---
+    scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
+
+    
 
 
 
@@ -106,7 +114,8 @@ void Engine::run() {
         input->update(delta_time);
 
 
-        renderer.render_skybox(*camera, 1000, 1000);
+        renderer.render_skybox(*camera, 100, 100);
+        renderer.render_grid(*camera, 1000, 1000);
 
         scene_manager.update(delta_time);
         scene_manager.render();
