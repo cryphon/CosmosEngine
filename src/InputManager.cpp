@@ -78,8 +78,8 @@ void InputManager::update(float delta_time) {
         camera->position -= camera->right * speed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera->position += camera->right * speed;
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         camera->position -= camera->up * speed;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         camera->position += camera->up * speed;
 }
