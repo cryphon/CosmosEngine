@@ -2,4 +2,4 @@ build/
 .cache/
 src/imgui/
 .vscode/
-./imgui.ini
+imgui.ini
