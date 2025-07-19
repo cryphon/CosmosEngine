@@ -18,9 +18,27 @@ void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indice
     ebo->unbind();
 }
 
-void Mesh::draw() const {
+void Mesh::init_positions_only(const float* vertices, size_t v_size) {
+    index_cnt = 36; // no EBO
+    vao.create();
     vao.bind();
-    glDrawElements(GL_TRIANGLES, index_cnt, GL_UNSIGNED_INT, 0);
+
+    vbo = std::make_unique<VBO>(vertices, v_size);
+    vao.link_attr(*vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0); // only position
+    
+    vao.unbind();
+    vbo->unbind();
+}
+
+void Mesh::draw() const {
+    if (vao.ID == 0 || index_cnt == 0) return;  // skip if uninitialized
+    vao.bind();
+    vao.bind();
+    if (draw_mode == MeshDrawMode::Indexed) {
+        glDrawElements(GL_TRIANGLES, index_cnt, GL_UNSIGNED_INT, 0);
+    } else {
+        glDrawArrays(GL_TRIANGLES, 0, vertex_cnt);
+    }
 }
 
 Mesh::~Mesh() {

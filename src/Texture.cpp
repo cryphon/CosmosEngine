@@ -25,6 +25,42 @@ Texture::Texture(const char* image, GLenum tex_type, GLenum slot, GLenum format,
     glBindTexture(tex_type, 0);
 }
 
+
+
+Texture::Texture(const std::vector<std::string>& faces, GLenum slot) {
+    type = GL_TEXTURE_CUBE_MAP;
+    glGenTextures(1, &ID);
+    glActiveTexture(slot);
+    glBindTexture(type, ID);
+
+    
+    stbi_set_flip_vertically_on_load(false);
+
+    int width, height, n_channels;
+    for(unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &n_channels, 0);
+        if(data) {
+            glTexImage2D(
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
+                    GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            );
+            stbi_image_free(data);
+        } else {
+            std::cerr << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+
+    glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(type, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(type, 0);
+
+}
+
 void Texture::tex_unit(Shader& shader, const char* uniform, GLuint unit) {
     GLuint tex_uni = glGetUniformLocation(shader.ID, uniform);
     shader.activate_shader();

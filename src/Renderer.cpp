@@ -1,4 +1,5 @@
 #include "Renderer.hpp"
+#include "Skybox.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -40,6 +41,45 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
     }
 
     render_queue.clear(); // empty for next frame
+}
+
+void Renderer::init_skybox(const std::vector<std::string>& faces, std::shared_ptr<Shader> shader) {
+    skybox_enabled = true;
+    skybox_shader = shader;
+    skybox_texture = std::make_shared<Texture>(faces, GL_TEXTURE0);
+
+    skybox_mesh = std::make_shared<Mesh>();
+    skybox_mesh->init_positions_only(skybox_vertices, sizeof(skybox_vertices));
+
+    skybox_mesh->set_vertex_cnt(36);
+    skybox_mesh->set_draw_mode(MeshDrawMode::Arrays);
+
+}
+
+
+void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_height) {
+    if (!skybox_enabled || !skybox_shader || !skybox_texture || !skybox_mesh) {
+        return;
+    }
+
+    // Change depth function so skybox is drawn behind all other objects
+    glDepthFunc(GL_LEQUAL);
+
+    skybox_shader->activate_shader();
+
+    // Remove camera translation from view matrix
+    glm::mat4 view = glm::mat4(glm::mat3(camera.get_view_matrix()));
+    glm::mat4 projection = camera.get_projection_matrix(screen_width, screen_height);
+
+    skybox_shader->set_mat4("view", view);
+    skybox_shader->set_mat4("projection", projection);
+    skybox_texture->tex_unit(*skybox_shader, "skybox", 0); // Bind to texture unit 0
+    skybox_texture->bind();
+
+    skybox_mesh->draw(); // Only positions, no EBO
+
+    // Reset depth function
+    glDepthFunc(GL_LESS);
 }
 
 void Renderer::clear() {
