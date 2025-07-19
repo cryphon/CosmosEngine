@@ -63,6 +63,9 @@ class MainScene : public Scene {
             quad_mesh = std::make_shared<Mesh>();
             quad_mesh->init(vertices, sizeof(vertices), indices, sizeof(indices));
 
+            Light light1({1.0f, 5.0f, 2.0f}, {1.0f, 0.9f, 0.7f});
+            renderer->set_light(light1);
+
             auto shader = std::make_shared<Shader>("shaders/default.vert", "shaders/default.frag");
             auto texture = std::make_shared<Texture>("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
             quad_material = std::make_shared<Material>(shader, texture);
@@ -76,7 +79,6 @@ class MainScene : public Scene {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(scale));
             model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 1, 0));
-
             renderer->submit({ quad_mesh, quad_material, model });
         }
 
