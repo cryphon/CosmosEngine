@@ -1,5 +1,4 @@
-#ifndef PERSPECTIVE_CAMERA_HPP
-#define PERSPECTIVE_CAMERA_HPP
+#pragma once
 
 #include "Camera.hpp"
 
@@ -40,6 +39,7 @@ public:
 
     glm::mat4 get_view_matrix() const override;
     glm::mat4 get_projection_matrix(int width, int height) const override;
+    void reset_camera();
 
 private:
     glm::vec3 position;
@@ -53,9 +53,5 @@ private:
     float fov_deg = 60.0f;
     float near_plane = 0.1f;
     float far_plane = 100.0f;
-
-
 };
-
-#endif
 

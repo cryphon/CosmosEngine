@@ -29,3 +29,9 @@ glm::mat4 PerspectiveCamera::get_projection_matrix(int width, int height) const 
     return glm::perspective(glm::radians(fov_deg), (float)width / height, near_plane, far_plane);
 }
 
+void PerspectiveCamera::reset_camera() {
+    position = glm::vec3(0.0f, 1.0f, 3.0f);
+    target = glm::vec3(0.0f, 0.0f, 0.0f);
+    up = glm::vec3(0.0f, 1.0f, 0.0f);
+    update_direction();
+};
