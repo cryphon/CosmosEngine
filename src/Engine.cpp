@@ -67,6 +67,21 @@ bool Engine::init() {
 
     // --- Set Scene, Init Render & UI ---
     scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
+
+    // --- Set SkyBox
+    std::vector<std::string> faces = {
+    "textures/skybox/right.jpg",
+    "textures/skybox/left.jpg",
+    "textures/skybox/top.jpg",
+    "textures/skybox/bottom.jpg",
+    "textures/skybox/front.jpg",
+    "textures/skybox/back.jpg"
+    };
+    auto skybox_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
+    renderer.init_skybox(faces, skybox_shader);
+
+
+
     ui.initialize(window);
 
 
@@ -89,6 +104,10 @@ void Engine::run() {
         last_frame = current_frame;
 
         input->update(delta_time);
+
+
+        renderer.render_skybox(*camera, 1000, 1000);
+
         scene_manager.update(delta_time);
         scene_manager.render();
         scene_manager.render_ui();
