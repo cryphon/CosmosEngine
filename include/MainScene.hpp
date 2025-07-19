@@ -4,6 +4,8 @@
 #include "Renderer.hpp"
 #include "Camera.hpp"
 #include "Mesh.hpp"
+#include <GLFW/glfw3.h>
+#include "PerspectiveCamera.hpp"
 
 class MainScene : public Scene {
     public:
@@ -73,6 +75,15 @@ class MainScene : public Scene {
 
         void update(float dt) override { 
             rotation += rotation_speed * dt;
+
+            static bool prev_f1 = false;
+            bool curr_f1 = glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_F1) == GLFW_PRESS;
+
+            if (curr_f1 && !prev_f1) {
+                show_camera_debug = !show_camera_debug;
+            }
+
+            prev_f1 = curr_f1;
         }
         void render() override { 
             if (camera && renderer && quad_mesh && quad_material) {
@@ -85,10 +96,31 @@ class MainScene : public Scene {
         renderer->render_all(*camera, 1000, 1000);
         renderer->clear();        }
         void render_ui() override {
-            ImGui::Begin("Simulation Settings");
-            ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
-            ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
-            ImGui::End();
+
+            if (ImGui::BeginMainMenuBar()) {
+                if(ImGui::BeginMenu("Simulation Settings")) {
+                ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
+                ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
+                ImGui::End();
+                }
+                if (ImGui::BeginMenu("Debug")) {
+                    ImGui::MenuItem("Show Camera Panel", nullptr, &show_camera_debug);
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+                if (show_camera_debug) {
+                    // Cast camera to actual type
+                    if (auto persp_cam = dynamic_cast<PerspectiveCamera*>(camera.get())) {
+                        glm::vec3 pos = persp_cam->get_position();
+                        if (ImGui::DragFloat3("Camera Pos", &pos.x, 0.1f)) {
+                            persp_cam->set_position(pos);
+                        }
+
+                        persp_cam->update_direction();
+                    }
+                }           
+            }
+
         }
 
         void cleanup() override { }
@@ -100,6 +132,7 @@ class MainScene : public Scene {
         std::shared_ptr<Mesh> quad_mesh;
         std::shared_ptr<Material> quad_material;
 
+        bool show_camera_debug = false;
 
         float rotation = 0.0f;
         float rotation_speed = 0.1f;

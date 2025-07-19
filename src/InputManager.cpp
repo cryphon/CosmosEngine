@@ -43,11 +43,14 @@ void InputManager::handle_mouse(double xpos, double ypos) {
     last_x = xpos;
     last_y = ypos;
 
-    camera->yaw   += xoffset * sensitivity;
-    camera->pitch += yoffset * sensitivity;
+    float yaw = camera->get_yaw();
+    float pitch = camera->get_pitch();
 
-    if (camera->pitch > 89.0f)  camera->pitch = 89.0f;
-    if (camera->pitch < -89.0f) camera->pitch = -89.0f;
+    camera->set_yaw(yaw + xoffset * sensitivity);
+    camera->set_pitch(pitch + yoffset * sensitivity);
+
+    if (camera->get_pitch() > 89.0f)  camera->set_pitch(89.0f);
+    if (camera->get_pitch() < -89.0f) camera->set_pitch(-89.0f);
 
     camera->update_direction();
 }
@@ -70,16 +73,24 @@ void InputManager::handle_mouse_button(int button, int action, int mods) {
 void InputManager::update(float delta_time) {
     float speed = 5.0f * delta_time;
 
+    glm::vec3 pos = camera->get_position();
+    glm::vec3 front = camera->get_front();
+    glm::vec3 right = camera->get_right();
+    glm::vec3 up = camera->get_up();
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera->position += camera->front * speed;
+        pos += front * speed;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->position -= camera->front * speed;
+        pos -= front * speed;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->position -= camera->right * speed;
+        pos -= right * speed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->position += camera->right * speed;
+        pos += right * speed;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        camera->position -= camera->up * speed;
+        pos -= up * speed;
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        camera->position += camera->up * speed;
+        pos += up * speed;
+
+    camera->set_position(pos);
 }
+
