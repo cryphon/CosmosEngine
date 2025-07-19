@@ -10,11 +10,7 @@ class Camera {
 
         virtual glm::mat4 get_view_matrix() const = 0;
         virtual glm::mat4 get_projection_matrix(int width, int height) const = 0;
-        const glm::vec3& get_position() const { return position; }
-
-
-    private:
-        glm::vec3 position{0.0f, 0.0f, 3.0f};
+        virtual glm::vec3 get_position() const = 0;
 };
 #endif
         

@@ -23,6 +23,7 @@ public:
 
 
     void update_direction();
+    glm::vec3 get_position() const override { return position; }
     glm::mat4 get_view_matrix() const override;
 
     glm::mat4 get_projection_matrix(int width, int height) const override;
