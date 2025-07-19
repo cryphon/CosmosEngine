@@ -4,6 +4,8 @@
 #include "Renderer.hpp"
 #include "Camera.hpp"
 #include "Mesh.hpp"
+#include <GLFW/glfw3.h>
+#include "PerspectiveCamera.hpp"
 
 class MainScene : public Scene {
     public:
@@ -63,6 +65,9 @@ class MainScene : public Scene {
             quad_mesh = std::make_shared<Mesh>();
             quad_mesh->init(vertices, sizeof(vertices), indices, sizeof(indices));
 
+            Light light1({1.0f, 5.0f, 2.0f}, {1.0f, 0.9f, 0.7f});
+            renderer->set_light(light1);
+
             auto shader = std::make_shared<Shader>("shaders/default.vert", "shaders/default.frag");
             auto texture = std::make_shared<Texture>("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
             quad_material = std::make_shared<Material>(shader, texture);
@@ -70,29 +75,58 @@ class MainScene : public Scene {
 
         void update(float dt) override { 
             rotation += rotation_speed * dt;
+
+            static bool prev_f1 = false;
+            bool curr_f1 = glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_F1) == GLFW_PRESS;
+
+            if (curr_f1 && !prev_f1) {
+                show_camera_debug = !show_camera_debug;
+            }
+
+            prev_f1 = curr_f1;
         }
         void render() override { 
             if (camera && renderer && quad_mesh && quad_material) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::scale(model, glm::vec3(scale));
             model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 1, 0));
-
             renderer->submit({ quad_mesh, quad_material, model });
         }
 
         renderer->render_all(*camera, 1000, 1000);
         renderer->clear();        }
         void render_ui() override {
-            ImGui::Begin("Simulation Settings");
-            ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
-            ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
-            if (ImGui::Button("Reset Cam")) {
+
+            if (ImGui::BeginMainMenuBar()) {
+                if(ImGui::BeginMenu("Simulation Settings")) {
+                ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
+                ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
+                if (ImGui::Button("Reset Cam")) {
                 std::shared_ptr<PerspectiveCamera> perspCam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
                 if (perspCam) {
-                    perspCam->resetCamera();
+                    perspCam->reset_camera();
                 };
             };
             ImGui::End();
+                }
+                if (ImGui::BeginMenu("Debug")) {
+                    ImGui::MenuItem("Show Camera Panel", nullptr, &show_camera_debug);
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+                if (show_camera_debug) {
+                    // Cast camera to actual type
+                    if (auto persp_cam = dynamic_cast<PerspectiveCamera*>(camera.get())) {
+                        glm::vec3 pos = persp_cam->get_position();
+                        if (ImGui::DragFloat3("Camera Pos", &pos.x, 0.1f)) {
+                            persp_cam->set_position(pos);
+                        }
+
+                        persp_cam->update_direction();
+                    }
+                }           
+            }
+
         }
 
         void cleanup() override { }
@@ -104,6 +138,7 @@ class MainScene : public Scene {
         std::shared_ptr<Mesh> quad_mesh;
         std::shared_ptr<Material> quad_material;
 
+        bool show_camera_debug = false;
 
         float rotation = 0.0f;
         float rotation_speed = 0.1f;

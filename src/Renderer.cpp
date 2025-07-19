@@ -28,8 +28,8 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
         // Set per-frame uniforms
         shader->set_mat4("view", view);
         shader->set_mat4("projection", projection);
-        shader->set_vec3("lightPos", light_pos);
-        shader->set_vec3("lightColor", light_color);
+        shader->set_vec3("lightPos", light.position);
+        shader->set_vec3("lightColor", light.color);
         shader->set_vec3("viewPos", view_pos);
 
         // Set per-object uniforms
@@ -44,4 +44,8 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
 
 void Renderer::clear() {
     render_queue.clear();
+}
+
+void Renderer::set_light(const Light& new_light) {
+    light = new_light;
 }

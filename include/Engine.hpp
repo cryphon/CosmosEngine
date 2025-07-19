@@ -22,6 +22,7 @@ class Engine {
         std::unique_ptr<InputManager> input;
         std::shared_ptr<Camera> camera;
         UI ui;
+        bool show_camera_debug = false;
 
 
         double prev_time = 0.0;
