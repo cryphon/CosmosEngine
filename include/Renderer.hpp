@@ -10,6 +10,7 @@
 #include <vector>
 #include "Camera.hpp"
 #include "RenderCommand.hpp"
+#include "Light.hpp"
 
 class Renderer {
 public:
@@ -20,8 +21,10 @@ public:
     void render_all(const Camera& camera, int screen_width, int screen_height);
     void clear();
 
+    void set_light(const Light& light);
+
 private:
     std::vector<RenderCommand> render_queue;
-
+    Light light = Light({2.0f, 2.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
 };
 
