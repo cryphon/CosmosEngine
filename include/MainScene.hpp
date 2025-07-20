@@ -87,16 +87,18 @@ class MainScene : public Scene {
         }
         void render() override { 
             if (camera && renderer && quad_mesh && quad_material) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(scale));
-            model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 1, 0));
-            renderer->submit({ quad_mesh, quad_material, model });
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::scale(model, glm::vec3(scale));
+                model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 1, 0));
+                renderer->submit({ quad_mesh, quad_material, model });
+            }
+
+            renderer->render_all(*camera, 1000, 1000);
+            renderer->clear();       
         }
 
-        renderer->render_all(*camera, 1000, 1000);
-        renderer->clear();        }
         void render_ui() override {
-            if (ImGui::BeginMainMenuBar()) {
+            if(ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu("Simulation Settings")) {
                     ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
                     ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
@@ -107,38 +109,12 @@ class MainScene : public Scene {
                             perspCam->reset_camera();
                         }
                     }
-
                     ImGui::EndMenu();
                 }
-
-                if (ImGui::BeginMenu("Debug")) {
-                    ImGui::MenuItem("Show Camera Panel", nullptr, &show_camera_debug);
-                    ImGui::EndMenu();
-                }
-
-                ImGui::EndMainMenuBar();
             }
-
-            if (show_camera_debug) {
-                ImGui::Begin("Camera Debug");
-
-                // Camera position control
-                if (auto persp_cam = dynamic_cast<PerspectiveCamera*>(camera.get())) {
-                    glm::vec3 pos = persp_cam->get_position();
-                    if (ImGui::DragFloat3("Camera Pos", &pos.x, 0.1f)) {
-                        persp_cam->set_position(pos);
-                        persp_cam->update_view();
-                    }
-                }
-
-                // Additional toggles
-                ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
-                ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
-
-                ImGui::End();
-            }
-}
-
+            ImGui::EndMainMenuBar();
+        }
+        
         void cleanup() override { }
 
 

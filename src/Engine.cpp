@@ -117,7 +117,7 @@ bool Engine::init() {
 
     // --- Set Scene, Init Render & UI ---
     scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
-    ui.initialize(window);
+    ui.initialize(window, &renderer, camera);
 
     prev_time = glfwGetTime();
     return true;
@@ -144,6 +144,10 @@ void Engine::run() {
 
         scene_manager.update(delta_time);
         scene_manager.render();
+
+        ui.update();
+        ui.render();
+
         scene_manager.render_ui();
 
         
