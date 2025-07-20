@@ -2,7 +2,13 @@
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include "PerspectiveCamera.hpp"
+#include "SceneManager.hpp"
 #include "MainScene.hpp"
+#include "SecondScene.hpp"
+#include "InputManager.hpp"
+#include "Ui.hpp"
+#include "Shader.hpp"
+#include "Renderer.hpp"
 
 #define SCREEN_WIDTH 1200.0f
 #define SCREEN_HEIGHT 800.0f
@@ -31,7 +37,7 @@ std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
 
 Engine::Engine() {}
 Engine::~Engine() {
-    ui.shutdown();
+    ui->shutdown();
     glfwDestroyWindow(window);
     glfwTerminate();
 }
@@ -41,6 +47,10 @@ bool Engine::init() {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return false;
     }
+
+    renderer = std::make_shared<Renderer>();
+    scene_manager = std::make_shared<SceneManager>();
+    ui = std::make_shared<UI>();
 
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -107,17 +117,23 @@ bool Engine::init() {
     "textures/skybox/back.jpg"
     };
     auto skybox_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
-    renderer.init_skybox(faces, skybox_shader);
+    renderer->init_skybox(faces, skybox_shader);
     std::cout << "Skybox rendered" <<std::endl;
 
     // --- Set Grid
     auto grid_shader = std::make_shared<Shader>("shaders/grid.vert", "shaders/grid.frag");
-    renderer.init_grid(grid_shader);
+    renderer->init_grid(grid_shader);
 
 
     // --- Set Scene, Init Render & UI ---
-    scene_manager.set_scene(std::make_unique<MainScene>(&renderer, camera));
-    ui.initialize(window, &renderer, camera);
+    scene_manager->register_factory("main", [this]() {
+        return std::make_unique<MainScene>(renderer.get(), camera);
+    });
+    scene_manager->register_factory("second", [this]() {
+        return std::make_unique<SecondScene>(renderer.get(), camera);
+    });
+    scene_manager->set_scene("main");
+    ui->initialize(window, renderer, scene_manager, camera);
 
     prev_time = glfwGetTime();
     return true;
@@ -139,16 +155,16 @@ void Engine::run() {
 
         input->update(delta_time);
  
-        renderer.render_skybox(*camera, screen_width, screen_height);
-        renderer.render_grid(*camera, screen_width, screen_height);
+        renderer->render_skybox(*camera, screen_width, screen_height);
+        renderer->render_grid(*camera, screen_width, screen_height);
 
-        scene_manager.update(delta_time);
-        scene_manager.render();
+        scene_manager->update(delta_time);
+        scene_manager->render();
 
-        ui.update();
-        ui.render();
+        ui->update();
+        ui->render();
 
-        scene_manager.render_ui();
+        scene_manager->render_ui();
 
         
         ImGui::Render();
