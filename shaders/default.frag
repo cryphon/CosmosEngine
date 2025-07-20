@@ -12,6 +12,7 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform bool selected;
+uniform bool use_texture;
 
 void main() {
     // Ambient
@@ -38,5 +39,4 @@ void main() {
     vec3 result = (ambient + diffuse) * baseColor;
     FragColor = vec4(result, 1.0);
 }
-
 
