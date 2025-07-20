@@ -1,5 +1,6 @@
 #include "Engine.hpp"
 #include <iostream>
+#include <chrono>
 #include <glm/gtx/string_cast.hpp>
 #include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
@@ -17,11 +18,8 @@
 // TODO: move this to other file or smth
 float last_x = 400.0f, last_y = 400.0f;
 bool first_mouse = true;
-float delta_time = 0.0f;
-float last_frame = 0.0f;
 bool rotate_drag = false;   // true while holding RMB
 bool first_drag = true;     // reset delta to avoid jump
-
 
 InputManager* Engine::get_input() {
     return input.get();
@@ -133,42 +131,55 @@ bool Engine::init() {
         return std::make_unique<SecondScene>(renderer.get(), camera);
     });
     scene_manager->set_scene("main");
-    ui->initialize(window, renderer, scene_manager, camera);
+    ui->initialize(window, renderer, scene_manager, shared_from_this(), camera);
 
-    prev_time = glfwGetTime();
     return true;
 }
 
 void Engine::run() {
+    last_frame_time = std::chrono::high_resolution_clock::now();
+    fps_timer = last_frame_time;
+
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // --- Update last_frame and dt
+        auto now = std::chrono::high_resolution_clock::now();
+        delta_t = std::chrono::duration<float>(now - last_frame_time).count();
+        last_frame_time = now;
 
         // --- ImGui Frame Start ---
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        float current_frame = glfwGetTime();
-        delta_time = current_frame - last_frame;
-        last_frame = current_frame;
 
-        input->update(delta_time);
+        input->update(delta_t);
  
         renderer->render_skybox(*camera, screen_width, screen_height);
         renderer->render_grid(*camera, screen_width, screen_height);
 
-        scene_manager->update(delta_time);
+        scene_manager->update(delta_t);
         scene_manager->render();
 
         ui->update();
         ui->render();
 
         scene_manager->render_ui();
-
         
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // --- Update FPS ---
+        frame_count++;
+        float elapsed = std::chrono::duration<float>(now - fps_timer).count();
+        if (elapsed >= 1.0f) {
+            fps = frame_count;
+            frame_count = 0;
+            fps_timer = now;
+        }
+
 
         // --- ImGui Frame End ---
         glfwSwapBuffers(window);

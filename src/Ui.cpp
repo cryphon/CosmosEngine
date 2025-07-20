@@ -3,11 +3,12 @@
 #include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
 #include <GLFW/glfw3.h>
+#include "Engine.hpp"
 
 UI::UI() {}
 UI::~UI() {}
 
-void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const::std::shared_ptr<SceneManager> s, std::shared_ptr<Camera> c) {
+void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, const std::shared_ptr<Engine> e, std::shared_ptr<Camera> c) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -18,6 +19,7 @@ void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const
 
     renderer = r;
     scene_manager = s;
+    engine = e;
     camera = c;
 }
 
@@ -65,6 +67,7 @@ void UI::render() {
         }
         ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
         ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
+        ImGui::Text("FPS: %d", engine->get_fps());
         ImGui::End();
     }
 }
