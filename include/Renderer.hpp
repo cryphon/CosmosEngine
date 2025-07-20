@@ -8,9 +8,11 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
-#include "Camera.hpp"
 #include "RenderCommand.hpp"
 #include "Light.hpp"
+
+class Camera;
+
 
 class Renderer {
 public:
