@@ -19,8 +19,8 @@ public:
     Renderer();
     ~Renderer();
 
-    void submit(const RenderCommand& render_cmd);
-    void render_all(const Camera& camera, int screen_width, int screen_height);
+    void submit(RenderCommand render_cmd);
+    void render_all(const Camera& camera, int screen_width, int screen_height, int selected_object_id);
     void init_skybox(const std::vector<std::string>& faces, std::shared_ptr<Shader> shader);
     void render_skybox(const Camera& camera, int screen_width, int screen_height);
     void init_grid(std::shared_ptr<Shader> shader, float size = 10.0f, float step = 1.0f);
@@ -34,6 +34,7 @@ public:
 
 private:
     std::vector<RenderCommand> render_queue;
+    int next_object_id = 0;
     Light light = Light({2.0f, 2.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
 
     // --- Sky Box ---

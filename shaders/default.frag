@@ -11,6 +11,7 @@ uniform sampler2D uTexture;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
+uniform bool selected;
 
 void main() {
     // Ambient
@@ -23,8 +24,18 @@ void main() {
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
-    // Combine
-    vec3 result = (ambient + diffuse) * Color * texture(uTexture, TexCoord).rgb;
+    // Texture color
+    vec3 texColor = texture(uTexture, TexCoord).rgb;
+
+    // Final color logic
+    vec3 baseColor = Color * texColor;
+
+    // Override with highlight color if selected
+    if (selected) {
+        baseColor = mix(baseColor, vec3(0.6, 0.6, 0.6), 0.6); // blend 60% grey
+    }
+
+    vec3 result = (ambient + diffuse) * baseColor;
     FragColor = vec4(result, 1.0);
 }
 

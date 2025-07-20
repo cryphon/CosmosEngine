@@ -10,11 +10,11 @@ Renderer::Renderer() {}
 
 Renderer::~Renderer() {} 
 
-void Renderer::submit(const RenderCommand& render_cmd) {
+void Renderer::submit(RenderCommand render_cmd) {
     render_queue.push_back(render_cmd);
 }
 
-void Renderer::render_all(const Camera& camera, int screen_width, int screen_height) {
+void Renderer::render_all(const Camera& camera, int screen_width, int screen_height, int selected_object_id) {
     // View and projection matrices
     glm::mat4 view = camera.get_view_matrix();
     glm::mat4 projection = camera.get_projection_matrix();
@@ -38,6 +38,9 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
 
         // Set per-object uniforms
         shader->set_mat4("model", cmd.transform);
+        
+        bool is_selected = (cmd.object_id == selected_object_id);
+        shader->set_bool("selected", is_selected);
 
         cmd.material->bind(); // binds texture and such
         cmd.mesh->draw();
