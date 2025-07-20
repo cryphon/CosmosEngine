@@ -53,7 +53,7 @@ void SecondScene::render() {
         renderer->submit({ quad_mesh, quad_material, model });
     }
 
-    renderer->render_all(*camera, 1000, 1000);
+    renderer->render_all(*camera, 1000, 1000, -1);
     renderer->clear();       
 }
 

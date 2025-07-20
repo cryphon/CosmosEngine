@@ -19,7 +19,7 @@ public:
     Renderer();
     ~Renderer();
 
-    void submit(RenderCommand render_cmd);
+    void submit(const RenderCommand& render_cmd);
     void render_all(const Camera& camera, int screen_width, int screen_height, int selected_object_id);
     void init_skybox(const std::vector<std::string>& faces, std::shared_ptr<Shader> shader);
     void render_skybox(const Camera& camera, int screen_width, int screen_height);

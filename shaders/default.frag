@@ -32,7 +32,7 @@ void main() {
 
     // Override with highlight color if selected
     if (selected) {
-        baseColor = mix(baseColor, vec3(0.6, 0.6, 0.6), 0.6); // blend 60% grey
+        baseColor = mix(baseColor, vec3(0.6, 0.6, 0.6), 0.6);
     }
 
     vec3 result = (ambient + diffuse) * baseColor;

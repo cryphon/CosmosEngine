@@ -10,7 +10,7 @@ Renderer::Renderer() {}
 
 Renderer::~Renderer() {} 
 
-void Renderer::submit(RenderCommand render_cmd) {
+void Renderer::submit(const RenderCommand& render_cmd) {
     render_queue.push_back(render_cmd);
 }
 
