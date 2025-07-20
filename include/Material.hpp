@@ -4,7 +4,7 @@
 
 class Material {
     public:
-        Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture);
+        Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture = nullptr);
         void bind();
         std::shared_ptr<Shader> shader;
         std::shared_ptr<Texture> texture;

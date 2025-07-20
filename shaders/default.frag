@@ -11,6 +11,7 @@ uniform sampler2D uTexture;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
+uniform bool use_texture;
 
 void main() {
     // Ambient
@@ -23,9 +24,11 @@ void main() {
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
-    // Combine
-    vec3 result = (ambient + diffuse) * Color * texture(uTexture, TexCoord).rgb;
+    // Base color: either texture or vertex color
+    vec3 baseColor = use_texture ? texture(uTexture, TexCoord).rgb : Color;
+
+    // Combine lighting with base color
+    vec3 result = (ambient + diffuse) * baseColor;
     FragColor = vec4(result, 1.0);
 }
-
 
