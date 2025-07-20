@@ -78,23 +78,7 @@ void MainScene::render() {
     renderer->clear();
 }
 
-void MainScene::render_ui() {
-    if(ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("Simulation Settings")) {
-            ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
-            ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
-
-            if (ImGui::Button("Reset Cam")) {
-                std::shared_ptr<PerspectiveCamera> perspCam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
-                if (perspCam) {
-                    perspCam->reset_camera();
-                }
-            }
-            ImGui::EndMenu();
-        }
-    }
-    ImGui::EndMainMenuBar();
-}
+void MainScene::render_ui() {}
 
 void MainScene::cleanup() { }
 void MainScene::on_enter() {}
