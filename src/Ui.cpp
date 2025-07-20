@@ -31,10 +31,16 @@ void UI::render() {
         }
         if (ImGui::BeginMenu("Scene Manager")) {
             static std::vector<std::string> scene_names = scene_manager->get_scene_names();
-            static int current_index = 0;
+            std::string current_scene = scene_manager->get_current_scene();
 
-            // Refresh scene list every frame or cache it depending on use case
-            scene_names = scene_manager->get_scene_names();
+            // Find index of current scene
+            int current_index = 0;
+            for (int i = 0; i < static_cast<int>(scene_names.size()); ++i) {
+                if (scene_names[i] == current_scene) {
+                    current_index = i;
+                    break;
+                }
+            }
 
             if (ImGui::Combo("Select Scene", &current_index,
                         [](void* data, int idx, const char** out_text) {
@@ -45,6 +51,7 @@ void UI::render() {
                         }, static_cast<void*>(&scene_names), static_cast<int>(scene_names.size()))) {
                 scene_manager->set_scene(scene_names[current_index]);
             }
+
 
             if (ImGui::Button("Reload Scene")) {
                 scene_manager->reset_scene();
