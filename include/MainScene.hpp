@@ -96,38 +96,48 @@ class MainScene : public Scene {
         renderer->render_all(*camera, 1000, 1000);
         renderer->clear();        }
         void render_ui() override {
-
             if (ImGui::BeginMainMenuBar()) {
-                if(ImGui::BeginMenu("Simulation Settings")) {
-                ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
-                ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
-                if (ImGui::Button("Reset Cam")) {
-                std::shared_ptr<PerspectiveCamera> perspCam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
-                if (perspCam) {
-                    perspCam->reset_camera();
-                };
-            };
-            ImGui::End();
+                if (ImGui::BeginMenu("Simulation Settings")) {
+                    ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
+                    ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
+
+                    if (ImGui::Button("Reset Cam")) {
+                        std::shared_ptr<PerspectiveCamera> perspCam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
+                        if (perspCam) {
+                            perspCam->reset_camera();
+                        }
+                    }
+
+                    ImGui::EndMenu();
                 }
+
                 if (ImGui::BeginMenu("Debug")) {
                     ImGui::MenuItem("Show Camera Panel", nullptr, &show_camera_debug);
                     ImGui::EndMenu();
                 }
-                ImGui::EndMainMenuBar();
-                if (show_camera_debug) {
-                    // Cast camera to actual type
-                    if (auto persp_cam = dynamic_cast<PerspectiveCamera*>(camera.get())) {
-                        glm::vec3 pos = persp_cam->get_position();
-                        if (ImGui::DragFloat3("Camera Pos", &pos.x, 0.1f)) {
-                            persp_cam->set_position(pos);
-                        }
 
-                        persp_cam->update_direction();
-                    }
-                }           
+                ImGui::EndMainMenuBar();
             }
 
-        }
+            if (show_camera_debug) {
+                ImGui::Begin("Camera Debug");
+
+                // Camera position control
+                if (auto persp_cam = dynamic_cast<PerspectiveCamera*>(camera.get())) {
+                    glm::vec3 pos = persp_cam->get_position();
+                    if (ImGui::DragFloat3("Camera Pos", &pos.x, 0.1f)) {
+                        persp_cam->set_position(pos);
+                        persp_cam->update_view();
+                    }
+                }
+
+                // Additional toggles
+                ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
+                ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
+
+                ImGui::End();
+            }
+}
 
         void cleanup() override { }
 

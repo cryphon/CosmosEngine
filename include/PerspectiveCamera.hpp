@@ -8,8 +8,9 @@ public:
 
     PerspectiveCamera(glm::vec3 pos, glm::vec3 target, glm::vec3 up);
 
-
-    void update_direction();
+    // -- Camera inherited ---
+    void update_projection() override;
+    void update_view() override;
     
     // Getters
     glm::vec3 get_position() const override { return position; }
@@ -37,8 +38,6 @@ public:
     void set_near_plane(float near) { near_plane = near; }
     void set_far_plane(float far) { far_plane = far; }
 
-    glm::mat4 get_view_matrix() const override;
-    glm::mat4 get_projection_matrix(int width, int height) const override;
     void reset_camera();
 
 private:

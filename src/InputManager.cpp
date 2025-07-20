@@ -1,24 +1,27 @@
+class Engine;
+class Engine;
 #include "InputManager.hpp"
 #include "imgui.h"
 
-static InputManager* get_input(GLFWwindow* window) {
-    return static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-}
+InputManager* get_input(GLFWwindow* window);  // from Engine.cpp
 
 InputManager::InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera)
     : window(window), camera(camera)
 {
-    glfwSetWindowUserPointer(window, this);
-
     glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
-        auto* input = get_input(win);
-        if (input) input->handle_mouse(xpos, ypos);
-    });
+    if (auto* input = get_input(win)) {
+        input->handle_mouse(xpos, ypos);
+    }
+});
 
-    glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods) {
-        auto* input = get_input(win);
-        if (input) input->handle_mouse_button(button, action, mods);
-    });
+glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods) {
+    if (auto* input = get_input(win)) {
+        input->handle_mouse_button(button, action, mods);
+    }
+});
+
+
+
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
@@ -52,7 +55,7 @@ void InputManager::handle_mouse(double xpos, double ypos) {
     if (camera->get_pitch() > 89.0f)  camera->set_pitch(89.0f);
     if (camera->get_pitch() < -89.0f) camera->set_pitch(-89.0f);
 
-    camera->update_direction();
+    camera->update_view();
 }
 
 void InputManager::handle_mouse_button(int button, int action, int mods) {
@@ -92,5 +95,6 @@ void InputManager::update(float delta_time) {
         pos += up * speed;
 
     camera->set_position(pos);
+    camera->update_view();
 }
 
