@@ -60,8 +60,7 @@ void MainScene::initialize(){
     renderer->set_light(light1);
 
     auto shader = std::make_shared<Shader>("shaders/default.vert", "shaders/default.frag");
-    auto texture = std::make_shared<Texture>("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    quad_material = std::make_shared<Material>(shader, texture);
+    quad_material = std::make_shared<Material>(shader);
 }
 
 void MainScene::update(float dt) { 
