@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(3DSpace)
+project(CosmosEngine)
 
 
 set(CMAKE_BUILD_TYPE Debug)
@@ -65,6 +65,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${IMGUI_DIR}                       # for imgui.h and imconfig.h
     ${IMGUI_BACKENDS_DIR}             # for backend headers
 )
+
+# Add Scene directories
+add_subdirectory(scenes/MainScene)
+add_subdirectory(scenes/SecondScene)
 
 # 🔧 Link required libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE 

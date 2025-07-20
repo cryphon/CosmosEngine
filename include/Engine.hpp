@@ -1,13 +1,16 @@
 #pragma once
 #include <glad/glad.h>
+#include <memory>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "Renderer.hpp"
-#include "SceneManager.hpp"
-#include "InputManager.hpp"
-#include "Ui.hpp"
 
+class UI;
+class Renderer;
+class SceneManager;
+class InputManager;
+class Camera;
 
+class InputManager;
 
 class Engine {
     public:
@@ -20,11 +23,11 @@ class Engine {
         InputManager* get_input();
     private:
         GLFWwindow* window;
-        Renderer renderer;
-        SceneManager scene_manager;
+        std::shared_ptr<Renderer> renderer;
+        std::shared_ptr<SceneManager> scene_manager;
+        std::shared_ptr<UI> ui;
         std::unique_ptr<InputManager> input;
         std::shared_ptr<Camera> camera;
-        UI ui;
 
 
         double prev_time = 0.0;

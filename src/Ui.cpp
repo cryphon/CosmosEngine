@@ -1,12 +1,13 @@
 #include "Ui.hpp"
 #include "Renderer.hpp"
 #include "PerspectiveCamera.hpp"
+#include "SceneManager.hpp"
 #include <GLFW/glfw3.h>
 
 UI::UI() {}
 UI::~UI() {}
 
-void UI::initialize(GLFWwindow* window, Renderer* r, std::shared_ptr<Camera> c) {
+void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const::std::shared_ptr<SceneManager> s, std::shared_ptr<Camera> c) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -16,6 +17,7 @@ void UI::initialize(GLFWwindow* window, Renderer* r, std::shared_ptr<Camera> c) 
     ImGui::SetNextWindowSize(ImVec2(300, 400));
 
     renderer = r;
+    scene_manager = s;
     camera = c;
 }
 
@@ -25,8 +27,32 @@ void UI::render() {
             ImGui::MenuItem("Show Debug", nullptr, &show_debug);
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Scene Manager")) {
+            static std::vector<std::string> scene_names = scene_manager->get_scene_names();
+            static int current_index = 0;
+
+            // Refresh scene list every frame or cache it depending on use case
+            scene_names = scene_manager->get_scene_names();
+
+            if (ImGui::Combo("Select Scene", &current_index,
+                        [](void* data, int idx, const char** out_text) {
+                        const auto& names = *static_cast<std::vector<std::string>*>(data);
+                        if (idx < 0 || idx >= static_cast<int>(names.size())) return false;
+                        *out_text = names[idx].c_str();
+                        return true;
+                        }, static_cast<void*>(&scene_names), static_cast<int>(scene_names.size()))) {
+                scene_manager->set_scene(scene_names[current_index]);
+            }
+
+            if (ImGui::Button("Reload Scene")) {
+                scene_manager->reset_scene();
+            }
+
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
+
 
     if (show_debug && camera) {
         ImGui::Begin("Camera Position");
