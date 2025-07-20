@@ -15,7 +15,7 @@ void Renderer::submit(const RenderCommand& render_cmd) {
 void Renderer::render_all(const Camera& camera, int screen_width, int screen_height) {
     // View and projection matrices
     glm::mat4 view = camera.get_view_matrix();
-    glm::mat4 projection = camera.get_projection_matrix(screen_width, screen_height);
+    glm::mat4 projection = camera.get_projection_matrix();
 
     // Light properties (temporary static light)
     glm::vec3 light_pos(2.0f, 2.0f, 2.0f);
@@ -93,7 +93,7 @@ void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_
 
     // Remove camera translation from view matrix
     glm::mat4 view = glm::mat4(glm::mat3(camera.get_view_matrix()));
-    glm::mat4 projection = camera.get_projection_matrix(screen_width, screen_height);
+    glm::mat4 projection = camera.get_projection_matrix();
 
     skybox_shader->set_mat4("view", view);
     skybox_shader->set_mat4("projection", projection);
@@ -111,7 +111,7 @@ void Renderer::render_grid(const Camera& camera, int screen_width, int screen_he
 
     grid_shader->activate_shader();
     grid_shader->set_mat4("view", camera.get_view_matrix());
-    grid_shader->set_mat4("projection", camera.get_projection_matrix(screen_width, screen_height));
+    grid_shader->set_mat4("projection", camera.get_projection_matrix());
     grid_shader->set_vec3("gridColor", glm::vec3(0.4f)); // gray
 
     grid_vao.bind();

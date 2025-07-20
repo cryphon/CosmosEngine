@@ -7,14 +7,17 @@
 #include "InputManager.hpp"
 #include "Ui.hpp"
 
+
+
 class Engine {
     public:
         Engine();
-        ~Engine();
+        ~Engine(); 
+        int screen_width = 1000, screen_height = 1000;
 
         bool init();
         void run();
-
+        InputManager* get_input();
     private:
         GLFWwindow* window;
         Renderer renderer;

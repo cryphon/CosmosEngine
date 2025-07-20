@@ -127,7 +127,7 @@ class MainScene : public Scene {
                     glm::vec3 pos = persp_cam->get_position();
                     if (ImGui::DragFloat3("Camera Pos", &pos.x, 0.1f)) {
                         persp_cam->set_position(pos);
-                        persp_cam->update_direction();
+                        persp_cam->update_view();
                     }
                 }
 
