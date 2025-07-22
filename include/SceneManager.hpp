@@ -65,7 +65,8 @@ class SceneManager {
             return names;
         }
 
-        std::string get_current_scene() { return current_scene; }
+        std::string get_current_scene_name() { return current_scene; }
+        Scene* get_current_scene_obj() { return current.get(); }
 
 
     private:
