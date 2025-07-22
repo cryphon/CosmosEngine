@@ -4,73 +4,43 @@
 #include "Mesh.hpp"
 #include "Renderer.hpp"
 #include "SceneObject.hpp"
+#include "ObjLoader.hpp"
+#include "Transform.hpp"
 #include <GLFW/glfw3.h>
 
 void MainScene::initialize(){ 
-    static float vertices[] = {
-        // pos              | normal         | color       | tex coords
-        // Front face (+Z)
-        -0.5f, -0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   0, 0,
-        0.5f, -0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   1, 0,
-        0.5f,  0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   1, 1,
-        -0.5f,  0.5f,  0.5f,  0, 0, 1,   1, 1, 1,   0, 1,
-
-        // Back face (-Z)
-        -0.5f, -0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   1, 0,
-        0.5f, -0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   0, 0,
-        0.5f,  0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   0, 1,
-        -0.5f,  0.5f, -0.5f,  0, 0, -1,  1, 1, 1,   1, 1,
-
-        // Left face (-X)
-        -0.5f, -0.5f, -0.5f, -1, 0, 0,   1, 1, 1,   0, 0,
-        -0.5f, -0.5f,  0.5f, -1, 0, 0,   1, 1, 1,   1, 0,
-        -0.5f,  0.5f,  0.5f, -1, 0, 0,   1, 1, 1,   1, 1,
-        -0.5f,  0.5f, -0.5f, -1, 0, 0,   1, 1, 1,   0, 1,
-
-        // Right face (+X)
-        0.5f, -0.5f, -0.5f,  1, 0, 0,   1, 1, 1,   1, 0,
-        0.5f, -0.5f,  0.5f,  1, 0, 0,   1, 1, 1,   0, 0,
-        0.5f,  0.5f,  0.5f,  1, 0, 0,   1, 1, 1,   0, 1,
-        0.5f,  0.5f, -0.5f,  1, 0, 0,   1, 1, 1,   1, 1,
-
-        // Top face (+Y)
-        -0.5f,  0.5f, -0.5f,  0, 1, 0,   1, 1, 1,   0, 1,
-        0.5f,  0.5f, -0.5f,  0, 1, 0,   1, 1, 1,   1, 1,
-        0.5f,  0.5f,  0.5f,  0, 1, 0,   1, 1, 1,   1, 0,
-        -0.5f,  0.5f,  0.5f,  0, 1, 0,   1, 1, 1,   0, 0,
-
-        // Bottom face (-Y)
-        -0.5f, -0.5f, -0.5f,  0, -1, 0,  1, 1, 1,   0, 0,
-        0.5f, -0.5f, -0.5f,  0, -1, 0,  1, 1, 1,   1, 0,
-        0.5f, -0.5f,  0.5f,  0, -1, 0,  1, 1, 1,   1, 1,
-        -0.5f, -0.5f,  0.5f,  0, -1, 0,  1, 1, 1,   0, 1,
-    };
-
-    static unsigned int indices[] = {
-        0, 1, 2, 2, 3, 0,        // front
-        4, 5, 6, 6, 7, 4,        // back
-        8, 9,10,10,11, 8,        // left
-        12,13,14,14,15,12,        // right
-        16,17,18,18,19,16,        // top
-        20,21,22,22,23,20         // bottom
-    };
     auto shader = std::make_shared<Shader>("shaders/default.vert", "shaders/default.frag");
 
-        for (int i = 0; i < 5; ++i) {
-            auto mesh = std::make_shared<Mesh>();
-            mesh->init(vertices, sizeof(vertices), indices, sizeof(indices));
-            
-            auto material = std::make_shared<Material>(shader);
-            glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(i * 2.0f, 0, 0));
-            
-            objects.push_back({mesh, material, transform});
-        }}
+    Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
+    renderer->set_light(light1);
+    auto light_mesh = ObjLoader::load("models/Sphere.obj");
+    auto light_mat = std::make_shared<Material>(shader);
+
+    Transform light_transform;
+    light_transform.position = light1.position;
+    light_transform.cache_trigger = true;
+    light_transform.update_matrices();
+    objects.emplace_back("light1", light_mesh, light_mat, light_transform);
+
+
+    auto mesh = ObjLoader::load("models/Human.obj");            
+    auto material = std::make_shared<Material>(shader);
+    Transform transform;
+    transform.position = {0.0f, 0.0f, 0.0f};
+    transform.cache_trigger = true;
+    transform.update_matrices();
+    objects.emplace_back("human", mesh, material, transform);
+
+}
 
 void MainScene::update(float dt) { 
     rotation += rotation_speed * dt;
 }
 void MainScene::render() { 
     for (auto& obj : objects) {
+        if (obj.transform.cache_trigger) {
+            obj.transform.update_matrices(); // updates model matrix
+        }
         // Convert SceneObject into RenderCommand
         renderer->submit({ obj.mesh, obj.material, obj.transform });
     }
