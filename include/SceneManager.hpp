@@ -65,6 +65,8 @@ class SceneManager {
             return names;
         }
 
+        std::string get_current_scene() { return current_scene; }
+
 
     private:
         std::unordered_map<std::string, SceneFactory> factories;

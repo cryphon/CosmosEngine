@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include "RenderableScene.hpp"
 #include "imgui.h"
 #include <memory>
 
@@ -8,7 +8,7 @@ class Mesh;
 class Material;
 class PerspectiveCamera;
 
-class MainScene : public Scene {
+class MainScene : public RenderableScene {
     public:
         MainScene(Renderer* renderer, std::shared_ptr<Camera> camera)
             : renderer(renderer), camera(camera) {}
@@ -25,8 +25,6 @@ class MainScene : public Scene {
     private:
         Renderer* renderer;
         std::shared_ptr<Camera> camera;
-        std::shared_ptr<Mesh> quad_mesh;
-        std::shared_ptr<Material> quad_material;
 
         float rotation = 0.0f;
         float rotation_speed = 0.1f;
