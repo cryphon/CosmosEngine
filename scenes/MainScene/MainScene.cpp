@@ -5,6 +5,7 @@
 #include "Renderer.hpp"
 #include "SceneObject.hpp"
 #include "ObjLoader.hpp"
+#include "Transform.hpp"
 #include <GLFW/glfw3.h>
 
 void MainScene::initialize(){ 
@@ -15,14 +16,17 @@ void MainScene::initialize(){
     auto light_mesh = ObjLoader::load("models/Sphere.obj");
     auto light_mat = std::make_shared<Material>(shader);
 
-    glm::mat4 light_transform = glm::translate(glm::mat4(1.0f), light1.position); 
-    objects.push_back({"light1", light_mesh, light_mat, light_transform});
+    Transform light_transform;
+    light_transform.position = light1.position;
+    light_transform.update_matrices();
+    objects.push_back(SceneObject({"light1", light_mesh, light_mat, light_transform}));
 
 
     auto mesh = ObjLoader::load("models/Human.obj");            
     auto material = std::make_shared<Material>(shader);
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-
+    Transform transform;
+    transform.position = {0.0f, 0.0f, 0.0f};
+    transform.update_matrices();
     objects.push_back({"human", mesh, material, transform});
 
 }

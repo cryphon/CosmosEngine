@@ -4,6 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 #include "Camera.hpp"
+#include "Mesh.hpp"
+#include "Material.hpp"
 
 
 Renderer::Renderer() {}
@@ -37,7 +39,7 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
         shader->set_vec3("viewPos", view_pos);
 
         // Set per-object uniforms
-        shader->set_mat4("model", cmd.transform);
+        shader->set_mat4("model", cmd.transform.model_matrix);
 
         cmd.material->bind(); // binds texture and such
         cmd.mesh->draw();
