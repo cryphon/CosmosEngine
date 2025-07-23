@@ -1,6 +1,6 @@
-#include "Scene.hpp"
 #include "imgui.h"
 #include <memory>
+#include "RenderableScene.hpp"
 
 class Renderer;
 class Camera;
@@ -8,7 +8,7 @@ class Mesh;
 class Material;
 class PerspectiveCamera;
 
-class SecondScene : public Scene {
+class SecondScene : public RenderableScene {
     public:
         SecondScene(Renderer* renderer, std::shared_ptr<Camera> camera)
             : renderer(renderer), camera(camera) {}
