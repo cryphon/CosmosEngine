@@ -49,7 +49,6 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
 }
 
 void Renderer::init_skybox(const std::vector<std::string>& faces, std::shared_ptr<Shader> shader) {
-    skybox_enabled = true;
     skybox_shader = shader;
     skybox_texture = std::make_shared<Texture>(faces, GL_TEXTURE0);
 

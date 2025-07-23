@@ -18,16 +18,18 @@ void MainScene::initialize(){
 
     Transform light_transform;
     light_transform.position = light1.position;
+    light_transform.cache_trigger = true;
     light_transform.update_matrices();
-    objects.push_back(SceneObject({"light1", light_mesh, light_mat, light_transform}));
+    objects.emplace_back("light1", light_mesh, light_mat, light_transform);
 
 
     auto mesh = ObjLoader::load("models/Human.obj");            
     auto material = std::make_shared<Material>(shader);
     Transform transform;
     transform.position = {0.0f, 0.0f, 0.0f};
+    transform.cache_trigger = true;
     transform.update_matrices();
-    objects.push_back({"human", mesh, material, transform});
+    objects.emplace_back("human", mesh, material, transform);
 
 }
 
@@ -36,6 +38,9 @@ void MainScene::update(float dt) {
 }
 void MainScene::render() { 
     for (auto& obj : objects) {
+        if (obj.transform.cache_trigger) {
+            obj.transform.update_matrices(); // updates model matrix
+        }
         // Convert SceneObject into RenderCommand
         renderer->submit({ obj.mesh, obj.material, obj.transform });
     }
