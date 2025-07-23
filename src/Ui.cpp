@@ -2,6 +2,7 @@
 #include "Renderer.hpp"
 #include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
+#include "RenderableScene.hpp"
 #include <GLFW/glfw3.h>
 #include "Engine.hpp"
 
@@ -62,6 +63,39 @@ void UI::render() {
         ImGui::EndMainMenuBar();
     }
 
+    ImVec2 display_size = ImGui::GetIO().DisplaySize;
+    float panel_width = 300.0f;
+    static int selected_index = -1;
+
+    // Set the position and size of the right panel
+    ImGui::SetNextWindowPos(ImVec2(display_size.x - panel_width, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(panel_width, display_size.y), ImGuiCond_Always);
+
+    // Optional flags: NoResize, NoMove, NoCollapse to make it truly fixed
+    ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+
+    ImGui::Begin("Scene Objects", nullptr, panelFlags);
+
+    try {
+        RenderableScene* scene = static_cast<RenderableScene*>(scene_manager->get_current_scene_obj());
+        auto objects = scene->get_objects();
+        // List your scene objects here
+
+        for (int i = 0; i < objects.size(); ++i) {
+            bool is_selected = (i == selected_index);
+            if (ImGui::Selectable(objects[i].name, is_selected)) {
+                selected_index = i;
+            }
+        }
+        ImGui::Separator();
+
+        if (selected_index >= 0 && selected_index < objects.size()) {
+            SceneObject obj = objects[selected_index];
+            ImGui::Text("Editing: %s", obj.name);
+        }
+
+        ImGui::End();
+    } catch(int err) { }
 
     if (show_debug && camera) {
         ImGui::Begin("Camera Position");

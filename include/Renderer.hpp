@@ -28,7 +28,7 @@ public:
     void clear();
 
     void set_light(const Light& light);
-
+    Light get_light() { return light; }
     bool skybox_enabled = false;
     bool grid_enabled = false;
 

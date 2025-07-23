@@ -10,15 +10,20 @@
 void MainScene::initialize(){ 
     auto shader = std::make_shared<Shader>("shaders/default.vert", "shaders/default.frag");
 
-    Light light1({1.0f, 5.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
+    Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
     renderer->set_light(light1);
+    auto light_mesh = ObjLoader::load("models/Sphere.obj");
+    auto light_mat = std::make_shared<Material>(shader);
+
+    glm::mat4 light_transform = glm::translate(glm::mat4(1.0f), light1.position); 
+    objects.push_back({"light1", light_mesh, light_mat, light_transform});
+
 
     auto mesh = ObjLoader::load("models/Human.obj");            
-    auto texture = std::make_shared<Texture>("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    auto material = std::make_shared<Material>(shader, texture);
+    auto material = std::make_shared<Material>(shader);
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 
-    objects.push_back({mesh, material, transform});
+    objects.push_back({"human", mesh, material, transform});
 
 }
 
