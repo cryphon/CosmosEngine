@@ -31,7 +31,7 @@ void UI::render() {
         }
         if (ImGui::BeginMenu("Scene Manager")) {
             static std::vector<std::string> scene_names = scene_manager->get_scene_names();
-            std::string current_scene = scene_manager->get_current_scene();
+            std::string current_scene = scene_manager->get_current_scene_name();
 
             // Find index of current scene
             int current_index = 0;
