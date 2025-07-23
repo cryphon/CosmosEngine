@@ -1,4 +1,6 @@
 #include "Mesh.hpp"
+#include "ObjLoader.hpp"
+#include <iostream>
 
 void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indices, size_t i_size) {
     index_cnt = i_size / sizeof(unsigned int);
@@ -40,6 +42,43 @@ void Mesh::draw() const {
         glDrawArrays(GL_TRIANGLES, 0, vertex_cnt);
     }
 }
+
+static void flatten_vbuf(const std::vector<Vertex> &verts, std::vector<float> &out_data) {
+    out_data.clear();
+    out_data.reserve(verts.size() * 11);
+
+    for(const auto& v : verts) {
+        out_data.push_back(v.position.x);
+        out_data.push_back(v.position.y);
+        out_data.push_back(v.position.z);
+        out_data.push_back(v.normal.x);
+        out_data.push_back(v.normal.y);
+        out_data.push_back(v.normal.z);
+        out_data.push_back(1.0f); // default white color R
+        out_data.push_back(1.0f); // default white color G
+        out_data.push_back(1.0f); // default white color B
+        out_data.push_back(v.texcoord.u);
+        out_data.push_back(v.texcoord.v);
+    }
+}
+
+std::unique_ptr<Mesh> Mesh::from_obj(const std::string& path) {
+    auto mesh = std::make_unique<Mesh>();
+
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    if(!ObjLoader::load(path)) {
+        std::cerr << "Failed to load OBJ: " << path << std::endl;
+    }
+
+    std::vector<float> packed;
+    flatten_vbuf(vertices, packed);
+
+    mesh->init(packed.data(), packed.size() * sizeof(float), indices.data(), indices.size() * sizeof(uint32_t)); 
+    return mesh;
+};
+
 
 Mesh::~Mesh() {
     vao.delete_vao();
