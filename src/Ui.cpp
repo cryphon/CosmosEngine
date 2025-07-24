@@ -3,6 +3,7 @@
 #include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
 #include "RenderableScene.hpp"
+#include "ShaderLibrary.hpp"
 #include <GLFW/glfw3.h>
 #include "Engine.hpp"
 
@@ -97,6 +98,22 @@ void UI::render() {
             changed |= ImGui::DragFloat3("Position", glm::value_ptr(obj.transform.position), 0.1f);
             changed |= ImGui::DragFloat3("Rotation", glm::value_ptr(obj.transform.rotation), 0.5f);
             changed |= ImGui::DragFloat3("Scale", glm::value_ptr(obj.transform.scale), 0.05f);
+
+            std::vector<std::string> shader_keys = ShaderLibrary::get_keys();
+            std::string current_shader_name = ShaderLibrary::get_name(obj.material->shader);
+
+            if (ImGui::BeginCombo("Shader", current_shader_name.c_str())) {
+                for (const auto& name : shader_keys) {
+                    bool selected = (current_shader_name == name);
+                    if (ImGui::Selectable(name.c_str(), selected)) {
+                        current_shader_name = name;
+                        obj.material->shader = ShaderLibrary::get(name);
+                    }
+                    if (selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
 
             if (changed) {
                 obj.transform.cache_trigger = true;
