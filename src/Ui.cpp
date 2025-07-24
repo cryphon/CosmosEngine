@@ -78,20 +78,30 @@ void UI::render() {
 
     try {
         RenderableScene* scene = static_cast<RenderableScene*>(scene_manager->get_current_scene_obj());
-        auto objects = scene->get_objects();
+        auto& objects = scene->get_objects();
         // List your scene objects here
 
         for (int i = 0; i < objects.size(); ++i) {
             bool is_selected = (i == selected_index);
-            if (ImGui::Selectable(objects[i].name, is_selected)) {
+            if (ImGui::Selectable(objects[i].name.c_str(), is_selected)) {
                 selected_index = i;
             }
         }
         ImGui::Separator();
 
         if (selected_index >= 0 && selected_index < objects.size()) {
-            SceneObject obj = objects[selected_index];
-            ImGui::Text("Editing: %s", obj.name);
+            SceneObject& obj = objects[selected_index];  // ← Reference!
+
+            ImGui::Text("Editing: %s", obj.name.c_str());
+            bool changed = false;
+            changed |= ImGui::DragFloat3("Position", glm::value_ptr(obj.transform.position), 0.1f);
+            changed |= ImGui::DragFloat3("Rotation", glm::value_ptr(obj.transform.rotation), 0.5f);
+            changed |= ImGui::DragFloat3("Scale", glm::value_ptr(obj.transform.scale), 0.05f);
+
+            if (changed) {
+                obj.transform.cache_trigger = true;
+                obj.transform.update_matrices();
+            }
         }
 
         ImGui::End();

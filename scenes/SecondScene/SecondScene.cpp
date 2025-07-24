@@ -3,6 +3,7 @@
 #include "Shader.hpp"
 #include "Mesh.hpp"
 #include "Renderer.hpp"
+#include "Material.hpp"
 #include <GLFW/glfw3.h>
 
 void SecondScene::initialize(){ 
@@ -47,9 +48,10 @@ void SecondScene::update(float dt) {
 }
 void SecondScene::render() { 
     if (camera && renderer && quad_mesh && quad_material) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(scale));
-        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 1, 0));
+        Transform model;
+        model.scale = glm::vec3(scale);
+        model.rotation = glm::vec3(0.0f, rotation, 0.0f);
+        model.update_matrices();
         renderer->submit({ quad_mesh, quad_material, model });
     }
 
