@@ -6,15 +6,19 @@
 #include "SceneObject.hpp"
 #include "ObjLoader.hpp"
 #include "Transform.hpp"
+#include "ShaderLibrary.hpp"
 #include <GLFW/glfw3.h>
 
 void MainScene::initialize(){ 
-    auto shader = std::make_shared<Shader>("shaders/default.vert", "shaders/default.frag");
+
+    ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
+    ShaderLibrary::load("xyzmap", "shaders/default.vert", "shaders/xyzmap.frag");
+
 
     Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
     renderer->set_light(light1);
     auto light_mesh = ObjLoader::load("models/Sphere.obj");
-    auto light_mat = std::make_shared<Material>(shader);
+    auto light_mat = std::make_shared<Material>(ShaderLibrary::get("default"));
 
     Transform light_transform;
     light_transform.position = light1.position;
@@ -24,7 +28,7 @@ void MainScene::initialize(){
 
 
     auto mesh = ObjLoader::load("models/Human.obj");            
-    auto material = std::make_shared<Material>(shader);
+    auto material = std::make_shared<Material>(ShaderLibrary::get("default"));
     Transform transform;
     transform.position = {0.0f, 0.0f, 0.0f};
     transform.cache_trigger = true;
