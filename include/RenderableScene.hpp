@@ -1,3 +1,4 @@
+#pragma once
 #include "Scene.hpp"
 #include <vector>
 #include "SceneObject.hpp"
