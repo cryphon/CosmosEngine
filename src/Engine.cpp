@@ -1,6 +1,7 @@
 #include "Engine.hpp"
 #include <iostream>
 #include <chrono>
+#include <memory>
 #include <glm/gtx/string_cast.hpp>
 #include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
@@ -94,7 +95,7 @@ bool Engine::init() {
             }
     });
     // --- Setup Input Manager ---
-    input = std::make_unique<InputManager>(window, persp_camera);
+    input = std::make_unique<InputManager>(window, persp_camera, scene_manager);
 
     // --- Load GLAD ---
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {

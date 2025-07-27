@@ -2,11 +2,19 @@ class Engine;
 #include "InputManager.hpp"
 #include "imgui.h"
 #include <iostream>
+#include "RenderableScene.hpp"
+#include "SceneManager.hpp"
+#include "SceneObject.hpp"
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include "ShaderLibrary.hpp"
 
 InputManager* get_input(GLFWwindow* window);  // from Engine.cpp
 
-InputManager::InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera)
-    : window(window), camera(camera)
+
+
+InputManager::InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager)
+    : window(window), camera(camera), scene_manager(scene_manager)
 {
     glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
         if (auto* input = get_input(win)) {
@@ -77,14 +85,30 @@ void InputManager::handle_click(double xpos, double ypos) {
     glm::vec3 ray = compute_mouse_ray(xpos, ypos);
     glm::vec3 origin = camera->get_position();
 
-    int hit_id = raycast_scene(origin, ray);
+    RenderableScene* scene = static_cast<RenderableScene*>(scene_manager->get_current_scene_obj());
+    auto objects = scene->get_objects();
+    int hit_id = ray_intersects_object(origin, ray, objects);
 
-    if (hit_id == -1) {
-        selected_object_id = -1; // Deselect
-    } else if (selected_object_id == hit_id) {
-        selected_object_id = -1; // Toggle deselect
-    } else {
-        selected_object_id = hit_id; // Select new
+    for (auto& obj : objects) {
+        if (hit_id == -1) {
+            // No hit — deselect all
+            obj.material->shader = ShaderLibrary::get("default");
+            selected_object_id = -1;
+            continue;
+        }
+
+        if (obj.get_id() == hit_id) {
+            if (selected_object_id == hit_id) {
+                // Toggle deselect
+                obj.material->shader = ShaderLibrary::get("default");
+                selected_object_id = -1;
+            } else {
+                obj.material->shader = ShaderLibrary::get("xyzmap");
+                selected_object_id = hit_id;
+            }
+        } else {
+            obj.material->shader = ShaderLibrary::get("default");
+        }
     }
 }
 
@@ -94,8 +118,6 @@ glm::vec3 InputManager::compute_mouse_ray(double mouse_x, double mouse_y) {
     
     glm::mat4 projection_matrix = camera->get_projection_matrix();
     glm::mat4 view_matrix = camera->get_view_matrix();
-
-
 
     float x = (2.0f * mouse_x) / width - 1.0f;
     float y = 1.0f - (2.0f * mouse_y) / height;
@@ -118,26 +140,67 @@ glm::vec3 InputManager::compute_mouse_ray(double mouse_x, double mouse_y) {
     return ray_world;
 }
 
-int InputManager::raycast_scene(const glm::vec3& origin, const glm::vec3& ray) {
-    // Plane at y = 0 (horizontal ground)
-    glm::vec3 plane_point(0.0f, 0.0f, 0.0f); // A point on the plane
-    glm::vec3 plane_normal(0.0f, 1.0f, 0.0f); // Upward facing
+int InputManager::ray_intersects_object(const glm::vec3& origin, const glm::vec3& ray, const std::vector<SceneObject>& objects) {
+    float closest_distance = std::numeric_limits<float>::max();
+    int hit_id = -1;
 
-    float denom = glm::dot(ray, plane_normal);
-    if (fabs(denom) < 1e-6f) {
-        // Ray is parallel to plane
-        return -1;
+    for (const auto& obj : objects) {
+        auto mesh = obj.mesh;
+        if (!mesh) continue;
+
+        const glm::mat4& model = obj.transform.model_matrix;
+        const std::vector<glm::vec3>& vertices = mesh->get_vertices();
+        const std::vector<unsigned int>& indices = mesh->get_indices();     
+
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            glm::vec3 v0 = glm::vec3(model * glm::vec4(vertices[indices[i]],     1.0));
+            glm::vec3 v1 = glm::vec3(model * glm::vec4(vertices[indices[i + 1]], 1.0));
+            glm::vec3 v2 = glm::vec3(model * glm::vec4(vertices[indices[i + 2]], 1.0));
+
+            float t;
+            if (intersect_ray_triangle(origin, ray, v0, v1, v2, t)) {
+                if (t < closest_distance) {
+                    closest_distance = t;
+                    hit_id = obj.get_id();
+                }
+            }
+        }
     }
 
-    float t = glm::dot(plane_point - origin, plane_normal) / denom;
-    if (t < 0.0f) {
-        // Intersection is behind the camera
-        return -1;
+    return hit_id;
+}
+
+bool InputManager::intersect_ray_triangle(const glm::vec3& origin, const glm::vec3& dir,
+                            const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
+                            float& t_out)
+{
+    const float EPSILON = 1e-6f;
+    glm::vec3 edge1 = v1 - v0;
+    glm::vec3 edge2 = v2 - v0;
+    glm::vec3 h = glm::cross(dir, edge2);
+    float a = glm::dot(edge1, h);
+
+    if (a > -EPSILON && a < EPSILON)
+        return false; // Ray is parallel to triangle
+
+    float f = 1.0f / a;
+    glm::vec3 s = origin - v0;
+    float u = f * glm::dot(s, h);
+    if (u < 0.0f || u > 1.0f)
+        return false;
+
+    glm::vec3 q = glm::cross(s, edge1);
+    float v = f * glm::dot(dir, q);
+    if (v < 0.0f || u + v > 1.0f)
+        return false;
+
+    float t = f * glm::dot(edge2, q);
+    if (t > EPSILON) {
+        t_out = t;
+        return true;
     }
 
-    glm::vec3 hit_point = origin + ray * t;
-
-    return 0; 
+    return false;
 }
 
 void InputManager::update(float delta_time) {

@@ -1,10 +1,11 @@
 #pragma once
 
-
+#include <vector>
 #include "VAO.hpp"
 #include "VBO.hpp"
 #include "EBO.hpp"
 #include <memory>
+#include <glm/glm.hpp>
 
 enum class MeshDrawMode {
     Indexed,
@@ -70,6 +71,12 @@ class Mesh {
         void init(const float* vertices, size_t v_size, const unsigned int* indices, size_t i_size);
         void init_positions_only(const float* vertices, size_t v_size);
         void draw() const;
+
+        std::vector<glm::vec3> vertices;
+        std::vector<unsigned int> index_buffer;
+        const std::vector<glm::vec3>& get_vertices() const { return vertices; }
+        const std::vector<unsigned int>& get_indices() const { return index_buffer; }   
+
     private:
         VAO vao;
         std::unique_ptr<VBO> vbo;

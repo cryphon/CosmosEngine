@@ -16,7 +16,7 @@ void Renderer::submit(const RenderCommand& render_cmd) {
     render_queue.push_back(render_cmd);
 }
 
-void Renderer::render_all(const Camera& camera, int screen_width, int screen_height, int selected_object_id) {
+void Renderer::render_all(const Camera& camera, int screen_width, int screen_height) {
     // View and projection matrices
     glm::mat4 view = camera.get_view_matrix();
     glm::mat4 projection = camera.get_projection_matrix();
