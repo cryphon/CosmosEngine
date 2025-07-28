@@ -7,33 +7,60 @@
 #include "ObjLoader.hpp"
 #include "Transform.hpp"
 #include "ShaderLibrary.hpp"
+#include "UniformContext.hpp"
+#include "UniformPresets.hpp"
 #include <GLFW/glfw3.h>
 
 void MainScene::initialize(){ 
 
+    ShaderLibrary::load("basic", "shaders/basic.vert", "shaders/basic.frag");
+    ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
     ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
-    ShaderLibrary::load("xyzmap", "shaders/default.vert", "shaders/xyzmap.frag");
+
+    // --- Shader binds ---
+    auto default_bind = [](Shader& shader, const UniformContext& ctx) {
+    shader.set_mat4("model", ctx.model);
+    shader.set_mat4("view", ctx.view);
+    shader.set_mat4("projection", ctx.projection);
+
+    shader.set_vec3("lightPos", ctx.light_pos);
+    shader.set_vec3("viewPos", ctx.view_pos);
+    shader.set_vec3("lightColor", ctx.light_color);
+
+    shader.set_bool("selected", false);       // change this if highlighting
+    shader.set_bool("use_texture", true);     // set to false if no texture is used
+    };
+
+    auto default_material = std::make_shared<Material>(ShaderLibrary::get("default"));
+    default_material->bind_uniforms = default_bind;
+
+    auto xyz_material = std::make_shared<Material>(ShaderLibrary::get("xyzmap"));
+    xyz_material->bind_uniforms = UniformPresets::basic_bind; 
+
+    auto basic_material = std::make_shared<Material>(ShaderLibrary::get("basic"));
+    basic_material->bind_uniforms = UniformPresets::basic_bind; 
 
 
+
+    // --- Light Shader ---
     Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
     renderer->set_light(light1);
     auto light_mesh = ObjLoader::load("models/Sphere.obj");
-    auto light_mat = std::make_shared<Material>(ShaderLibrary::get("default"));
-
     Transform light_transform;
     light_transform.position = light1.position;
     light_transform.cache_trigger = true;
     light_transform.update_matrices();
-    objects.emplace_back("light1", light_mesh, light_mat, light_transform);
+    objects.emplace_back("light1", light_mesh, xyz_material, light_transform);
 
 
+    // 
+    
     auto mesh = ObjLoader::load("models/Human.obj");            
-    auto material = std::make_shared<Material>(ShaderLibrary::get("default"));
     Transform transform;
     transform.position = {0.0f, 0.0f, 0.0f};
     transform.cache_trigger = true;
     transform.update_matrices();
-    objects.emplace_back("human", mesh, material, transform);
+    objects.emplace_back("human", mesh, default_material, transform);
 
 }
 

@@ -38,9 +38,7 @@ private:
 
     // --- Sky Box ---
     std::shared_ptr<Mesh> skybox_mesh;
-    std::shared_ptr<Texture> skybox_texture;
-    std::shared_ptr<Shader> skybox_shader;
-
+    std::shared_ptr<Material> skybox_material;
     // --- Grid Mesh ---
     std::unique_ptr<VBO> grid_vbo;
     VAO grid_vao;

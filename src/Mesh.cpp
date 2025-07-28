@@ -2,8 +2,17 @@
 #include "ObjLoader.hpp"
 #include <iostream>
 
+
+Mesh::Mesh() {
+    draw_mode = MeshDrawMode::Indexed; 
+    vertex_cnt = 0;
+    index_cnt = 0;
+}
+
+
+
 void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indices, size_t i_size) {
-    index_cnt = i_size / sizeof(unsigned int);
+    index_cnt = i_size;
 
     vao.create();
     vao.bind();
@@ -17,7 +26,8 @@ void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indice
     vao.link_attr(*vbo, 3, 2, GL_FLOAT, 11 * sizeof(float), (void*)(9 * sizeof(float)));    // texCoord
     vao.unbind();
     vbo->unbind();
-    ebo->unbind();
+
+    std::cout << "index_cnt = " << index_cnt << "\n";
 }
 
 void Mesh::init_positions_only(const float* vertices, size_t v_size) {
@@ -33,15 +43,47 @@ void Mesh::init_positions_only(const float* vertices, size_t v_size) {
 }
 
 void Mesh::draw() const {
-    if (vao.ID == 0 || index_cnt == 0) return;  // skip if uninitialized
-    vao.bind();
-    vao.bind();
-    if (draw_mode == MeshDrawMode::Indexed) {
-        glDrawElements(GL_TRIANGLES, index_cnt, GL_UNSIGNED_INT, 0);
-    } else {
-        glDrawArrays(GL_TRIANGLES, 0, vertex_cnt);
+    if (!vbo) {
+        std::cerr << "[Mesh::draw] Error: VBO not initialized\n";
+        return;
     }
+
+    if (vao.ID == 0) {
+        std::cerr << "[Mesh::draw] Error: VAO not initialized\n";
+        return;
+    }
+
+    vao.bind();
+
+    switch (draw_mode) {
+        case MeshDrawMode::Indexed:
+            if (!ebo) {
+                std::cerr << "[Mesh::draw] Error: EBO not initialized for Indexed draw mode\n";
+                return;
+            }
+            if (index_cnt == 0) {
+                std::cerr << "[Mesh::draw] Warning: index_cnt is 0\n";
+                return;
+            }
+            glDrawElements(GL_TRIANGLES, index_cnt, GL_UNSIGNED_INT, nullptr);
+            break;
+
+        case MeshDrawMode::Arrays:
+            if (vertex_cnt == 0) {
+                std::cerr << "[Mesh::draw] Warning: vertex_cnt is 0\n";
+                return;
+            }
+            glDrawArrays(GL_TRIANGLES, 0, vertex_cnt);
+            break;
+
+        default:
+            std::cerr << "[Mesh::draw] Error: Invalid draw_mode\n";
+            break;
+    }
+
 }
+
+
 
 static void flatten_vbuf(const std::vector<Vertex> &verts, std::vector<float> &out_data) {
     out_data.clear();
@@ -64,6 +106,7 @@ static void flatten_vbuf(const std::vector<Vertex> &verts, std::vector<float> &o
 
 std::unique_ptr<Mesh> Mesh::from_obj(const std::string& path) {
     auto mesh = std::make_unique<Mesh>();
+    mesh->set_draw_mode(MeshDrawMode::Indexed);
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
