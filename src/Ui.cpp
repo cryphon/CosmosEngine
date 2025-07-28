@@ -91,7 +91,7 @@ void UI::render() {
         ImGui::Separator();
 
         if (selected_index >= 0 && selected_index < objects.size()) {
-            SceneObject& obj = objects[selected_index];  // ← Reference!
+            SceneObject& obj = objects[selected_index];
 
             ImGui::Text("Editing: %s", obj.name.c_str());
             bool changed = false;

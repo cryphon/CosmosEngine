@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include "Scene.hpp"
+#include <string>
 
 class SceneManager {
     public:
