@@ -34,7 +34,6 @@ public:
 
 private:
     std::vector<RenderCommand> render_queue;
-    int next_object_id = 0;
     Light light = Light({2.0f, 2.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
 
     // --- Sky Box ---

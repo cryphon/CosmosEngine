@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <stddef.h>
+#include <vector>
 
 class EBO {
     public:
@@ -12,6 +13,11 @@ class EBO {
         void bind();
         void unbind();
         void delete_ebo();
+
+        const std::vector<unsigned int>& get_indices() const { return index_data; };
+
+    private:
+        std::vector<unsigned int> index_data;
 };
 
 #endif

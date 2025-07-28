@@ -1,8 +1,9 @@
-#ifndef VBO_CLASS_H
-#define VBO_CLASS_H
+#pragma once
 
 #include <glad/glad.h>
 #include <stddef.h>
+#include <vector>
+#include <glm/glm.hpp>
 
 class VBO {
     public:
@@ -12,6 +13,9 @@ class VBO {
         void bind();
         void unbind();
         void delete_vbo();
-};
 
-#endif
+        std::vector<glm::vec3> get_position_vectors(int stride = 11) const;
+
+    private: 
+        std::vector<float> vertices_data;
+};

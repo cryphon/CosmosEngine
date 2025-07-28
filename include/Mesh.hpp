@@ -61,9 +61,11 @@ class Mesh {
         Mesh() = default;
         ~Mesh();
 
+        std::unique_ptr<VBO> vbo;
+        std::unique_ptr<EBO> ebo;
+
         // --- Mesh constructor for .obj files
         static std::unique_ptr<Mesh> from_obj(const std::string& path);
-
 
         // Setters
         void set_vertex_cnt(int v_cnt) { vertex_cnt = v_cnt; }
@@ -72,15 +74,8 @@ class Mesh {
         void init_positions_only(const float* vertices, size_t v_size);
         void draw() const;
 
-        std::vector<glm::vec3> vertices;
-        std::vector<unsigned int> index_buffer;
-        const std::vector<glm::vec3>& get_vertices() const { return vertices; }
-        const std::vector<unsigned int>& get_indices() const { return index_buffer; }   
-
     private:
         VAO vao;
-        std::unique_ptr<VBO> vbo;
-        std::unique_ptr<EBO> ebo;
         GLsizei index_cnt = 0;
         int vertex_cnt = 0;
         MeshDrawMode draw_mode = MeshDrawMode::Indexed;

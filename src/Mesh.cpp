@@ -11,13 +11,6 @@ void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indice
     vbo = std::make_unique<VBO>(vertices, v_size);
     ebo = std::make_unique<EBO>(indices, i_size);
 
-    this->vertices.clear();
-    for (size_t i = 0; i < v_size / sizeof(float); i += 11) {
-        this->vertices.push_back(glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]));
-    }
-
-    this->index_buffer.assign(indices, indices + index_cnt);
-
     vao.link_attr(*vbo, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);                      // position
     vao.link_attr(*vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));    // normal
     vao.link_attr(*vbo, 2, 3, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));    // color
@@ -31,11 +24,6 @@ void Mesh::init_positions_only(const float* vertices, size_t v_size) {
     index_cnt = 36; // no EBO
     vao.create();
     vao.bind();
-
-    this->vertices.clear();
-    for (size_t i = 0; i < v_size / sizeof(float); i += 3) {
-        this->vertices.push_back(glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]));
-    }
 
     vbo = std::make_unique<VBO>(vertices, v_size);
     vao.link_attr(*vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0); // only position
