@@ -58,7 +58,7 @@ template<>
 
 class Mesh {
     public:
-        Mesh() = default;
+        Mesh();
         ~Mesh();
 
 

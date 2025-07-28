@@ -96,6 +96,8 @@ add_custom_target(run
 
 
 file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # Custom GDB run target
 add_custom_target(debug
   COMMAND gdb ${PROJECT_NAME}
