@@ -149,8 +149,8 @@ int InputManager::ray_intersects_object(const glm::vec3& origin, const glm::vec3
         if (!mesh) continue;
 
         const glm::mat4& model = obj.transform.model_matrix;
-        const std::vector<glm::vec3>& vertices = mesh->vbo->get_position_vectors();
-        const std::vector<unsigned int>& indices = mesh->ebo->get_indices();     
+        const std::vector<glm::vec3>& vertices = mesh->get_vertices();
+        const std::vector<unsigned int>& indices = mesh->get_indices();     
 
         for (size_t i = 0; i < indices.size(); i += 3) {
             glm::vec3 v0 = glm::vec3(model * glm::vec4(vertices[indices[i]],     1.0));

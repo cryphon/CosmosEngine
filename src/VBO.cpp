@@ -9,7 +9,7 @@ VBO::VBO(const float* vertices, size_t v_size) {
     vertices_data.assign(vertices, vertices + float_count);
 }
 
-std::vector<glm::vec3> VBO::get_position_vectors(int stride) const {
+std::vector<glm::vec3> VBO::get_vertices(int stride) const {
     std::vector<glm::vec3> result;
     for (size_t i = 0; i + 2 < vertices_data.size(); i += stride) {
         result.emplace_back(vertices_data[i], vertices_data[i + 1], vertices_data[i + 2]);

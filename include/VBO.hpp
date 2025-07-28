@@ -14,7 +14,7 @@ class VBO {
         void unbind();
         void delete_vbo();
 
-        std::vector<glm::vec3> get_position_vectors(int stride = 11) const;
+        std::vector<glm::vec3> get_vertices(int stride = 11) const;
 
     private: 
         std::vector<float> vertices_data;
