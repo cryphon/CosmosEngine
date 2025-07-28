@@ -1,7 +1,22 @@
 #include "PerspectiveCamera.hpp"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+#include "Logger.hpp"
 
+
+
+std::string format_mat4(const glm::mat4& m) {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2);  // Optional: format numbers
+    for (int row = 0; row < 4; ++row) {
+        oss << "[ ";
+        for (int col = 0; col < 4; ++col) {
+            oss << std::setw(6) << m[col][row] << " ";  // Note: GLM is column-major
+        }
+        oss << "]\n";
+    }
+    return oss.str();
+}
 
 PerspectiveCamera::PerspectiveCamera(glm::vec3 pos) : position(pos) {
     update_view();
@@ -30,7 +45,8 @@ void PerspectiveCamera::update_view() {
 
 void PerspectiveCamera::update_projection() {
     projection = glm::perspective(glm::radians(fov_deg), aspect_ratio, near_plane, far_plane);
-    std::cout << "Projection updated: \n" << glm::to_string(projection) << std::endl;
+    glm::mat4 projection = glm::perspective(glm::radians(fov_deg), aspect_ratio, near_plane, far_plane);
+    LOG_INFO("Projection matrix:\n" + format_mat4(projection));
 }
 
 

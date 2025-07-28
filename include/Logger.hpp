@@ -12,6 +12,12 @@
 #define COLOR_YELLOW  "\033[33m"
 #define COLOR_CYAN    "\033[36m"
 
+
+#define LOG_ERROR(msg) Logger::log(msg, LogLevel::ERROR)
+#define LOG_INFO(msg)  Logger::log(msg, LogLevel::INFO)
+#define LOG_DEBUG(msg) Logger::log(msg, LogLevel::DEBUG)
+
+
 enum class LogLevel {
     ERROR = 0,
     INFO = 1, 

@@ -10,6 +10,7 @@
 #include "Ui.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
+#include "Logger.hpp"
 
 #define SCREEN_WIDTH 1200.0f
 #define SCREEN_HEIGHT 800.0f
@@ -104,7 +105,7 @@ bool Engine::init() {
 
     glEnable(GL_DEPTH_TEST);
     std::cout << "Projection: " << glm::to_string(camera->get_projection_matrix()) << std::endl;
-    std::cout << "Starting skybox rendering..." << std::endl;
+    LOG_INFO("Starting skybox rendering...");
     // --- Set SkyBox
     std::vector<std::string> faces = {
     "textures/skybox/right.jpg",

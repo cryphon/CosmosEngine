@@ -4,7 +4,7 @@
 int Application::run() {
     Logger::set_lvl(LogLevel::DEBUG);
     auto engine = std::make_shared<Engine>();
-    Logger::log("Starting engine...", LogLevel::INFO);
+    LOG_INFO("Starting engine...");
     if (!engine->init()) return -1;
     engine->run();
     return 0;
