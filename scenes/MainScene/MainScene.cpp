@@ -66,6 +66,18 @@ void MainScene::initialize(){
 
 void MainScene::update(float dt) { 
     rotation += rotation_speed * dt;
+
+    // --- Crude lighting update fix
+    for (auto& obj : objects) {
+    if (obj.name == "light1") {
+        renderer->set_light(Light{
+            obj.transform.position,
+            renderer->get_light().color // keep previous color
+        });
+    }
+}
+
+
 }
 void MainScene::render() { 
     for (auto& obj : objects) {
