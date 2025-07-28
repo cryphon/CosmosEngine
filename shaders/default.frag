@@ -15,28 +15,22 @@ uniform bool selected;
 uniform bool use_texture;
 
 void main() {
-    // Ambient
-    float ambientStrength = 0.2;
-    vec3 ambient = ambientStrength * lightColor;
-
-    // Diffuse
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
+    vec3 baseColor = Color;
 
-    // Texture color
-    vec3 texColor = texture(uTexture, TexCoord).rgb;
-
-    // Final color logic
-    vec3 baseColor = Color * texColor;
-
-    // Override with highlight color if selected
-    if (selected) {
-        baseColor = mix(baseColor, vec3(0.6, 0.6, 0.6), 0.6);
+    if (use_texture) {
+        vec3 texColor = texture(uTexture, TexCoord).rgb;
+        baseColor *= texColor;
     }
 
-    vec3 result = (ambient + diffuse) * baseColor;
-    FragColor = vec4(result, 1.0);
+    if (selected) {
+        baseColor = mix(baseColor, vec3(1.0, 1.0, 0.0), 0.5); // yellow highlight
+    }
+
+    FragColor = vec4((0.2 + diffuse) * baseColor, 1.0);
 }
+
 

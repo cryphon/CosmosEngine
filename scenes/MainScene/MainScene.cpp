@@ -35,7 +35,7 @@ void MainScene::initialize(){
     default_material->bind_uniforms = default_bind;
 
     auto xyz_material = std::make_shared<Material>(ShaderLibrary::get("xyzmap"));
-    xyz_material->bind_uniforms = UniformPresets::basic_bind; 
+    xyz_material->bind_uniforms = UniformPresets::normal_debug_bind; 
 
     auto basic_material = std::make_shared<Material>(ShaderLibrary::get("basic"));
     basic_material->bind_uniforms = UniformPresets::basic_bind; 
