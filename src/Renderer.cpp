@@ -35,6 +35,9 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
         shader->activate_shader();
 
         ctx.model = cmd.transform.model_matrix;
+        ctx.metalness = material.metalness;
+        ctx.object_color = material.object_color;
+
 
         if (material.bind_uniforms) {
             material.bind_uniforms(*shader, ctx);

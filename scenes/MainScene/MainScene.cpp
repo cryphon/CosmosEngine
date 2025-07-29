@@ -11,12 +11,16 @@
 #include "UniformPresets.hpp"
 #include <GLFW/glfw3.h>
 
+static bool gamma_enabled = true;
+
+
 void MainScene::initialize(){ 
 
     ShaderLibrary::load("basic", "shaders/basic.vert", "shaders/basic.frag");
     ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
     ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
     ShaderLibrary::load("highlight", "shaders/passthrough.vert", "shaders/highlight.frag");
+    ShaderLibrary::load("metal", "shaders/default.vert", "shaders/metalness.frag");
 
 
     renderer->set_highlight_shader(ShaderLibrary::get("highlight"));
@@ -34,6 +38,25 @@ void MainScene::initialize(){
     shader.set_bool("selected", false);       // change this if highlighting
     shader.set_bool("use_texture", true);     // set to false if no texture is used
     };
+
+
+    auto metal_bind = [](Shader& shader, const UniformContext& ctx) {
+    shader.set_mat4("model", ctx.model);
+    shader.set_mat4("view", ctx.view);
+    shader.set_mat4("projection", ctx.projection);
+
+    shader.set_vec3("lightPos", ctx.light_pos);
+    shader.set_vec3("viewPos", ctx.view_pos);
+    shader.set_vec3("lightColor", ctx.light_color);
+    shader.set_bool("enableGamma", true); // or make toggleable in ImGui later
+    shader.set_vec3("objectColor", ctx.object_color);
+    shader.set_float("metalness", ctx.metalness);
+    };
+
+
+    auto metal_material = std::make_shared<Material>(ShaderLibrary::get("metal"));
+    metal_material->bind_uniforms = metal_bind;
+
 
     auto default_material = std::make_shared<Material>(ShaderLibrary::get("default"));
     default_material->bind_uniforms = default_bind;
@@ -64,7 +87,7 @@ void MainScene::initialize(){
     transform.position = {0.0f, 0.0f, 0.0f};
     transform.cache_trigger = true;
     transform.update_matrices();
-    objects.emplace_back("human", mesh, default_material, transform);
+    objects.emplace_back("human", mesh, metal_material, transform);
 
 }
 

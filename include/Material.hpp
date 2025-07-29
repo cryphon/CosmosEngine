@@ -14,6 +14,8 @@ class Material {
         std::shared_ptr<Shader> shader;
         std::shared_ptr<Texture> texture;
         std::string sampler_name = "uTexture";
+        glm::vec3 object_color = glm::vec3(1.0f);
+        float metalness = 1.0f;
         std::function<void(Shader& shader, const UniformContext& ctx)> bind_uniforms;
         
         void apply_uniforms(const UniformContext& ctx) {
