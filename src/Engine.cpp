@@ -113,7 +113,7 @@ bool Engine::init() {
             }
     });
     // --- Setup Input Manager ---
-    input = std::make_unique<InputManager>(window, persp_camera, scene_manager);
+    input = std::make_unique<InputManager>(window, persp_camera, scene_manager, renderer);
 
     // --- Load GLAD ---
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {

@@ -11,7 +11,6 @@ uniform sampler2D uTexture;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
-uniform bool selected;
 uniform bool use_texture;
 
 void main() {
@@ -26,9 +25,6 @@ void main() {
         baseColor *= texColor;
     }
 
-    if (selected) {
-        baseColor = mix(baseColor, vec3(1.0, 1.0, 0.0), 0.5); // yellow highlight
-    }
 
     FragColor = vec4((0.2 + diffuse) * baseColor, 1.0);
 }

@@ -8,13 +8,14 @@ class Engine;
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include "ShaderLibrary.hpp"
+#include "Renderer.hpp"
 
 InputManager* get_input(GLFWwindow* window);  // from Engine.cpp
 
 
 
-InputManager::InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager)
-    : window(window), camera(camera), scene_manager(scene_manager)
+InputManager::InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer)
+    : window(window), camera(camera), scene_manager(scene_manager), renderer(renderer)
 {
     glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
         if (auto* input = get_input(win)) {
@@ -89,26 +90,14 @@ void InputManager::handle_click(double xpos, double ypos) {
     auto objects = scene->get_objects();
     int hit_id = ray_intersects_object(origin, ray, objects);
 
-    for (auto& obj : objects) {
-        if (hit_id == -1) {
-            // No hit — deselect all
-            obj.material->shader = ShaderLibrary::get("default");
-            selected_object_id = -1;
-            continue;
-        }
-
-        if (obj.get_id() == hit_id) {
-            if (selected_object_id == hit_id) {
-                // Toggle deselect
-                obj.material->shader = ShaderLibrary::get("default");
-                selected_object_id = -1;
-            } else {
-                obj.material->shader = ShaderLibrary::get("xyzmap");
-                selected_object_id = hit_id;
-            }
-        } else {
-            obj.material->shader = ShaderLibrary::get("default");
-        }
+    if (hit_id == -1 || hit_id == selected_object_id) {
+        // No hit or deselecting same object
+        renderer->set_selected_object(-1);
+        selected_object_id = -1;
+    } else {
+        // New selection
+        renderer->set_selected_object(hit_id);
+        selected_object_id = hit_id;
     }
 }
 

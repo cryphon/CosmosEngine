@@ -10,4 +10,5 @@ class RenderCommand {
         std::shared_ptr<Mesh> mesh;
         std::shared_ptr<Material> material;
         Transform transform;
+        int object_id;
 };

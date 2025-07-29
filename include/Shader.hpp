@@ -27,6 +27,8 @@ public:
     void set_int(const std::string &name, int value) const;
     void set_mat4(const std::string& name, const glm::mat4& matrix) const;
     void set_vec3(const std::string&name, const glm::vec3& vec) const;
+    void set_float(const std::string& name, float value) const;
+
 
 
     void compile_errors(unsigned int shader, const char* type);

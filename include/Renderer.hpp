@@ -32,6 +32,9 @@ public:
     bool skybox_enabled = false;
     bool grid_enabled = true;
 
+    void set_selected_object(int id) { selected_object_id = id; }
+    void set_highlight_shader(std::shared_ptr<Shader> shader) { highlight_shader = shader; }
+
 private:
     std::vector<RenderCommand> render_queue;
     Light light = Light({2.0f, 2.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
@@ -44,5 +47,10 @@ private:
     VAO grid_vao;
     std::shared_ptr<Shader> grid_shader;
     int grid_vert_cnt;
+
+
+    int selected_object_id = -1;
+
+    std::shared_ptr<Shader> highlight_shader;
 };
 
