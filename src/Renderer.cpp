@@ -43,7 +43,27 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
         material.bind(); // binds textures, etc.
         cmd.mesh->draw();
     }
-    render_queue.clear(); // empty for next frame
+
+    // Draw highlight on top
+    // Highlight pass (2nd draw)
+    if (selected_object_id != -1) {
+        for (const auto& cmd : render_queue) {
+            if (cmd.object_id == selected_object_id) {
+                highlight_shader->activate_shader();
+                highlight_shader->set_mat4("model", cmd.transform.model_matrix);
+                highlight_shader->set_mat4("view", camera.get_view_matrix());
+                highlight_shader->set_mat4("projection", camera.get_projection_matrix());
+                highlight_shader->set_vec3("color", glm::vec3(1.0f, 1.0f, 0.0f)); // Yellow outline
+
+                // Optional wireframe
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                cmd.mesh->draw();
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+                break;
+            }
+        }
+    }    render_queue.clear(); // empty for next frame
 }
 
 void Renderer::init_skybox(const std::vector<std::string>& faces, std::shared_ptr<Shader> shader) {

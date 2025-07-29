@@ -16,6 +16,10 @@ void MainScene::initialize(){
     ShaderLibrary::load("basic", "shaders/basic.vert", "shaders/basic.frag");
     ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
     ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
+    ShaderLibrary::load("highlight", "shaders/passthrough.vert", "shaders/highlight.frag");
+
+
+    renderer->set_highlight_shader(ShaderLibrary::get("highlight"));
 
     // --- Shader binds ---
     auto default_bind = [](Shader& shader, const UniformContext& ctx) {
@@ -85,7 +89,7 @@ void MainScene::render() {
             obj.transform.update_matrices(); // updates model matrix
         }
         // Convert SceneObject into RenderCommand
-        renderer->submit({ obj.mesh, obj.material, obj.transform });
+        renderer->submit({ obj.mesh, obj.material, obj.transform, obj.get_id()});
     }
     renderer->render_all(*camera, 1000, 1000);
     renderer->clear();

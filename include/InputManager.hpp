@@ -6,18 +6,21 @@
 #include "SceneObject.hpp"
 
 class GLFWwindow;
+class Renderer;
 
 class InputManager {
     public:
-        InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager);
+        InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer);
         void update(float dt);
         void cursor_pos_callback(GLFWwindow* window, double pos_x, double pos_y);
         void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+        int get_selected_object_id() { return selected_object_id; }
 
     private:
         GLFWwindow* window;
         std::shared_ptr<PerspectiveCamera> camera;
         std::shared_ptr<SceneManager> scene_manager;
+        std::shared_ptr<Renderer> renderer;
 
         double last_x = 400.0, last_y = 400.0;
         bool first_drag = true;

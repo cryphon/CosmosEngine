@@ -16,10 +16,36 @@ std::string get_file_contents(const char* filename) {
     throw(errno);
 }
 
+std::string preprocess_shader(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) throw std::runtime_error("Could not open shader file");
+
+    std::string line;
+    std::stringstream result;
+
+    while (std::getline(file, line)) {
+        if (line.find("#include") == 0) {
+            size_t start = line.find("\"") + 1;
+            size_t end = line.rfind("\"");
+            std::string include_path = line.substr(start, end - start);
+            LOG_DEBUG(include_path);
+            std::string full_path = "shaders/" + include_path; // use std::filesystem for clean pathing
+            LOG_DEBUG(full_path);
+            result << preprocess_shader(full_path); // recursively include
+        } else {
+            result << line << '\n';
+        }
+    }
+
+    return result.str();
+}
+
+
+
 Shader::Shader(const char* vertex_path, const char* fragment_path) {
     // read files and store in strings
-    std::string vertex_code = get_file_contents(vertex_path);
-    std::string fragment_code = get_file_contents(fragment_path);
+    std::string vertex_code = preprocess_shader(vertex_path);
+    std::string fragment_code = preprocess_shader(fragment_path);
 
     const char* vertex_source = vertex_code.c_str();
     const char* fragment_source = fragment_code.c_str();
@@ -67,6 +93,10 @@ void Shader::set_mat4(const std::string& name, const glm::mat4& matrix) const {
 
 void Shader::set_vec3(const std::string& name, const glm::vec3& value) const {
     glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+}
+
+void Shader::set_float(const std::string& name, float value) const {
+    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
 void Shader::compile_errors(unsigned int shader, const char* type) {
