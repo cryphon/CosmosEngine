@@ -30,7 +30,6 @@ void PerspectiveCamera::update_view() {
 
 void PerspectiveCamera::update_projection() {
     projection = glm::perspective(glm::radians(fov_deg), aspect_ratio, near_plane, far_plane);
-    std::cout << "Projection updated: \n" << glm::to_string(projection) << std::endl;
 }
 
 

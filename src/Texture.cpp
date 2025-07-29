@@ -1,4 +1,5 @@
 #include "Texture.hpp"
+#include "Logger.hpp"
 
 
 Texture::Texture(const char* image, GLenum tex_type, GLenum slot, GLenum format, GLenum pixel_type) {
@@ -46,7 +47,7 @@ Texture::Texture(const std::vector<std::string>& faces, GLenum slot) {
             );
             stbi_image_free(data);
         } else {
-            std::cerr << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+            LOG_ERROR(std::string("Cubemap texture failed to load at path: ") + faces[i]);
             stbi_image_free(data);
         }
     }

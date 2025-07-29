@@ -1,5 +1,6 @@
 #include "ObjLoader.hpp"
 #include "Mesh.hpp"
+#include "Logger.hpp"
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
@@ -9,7 +10,7 @@
 std::shared_ptr<Mesh> ObjLoader::load(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
-        std::cerr << "Failed to open OBJ file: " << path << "\n";
+        LOG_ERROR(std::string("Failed to open OBJ file: ") += path);
         return nullptr;
     }
 
