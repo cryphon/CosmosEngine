@@ -1,4 +1,5 @@
 #include "Shader.hpp"
+#include "Logger.hpp"
 
 
 std::string get_file_contents(const char* filename) {
@@ -71,18 +72,18 @@ void Shader::set_vec3(const std::string& name, const glm::vec3& value) const {
 void Shader::compile_errors(unsigned int shader, const char* type) {
     GLint compiled;
     char log[1024];
-    if(type != "PROGRAM") {
+    if (type != std::string("PROGRAM")) {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-        if(!compiled) {
+        if (!compiled) {
             glGetShaderInfoLog(shader, 1024, NULL, log);
-            std::cout << "SHADER COMPILATION ERROR for: " << type << std::endl;
+            LOG_ERROR(std::string("SHADER COMPILATION ERROR for: ") + type + "\n" + log);
         }
-    }
-    else {
-        glGetProgramiv(shader, GL_COMPILE_STATUS, &compiled);
-        if(!compiled) {
+    } else {
+        glGetProgramiv(shader, GL_LINK_STATUS, &compiled);  // Fix: use GL_LINK_STATUS for programs
+        if (!compiled) {
             glGetProgramInfoLog(shader, 1024, NULL, log);
-            std::cout << "SHADER_LINKING_ERROR for: " << type << std::endl;
+            LOG_ERROR(std::string("SHADER LINKING ERROR for: ") + type + "\n" + log);
         }
     }
 }
+

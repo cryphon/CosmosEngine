@@ -1,6 +1,7 @@
 #include "Mesh.hpp"
 #include "ObjLoader.hpp"
 #include <iostream>
+#include "Logger.hpp"
 
 
 Mesh::Mesh() {
@@ -27,7 +28,8 @@ void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indice
     vao.unbind();
     vbo->unbind();
 
-    std::cout << "index_cnt = " << index_cnt << "\n";
+
+    LOG_DEBUG(std::string("index_cnt: ") += std::to_string(index_cnt));
 }
 
 void Mesh::init_positions_only(const float* vertices, size_t v_size) {
@@ -44,12 +46,12 @@ void Mesh::init_positions_only(const float* vertices, size_t v_size) {
 
 void Mesh::draw() const {
     if (!vbo) {
-        std::cerr << "[Mesh::draw] Error: VBO not initialized\n";
+        LOG_ERROR("[Mesh::draw] Error: VBO not initialized");
         return;
     }
 
     if (vao.ID == 0) {
-        std::cerr << "[Mesh::draw] Error: VAO not initialized\n";
+        LOG_ERROR("[Mesh::draw] Error: VAO not initialized");
         return;
     }
 
@@ -58,11 +60,11 @@ void Mesh::draw() const {
     switch (draw_mode) {
         case MeshDrawMode::Indexed:
             if (!ebo) {
-                std::cerr << "[Mesh::draw] Error: EBO not initialized for Indexed draw mode\n";
+                LOG_ERROR("[Mesh::draw] Error: EBO not initialized for Indexed draw mode");
                 return;
             }
             if (index_cnt == 0) {
-                std::cerr << "[Mesh::draw] Warning: index_cnt is 0\n";
+                LOG_DEBUG("[Mesh::draw] Warning: index_cnt is 0");
                 return;
             }
             glDrawElements(GL_TRIANGLES, index_cnt, GL_UNSIGNED_INT, nullptr);
@@ -70,14 +72,14 @@ void Mesh::draw() const {
 
         case MeshDrawMode::Arrays:
             if (vertex_cnt == 0) {
-                std::cerr << "[Mesh::draw] Warning: vertex_cnt is 0\n";
+                LOG_DEBUG("[Mesh::draw] Warning: vertex_cnt is 0");
                 return;
             }
             glDrawArrays(GL_TRIANGLES, 0, vertex_cnt);
             break;
 
         default:
-            std::cerr << "[Mesh::draw] Error: Invalid draw_mode\n";
+            LOG_ERROR("[Mesh::draw] Error: Invalid draw_mode");
             break;
     }
 
@@ -112,7 +114,7 @@ std::unique_ptr<Mesh> Mesh::from_obj(const std::string& path) {
     std::vector<uint32_t> indices;
 
     if(!ObjLoader::load(path)) {
-        std::cerr << "Failed to load OBJ: " << path << std::endl;
+        LOG_ERROR(std::string("Failed to load OBJ: ") += path);
     }
 
     std::vector<float> packed;

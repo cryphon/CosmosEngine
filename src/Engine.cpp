@@ -11,6 +11,7 @@
 #include "Ui.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
+#include "Logger.hpp"
 
 #define SCREEN_WIDTH 1200.0f
 #define SCREEN_HEIGHT 800.0f
@@ -32,6 +33,23 @@ InputManager* get_input(GLFWwindow* window) {
 }
 
 
+
+std::string format_mat4(const glm::mat4& mat, const std::string& label = "mat4x4") {
+    std::ostringstream oss;
+    oss << label << "(\n";
+    for (int row = 0; row < 4; ++row) {
+        oss << "  ";
+        for (int col = 0; col < 4; ++col) {
+            oss << std::setw(10) << std::fixed << std::setprecision(4) << mat[col][row];
+            if (col < 3) oss << ", ";
+        }
+        oss << "\n";
+    }
+    oss << ")";
+    return oss.str();
+}
+
+
 std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
 
 Engine::Engine() {}
@@ -43,7 +61,7 @@ Engine::~Engine() {
 
 bool Engine::init() {
     if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
+        LOG_ERROR("Failed to initialize GLFW");
         return false;
     }
 
@@ -58,7 +76,7 @@ bool Engine::init() {
 
     window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "3D Space", nullptr, nullptr);
     if (!window) {
-        std::cerr << "Failed to create GLFW window" << std::endl;
+        LOG_ERROR("Failed to create GLFW window");
         glfwTerminate();
         return false;
     }
@@ -99,13 +117,13 @@ bool Engine::init() {
 
     // --- Load GLAD ---
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
+        LOG_ERROR("Failed to initialize GLAD");
         return false;
     }
 
     glEnable(GL_DEPTH_TEST);
-    std::cout << "Projection: " << glm::to_string(camera->get_projection_matrix()) << std::endl;
-    std::cout << "Starting skybox rendering..." << std::endl;
+    LOG_DEBUG(std::string(format_mat4(camera->get_projection_matrix(), "Projection: ")));
+    LOG_DEBUG("Starting skybox rendering...");
     // --- Set SkyBox
     std::vector<std::string> faces = {
     "textures/skybox/right.jpg",
@@ -117,7 +135,7 @@ bool Engine::init() {
     };
     auto skybox_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
     renderer->init_skybox(faces, skybox_shader);
-    std::cout << "Skybox rendered" <<std::endl;
+    LOG_DEBUG("Skybox rendered");
 
     // --- Set Grid
     auto grid_shader = std::make_shared<Shader>("shaders/grid.vert", "shaders/grid.frag");
