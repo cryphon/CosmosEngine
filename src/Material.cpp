@@ -9,6 +9,7 @@ Material::Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> text
 
 void Material::bind() {
     shader->activate_shader();
+
     if (texture) {
         shader->set_bool("use_texture", true);
         texture->bind();

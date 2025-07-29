@@ -28,6 +28,8 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
     // Light properties (temporary static light)
     ctx.light_pos = light.position;
     ctx.light_color = light.color;
+    
+    ctx.metalness_value = 0.5f;
 
     for (const auto& cmd : render_queue) {
         auto& material = *cmd.material;

@@ -16,6 +16,7 @@ void MainScene::initialize(){
     ShaderLibrary::load("basic", "shaders/basic.vert", "shaders/basic.frag");
     ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
     ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
+    ShaderLibrary::load("pbr", "shaders/pbr.vert", "shaders/pbr.frag");
 
     // --- Shader binds ---
     auto default_bind = [](Shader& shader, const UniformContext& ctx) {
@@ -39,6 +40,9 @@ void MainScene::initialize(){
 
     auto basic_material = std::make_shared<Material>(ShaderLibrary::get("basic"));
     basic_material->bind_uniforms = UniformPresets::basic_bind; 
+
+    auto pbr_material = std::make_shared<Material>(ShaderLibrary::get("pbr"));
+    pbr_material->bind_uniforms = UniformPresets::pbr_bind;
 
 
 

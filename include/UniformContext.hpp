@@ -8,4 +8,5 @@ struct UniformContext {
     glm::vec3 light_pos;
     glm::vec3 light_color;
     glm::mat4 model;
+    float metalness_value = 0.0f;
 };
