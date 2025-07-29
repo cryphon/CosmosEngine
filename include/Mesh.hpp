@@ -70,6 +70,7 @@ class Mesh {
         void set_draw_mode(MeshDrawMode mode) { draw_mode = mode; }
         void init(const float* vertices, size_t v_size, const unsigned int* indices, size_t i_size);
         void init_positions_only(const float* vertices, size_t v_size);
+        static std::unique_ptr<Mesh> create_uv_sphere(int segments, int rings, float radius = 1.0f);
         void draw() const;
 
         // Getters

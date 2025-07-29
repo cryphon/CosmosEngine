@@ -29,6 +29,7 @@ public:
 
     void set_light(const Light& light);
     Light get_light() { return light; }
+    std::shared_ptr<Material> get_skybox_material() { return skybox_material; }
     bool skybox_enabled = false;
     bool grid_enabled = true;
 
