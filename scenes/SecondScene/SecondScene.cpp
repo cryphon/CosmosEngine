@@ -5,77 +5,54 @@
 #include "Renderer.hpp"
 #include "Material.hpp"
 #include <GLFW/glfw3.h>
+#include "ShaderLibrary.hpp"
+#include "UniformContext.hpp"
+#include "ObjLoader.hpp"
 
 void SecondScene::initialize(){ 
-    static float vertices[] = {
-        // Position          Normal          Color        Tex Coords
-        // Base
-        -0.5f, 0.0f, -0.5f,   0, -1, 0,      1, 0, 0,     0, 0,   // 0
-        0.5f, 0.0f, -0.5f,   0, -1, 0,      0, 1, 0,     1, 0,   // 1
-        0.5f, 0.0f,  0.5f,   0, -1, 0,      0, 0, 1,     1, 1,   // 2
-        -0.5f, 0.0f,  0.5f,   0, -1, 0,      1, 1, 0,     0, 1,   // 3
+    ShaderLibrary::load("reflect", "shaders/reflect.vert", "shaders/reflect.frag");
 
-        // Top point
-        0.0f, 0.8f,  0.0f,   0, 1, 0,       1, 0, 1,     0.5, 0.5 // 4
+    auto reflect_shader = ShaderLibrary::get("reflect");
+
+    auto reflect_material = std::make_shared<Material>(reflect_shader);
+    reflect_material->sampler_name = "skybox"; // ensures correct binding
+    reflect_material->bind_uniforms = [](Shader& shader, const UniformContext& ctx) {
+        shader.set_mat4("model", ctx.model);
+        shader.set_mat4("view", ctx.view);
+        shader.set_mat4("projection", ctx.projection);
+        shader.set_vec3("viewPos", ctx.view_pos);
     };
+    reflect_material->texture = renderer->get_skybox_material()->texture;
 
 
-    static unsigned int indices[] = {
-        // Base (two triangles)
-        0, 1, 2,
-        2, 3, 0,
+    auto sphere = Mesh::create_uv_sphere(64, 32, 1.0f);
 
-        // Sides (each a triangle from base to tip)
-        0, 1, 4,  // front right
-        1, 2, 4,  // back right
-        2, 3, 4,  // back left
-        3, 0, 4   // front left
-    };
+    Transform reflective_transform;
+    reflective_transform.position = { 0.0f, 0.0f, 0.0f };
+    reflective_transform.cache_trigger = true;
+    reflective_transform.update_matrices();
 
-    quad_mesh = std::make_shared<Mesh>();
-    quad_mesh->init(vertices, sizeof(vertices), indices, sizeof(indices));
+    objects.emplace_back("reflective", std::move(sphere), reflect_material, reflective_transform);
 
-    Light light1({1.0f, 5.0f, 2.0f}, {1.0f, 0.9f, 0.7f});
-    renderer->set_light(light1);
 
-    auto shader = std::make_shared<Shader>("shaders/default.vert", "shaders/default.frag");
-    auto texture = std::make_shared<Texture>("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    quad_material = std::make_shared<Material>(shader, texture);
 }
 
 void SecondScene::update(float dt) { 
     rotation += rotation_speed * dt;
 }
 void SecondScene::render() { 
-    if (camera && renderer && quad_mesh && quad_material) {
-        Transform model;
-        model.scale = glm::vec3(scale);
-        model.rotation = glm::vec3(0.0f, rotation, 0.0f);
-        model.update_matrices();
-        renderer->submit({ quad_mesh, quad_material, model });
-    }
-
-    renderer->render_all(*camera, 1000, 1000);
-    renderer->clear();       
-}
-
-void SecondScene::render_ui() {
-    if(ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("Simulation Settings")) {
-            ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f);
-            ImGui::SliderFloat("Rotation Speed", &rotation_speed, -500.0f, 500.0f);
-
-            if (ImGui::Button("Reset Cam")) {
-                std::shared_ptr<PerspectiveCamera> perspCam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
-                if (perspCam) {
-                    perspCam->reset_camera();
-                }
-            }
-            ImGui::EndMenu();
+    for (auto& obj : objects) {
+        if (obj.transform.cache_trigger) {
+            obj.transform.update_matrices(); // updates model matrix
         }
+        // Convert SceneObject into RenderCommand
+        renderer->submit({ obj.mesh, obj.material, obj.transform, obj.get_id()});
     }
-    ImGui::EndMainMenuBar();
+    renderer->render_all(*camera, 1000, 1000);
+    renderer->clear();
 }
+
+void SecondScene::render_ui() {}
 
 void SecondScene::cleanup() { }
 void SecondScene::on_enter() {}

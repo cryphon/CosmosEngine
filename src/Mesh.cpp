@@ -2,6 +2,7 @@
 #include "ObjLoader.hpp"
 #include <iostream>
 #include "Logger.hpp"
+#include <glm/gtc/constants.hpp>
 
 
 Mesh::Mesh() {
@@ -123,6 +124,61 @@ std::unique_ptr<Mesh> Mesh::from_obj(const std::string& path) {
     mesh->init(packed.data(), packed.size() * sizeof(float), indices.data(), indices.size() * sizeof(uint32_t)); 
     return mesh;
 };
+
+
+std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radius) {
+    auto mesh = std::make_unique<Mesh>();
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    for (int y = 0; y <= rings; ++y) {
+        float v = static_cast<float>(y) / rings;
+        float theta = v * glm::pi<float>();
+
+        for (int x = 0; x <= segments; ++x) {
+            float u = static_cast<float>(x) / segments;
+            float phi = u * glm::two_pi<float>();
+
+            float sinTheta = sin(theta);
+            float cosTheta = cos(theta);
+            float sinPhi = sin(phi);
+            float cosPhi = cos(phi);
+
+            glm::vec3 pos = glm::vec3(
+                radius * sinTheta * cosPhi,
+                radius * cosTheta,
+                radius * sinTheta * sinPhi
+            );
+            glm::vec3 normal = glm::normalize(pos);
+            glm::vec2 texcoord = glm::vec2(u, 1.0f - v);
+
+            vertices.push_back({ { pos.x, pos.y, pos.z }, { normal.x, normal.y, normal.z }, { texcoord.x, texcoord.y } });
+        }
+    }
+
+    for (int y = 0; y < rings; ++y) {
+        for (int x = 0; x < segments; ++x) {
+            int i0 = y * (segments + 1) + x;
+            int i1 = i0 + segments + 1;
+
+            indices.push_back(i0);
+            indices.push_back(i1);
+            indices.push_back(i0 + 1);
+
+            indices.push_back(i0 + 1);
+            indices.push_back(i1);
+            indices.push_back(i1 + 1);
+        }
+    }
+
+    std::vector<float> packed;
+    flatten_vbuf(vertices, packed);
+
+    mesh->set_draw_mode(MeshDrawMode::Indexed);
+    mesh->init(packed.data(), packed.size() * sizeof(float), indices.data(), indices.size() * sizeof(uint32_t));
+    return mesh;
+}
 
 
 Mesh::~Mesh() {

@@ -36,8 +36,11 @@ std::string preprocess_shader(const std::string& path) {
             result << line << '\n';
         }
     }
+    std::string result_str = result.str();
+    LOG_DEBUG("Preprocessed shader [" + path + "]:\n" + result_str);
+    return result_str;
 
-    return result.str();
+
 }
 
 
