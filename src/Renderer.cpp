@@ -123,6 +123,45 @@ void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_
     glDepthFunc(GL_LESS);
 }
 
+#include "TextureHDR.hpp"
+#include "SkyboxUtils.hpp"
+
+void Renderer::init_hdri_skybox(const std::string& hdr_path, std::shared_ptr<Shader> capture_shader, std::shared_ptr<Shader> render_shader) {
+    // 1. Load HDR texture
+    GLuint hdr_texture = load_hdr_texture(hdr_path);
+    if (hdr_texture == 0) {
+        std::cerr << "Failed to load HDR texture at path: " << hdr_path << std::endl;
+        return;
+    }
+
+    // 2. Setup framebuffer and renderbuffer for capturing cubemap
+    GLuint capture_fbo, capture_rbo;
+    glGenFramebuffers(1, &capture_fbo);
+    glGenRenderbuffers(1, &capture_rbo);
+
+    // 3. Convert HDR texture to cubemap
+    GLuint cubemap = equirectangular_to_cubemap(hdr_texture, capture_shader, capture_fbo, capture_rbo);
+
+    // 4. Clean up FBOs
+    glDeleteFramebuffers(1, &capture_fbo);
+    glDeleteRenderbuffers(1, &capture_rbo);
+    glDeleteTextures(1, &hdr_texture); // We don’t need the 2D HDR texture anymore
+
+    // 5. Create skybox material
+    skybox_material = std::make_shared<Material>(render_shader, std::make_shared<Texture>(cubemap, GL_TEXTURE_CUBE_MAP, GL_TEXTURE0));
+    skybox_material->sampler_name = "skybox";
+    skybox_material->bind_uniforms = UniformPresets::skybox_bind;
+
+    // 6. Setup cube mesh
+    skybox_mesh = std::make_shared<Mesh>();
+    skybox_mesh->init_positions_only(skybox_vertices, sizeof(skybox_vertices));
+    skybox_mesh->set_vertex_cnt(36);
+    skybox_mesh->set_draw_mode(MeshDrawMode::Arrays);
+
+    skybox_enabled = true;
+}
+
+
 void Renderer::render_grid(const Camera& camera, int screen_width, int screen_height, float size, float step) {
     if (!grid_enabled) return;
 

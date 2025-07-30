@@ -23,6 +23,7 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/EBO.cpp
     ${SRC_DIR}/stb.cpp
     ${SRC_DIR}/Texture.cpp
+    ${SRC_DIR}/TextureHDR.cpp
     ${SRC_DIR}/Material.cpp
     ${SRC_DIR}/Mesh.cpp
     ${SRC_DIR}/Skybox.cpp
@@ -34,6 +35,7 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/InputManager.cpp
     ${SRC_DIR}/ObjLoader.cpp
     ${SRC_DIR}/ShaderLibrary.cpp
+    ${SRC_DIR}/SkyboxUtils.cpp
     ${SRC_DIR}/Ui.cpp
 
     # ImGui core
