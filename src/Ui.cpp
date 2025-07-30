@@ -27,7 +27,6 @@ void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const
 }
 
 void UI::render() {
-    UniformContext ctx;
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Debug")) {
             ImGui::MenuItem("Show Debug", nullptr, &show_debug);
@@ -122,9 +121,6 @@ void UI::render() {
             if (changed) {
                 obj.transform.cache_trigger = true;
                 obj.transform.update_matrices();
-
-                ctx.reflectivity = reflectivity_slider;
-                obj.material->apply_uniforms(ctx);
             }
         }
 
