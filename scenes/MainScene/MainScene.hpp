@@ -10,8 +10,8 @@ class PerspectiveCamera;
 
 class MainScene : public RenderableScene {
     public:
-        MainScene(Renderer* renderer, std::shared_ptr<Camera> camera)
-            : renderer(renderer), camera(camera) {}
+        MainScene(Renderer* renderer)
+            : renderer(renderer) {}
 
         void initialize() override;
         void cleanup() override;

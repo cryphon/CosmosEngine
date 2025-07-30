@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include <glm/glm.hpp>
 class Renderer;
 class Camera;
 class SceneManager;
@@ -14,6 +15,7 @@ public:
     ~UI();
     float reflectivity_slider = 0.5f;
     float alpha_slider = 0.5f;
+    glm::vec3 base_color;
 
     void initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, std::shared_ptr<Engine> e, std::shared_ptr<Camera> c);
     void render();

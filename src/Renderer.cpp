@@ -9,9 +9,19 @@
 #include "UniformContext.hpp"
 #include "UniformPresets.hpp"
 #include "Ui.hpp"
+#include "Logger.hpp"
+#include "PerspectiveCamera.hpp"
 
 
-Renderer::Renderer() {}
+Renderer::Renderer() {
+    default_camera = std::make_shared<PerspectiveCamera>(
+        glm::vec3(0.0f, 2.0f, 5.0f), // position
+        glm::vec3(0.0f),            // target
+        glm::vec3(0.0f, 1.0f, 0.0f) // up
+    );
+    default_camera->set_aspect_ratio(16.0f / 9.0f);
+    default_camera->update_view();
+}
 
 Renderer::~Renderer() {} 
 
@@ -20,11 +30,13 @@ void Renderer::submit(const RenderCommand& render_cmd) {
 }
 
 void Renderer::render_all(const Camera& camera, int screen_width, int screen_height) {
+
+    const Camera& cam = get_camera_or_default(&camera);
     UniformContext ctx;
     // View and projection matrices
-    ctx.view = camera.get_view_matrix();
-    ctx.view_pos = camera.get_position();
-    ctx.projection = camera.get_projection_matrix();
+    ctx.view = cam.get_view_matrix();
+    ctx.view_pos = cam.get_position();
+    ctx.projection = cam.get_projection_matrix();
 
     // Light properties (temporary static light)
     ctx.light_pos = light.position;
@@ -35,6 +47,7 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
     if(ui) {
         ctx.reflectivity = ui->reflectivity_slider;
         ctx.alpha = ui->alpha_slider;
+        ctx.base_color = ui->base_color;
     };
 
     for (const auto& cmd : render_queue) {
@@ -59,8 +72,8 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
             if (cmd.object_id == selected_object_id) {
                 highlight_shader->activate_shader();
                 highlight_shader->set_mat4("model", cmd.transform.model_matrix);
-                highlight_shader->set_mat4("view", camera.get_view_matrix());
-                highlight_shader->set_mat4("projection", camera.get_projection_matrix());
+                highlight_shader->set_mat4("view", cam.get_view_matrix());
+                highlight_shader->set_mat4("projection", cam.get_projection_matrix());
                 highlight_shader->set_vec3("color", glm::vec3(1.0f, 1.0f, 0.0f)); // Yellow outline
 
                 // Optional wireframe
@@ -111,6 +124,7 @@ void Renderer::init_grid(std::shared_ptr<Shader> shader, float size, float step)
 
 
 void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_height) {
+    const Camera& cam = get_camera_or_default(&camera);
     if (!skybox_enabled || !skybox_material || !skybox_mesh) {
         return;
     }
@@ -118,8 +132,8 @@ void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_
     glDepthFunc(GL_LEQUAL);
 
     UniformContext ctx;
-    ctx.view = camera.get_view_matrix();
-    ctx.projection = camera.get_projection_matrix();
+    ctx.view = cam.get_view_matrix();
+    ctx.projection = cam.get_projection_matrix();
 
     skybox_material->shader->activate_shader();
     if (skybox_material->bind_uniforms)
@@ -138,7 +152,7 @@ void Renderer::init_hdri_skybox(const std::string& hdr_path, std::shared_ptr<Sha
     // 1. Load HDR texture
     GLuint hdr_texture = load_hdr_texture(hdr_path);
     if (hdr_texture == 0) {
-        std::cerr << "Failed to load HDR texture at path: " << hdr_path << std::endl;
+        LOG_ERROR("Failed to load HDR texture at path: " + hdr_path);
         return;
     }
 
@@ -171,11 +185,12 @@ void Renderer::init_hdri_skybox(const std::string& hdr_path, std::shared_ptr<Sha
 
 
 void Renderer::render_grid(const Camera& camera, int screen_width, int screen_height, float size, float step) {
+    const Camera& cam = get_camera_or_default(&camera);
     if (!grid_enabled) return;
 
     grid_shader->activate_shader();
-    grid_shader->set_mat4("view", camera.get_view_matrix());
-    grid_shader->set_mat4("projection", camera.get_projection_matrix());
+    grid_shader->set_mat4("view", cam.get_view_matrix());
+    grid_shader->set_mat4("projection", cam.get_projection_matrix());
     grid_shader->set_vec3("gridColor", glm::vec3(0.4f)); // gray
 
     grid_vao.bind();

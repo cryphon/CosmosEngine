@@ -1,20 +1,19 @@
 class Engine;
 #include "InputManager.hpp"
 #include "imgui.h"
-#include <iostream>
 #include "RenderableScene.hpp"
 #include "SceneManager.hpp"
 #include "SceneObject.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "ShaderLibrary.hpp"
 #include "Renderer.hpp"
+#include "PerspectiveCamera.hpp"
 
 InputManager* get_input(GLFWwindow* window);  // from Engine.cpp
 
 
 
-InputManager::InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer)
+InputManager::InputManager(GLFWwindow* window, std::shared_ptr<Camera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer)
     : window(window), camera(camera), scene_manager(scene_manager), renderer(renderer)
 {
     glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
@@ -42,6 +41,7 @@ void InputManager::handle_mouse(double xpos, double ypos) {
         first_drag = false;
         return;
     }
+    auto cam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
 
     float xoffset = float(xpos - last_x);
     float yoffset = float(last_y - ypos);
@@ -49,14 +49,14 @@ void InputManager::handle_mouse(double xpos, double ypos) {
     last_x = xpos;
     last_y = ypos;
 
-    float yaw = camera->get_yaw();
-    float pitch = camera->get_pitch();
+    float yaw = cam->get_yaw();
+    float pitch = cam->get_pitch();
 
-    camera->set_yaw(yaw + xoffset * sensitivity);
-    camera->set_pitch(pitch + yoffset * sensitivity);
+    cam->set_yaw(yaw + xoffset * sensitivity);
+    cam->set_pitch(pitch + yoffset * sensitivity);
 
-    if (camera->get_pitch() > 89.0f)  camera->set_pitch(89.0f);
-    if (camera->get_pitch() < -89.0f) camera->set_pitch(-89.0f);
+    if (cam->get_pitch() > 89.0f)  cam->set_pitch(89.0f);
+    if (cam->get_pitch() < -89.0f) cam->set_pitch(-89.0f);
 
     camera->update_view();
 }
@@ -86,21 +86,33 @@ void InputManager::handle_click(double xpos, double ypos) {
     glm::vec3 ray = compute_mouse_ray(xpos, ypos);
     glm::vec3 origin = camera->get_position();
 
-    RenderableScene* scene = static_cast<RenderableScene*>(scene_manager->get_current_scene_obj());
+    if (!scene_manager) {
+        LOG_ERROR("SceneManager is null in handle_click");
+        return;
+    }
+
+    auto scene_base = scene_manager->get_current_scene_obj();
+    if (!scene_base) {
+        LOG_INFO("No scene loaded when click occurred.");
+        return;
+    }
+
+    auto scene = dynamic_cast<RenderableScene*>(scene_base);
+    if (!scene) {
+        LOG_INFO("Current scene is not a RenderableScene.");
+        return;
+    }
     auto objects = scene->get_objects();
     int hit_id = ray_intersects_object(origin, ray, objects);
 
     if (hit_id == -1 || hit_id == selected_object_id) {
-        // No hit or deselecting same object
         renderer->set_selected_object(-1);
         selected_object_id = -1;
     } else {
-        // New selection
         renderer->set_selected_object(hit_id);
         selected_object_id = hit_id;
     }
 }
-
 glm::vec3 InputManager::compute_mouse_ray(double mouse_x, double mouse_y) {
     int width, height;
     glfwGetWindowSize(window, &width, &height);
@@ -195,10 +207,11 @@ bool InputManager::intersect_ray_triangle(const glm::vec3& origin, const glm::ve
 void InputManager::update(float delta_time) {
     float speed = 5.0f * delta_time;
 
-    glm::vec3 pos = camera->get_position();
-    glm::vec3 front = camera->get_front();
-    glm::vec3 right = camera->get_right();
-    glm::vec3 up = camera->get_up();
+    auto cam = std::dynamic_pointer_cast<PerspectiveCamera>(camera);
+    glm::vec3 pos = cam->get_position();
+    glm::vec3 front = cam->get_front();
+    glm::vec3 right = cam->get_right();
+    glm::vec3 up = cam->get_up();
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         pos += front * speed;
@@ -213,7 +226,7 @@ void InputManager::update(float delta_time) {
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         pos += up * speed;
 
-    camera->set_position(pos);
-    camera->update_view();
+    cam->set_position(pos);
+    cam->update_view();
 }
 

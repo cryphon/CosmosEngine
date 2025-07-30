@@ -24,6 +24,7 @@ void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const
     scene_manager = s;
     engine = e;
     camera = c;
+    LOG_DEBUG("UI initialized: scene_manager = " + std::to_string((uintptr_t)scene_manager.get()));
 }
 
 void UI::render() {
@@ -101,6 +102,7 @@ void UI::render() {
             changed |= ImGui::DragFloat3("Scale", glm::value_ptr(obj.transform.scale), 0.05f);
             changed |= ImGui::SliderFloat("Reflect", &reflectivity_slider, 0.0f, 1.0f);
             changed |= ImGui::SliderFloat("Alpha", &alpha_slider, 0.0f, 1.0f);
+            changed |= ImGui::ColorEdit3("baseColor", glm::value_ptr(base_color));
 
             std::vector<std::string> shader_keys = ShaderLibrary::get_keys();
             std::string current_shader_name = ShaderLibrary::get_name(obj.material->shader);

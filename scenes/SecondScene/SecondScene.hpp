@@ -10,8 +10,8 @@ class PerspectiveCamera;
 
 class SecondScene : public RenderableScene {
     public:
-        SecondScene(Renderer* renderer, std::shared_ptr<Camera> camera)
-            : renderer(renderer), camera(camera) {}
+        SecondScene(Renderer* renderer)
+            : renderer(renderer) {}
 
         void initialize() override;
         void cleanup() override;

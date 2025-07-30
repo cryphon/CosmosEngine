@@ -1,16 +1,16 @@
 #pragma once
 
 #include <memory>
-#include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
 #include "SceneObject.hpp"
 
 class GLFWwindow;
 class Renderer;
+class Camera;
 
 class InputManager {
     public:
-        InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer);
+        InputManager(GLFWwindow* window, std::shared_ptr<Camera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer);
         void update(float dt);
         void cursor_pos_callback(GLFWwindow* window, double pos_x, double pos_y);
         void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -18,7 +18,7 @@ class InputManager {
 
     private:
         GLFWwindow* window;
-        std::shared_ptr<PerspectiveCamera> camera;
+        std::shared_ptr<Camera> camera;
         std::shared_ptr<SceneManager> scene_manager;
         std::shared_ptr<Renderer> renderer;
 

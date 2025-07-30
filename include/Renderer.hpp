@@ -37,6 +37,14 @@ public:
 
     void set_selected_object(int id) { selected_object_id = id; }
     void set_highlight_shader(std::shared_ptr<Shader> shader) { highlight_shader = shader; }
+    void set_default_camera(std::shared_ptr<Camera> cam) {
+        default_camera = cam;
+    }
+
+    const Camera& get_camera_or_default(const Camera* cam_ptr) const {
+        if (cam_ptr) return *cam_ptr;
+        return *default_camera;
+    }
 
 private:
     std::vector<RenderCommand> render_queue;
@@ -51,6 +59,7 @@ private:
     VAO grid_vao;
     std::shared_ptr<Shader> grid_shader;
     int grid_vert_cnt;
+    std::shared_ptr<Camera> default_camera;
 
 
     int selected_object_id = -1;

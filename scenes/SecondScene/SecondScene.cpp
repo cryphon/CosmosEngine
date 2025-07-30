@@ -23,6 +23,7 @@ void SecondScene::initialize(){
         shader.set_vec3("viewPos", ctx.view_pos);
         shader.set_float("reflectivity", ctx.reflectivity);
         shader.set_float("alpha", ctx.alpha);
+        shader.set_vec3("baseColor", ctx.base_color);
     };
     reflect_material->texture = renderer->get_skybox_material()->texture;
 

@@ -8,6 +8,7 @@ struct UniformContext {
     glm::vec3 light_pos;
     glm::vec3 light_color;
     glm::mat4 model;
+    glm::vec3 base_color;
     float reflectivity;
     float alpha;
 };

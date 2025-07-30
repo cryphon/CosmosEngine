@@ -1,7 +1,6 @@
 #include "MainScene.hpp"
 #include "PerspectiveCamera.hpp"
 #include "Shader.hpp"
-#include "Mesh.hpp"
 #include "Renderer.hpp"
 #include "SceneObject.hpp"
 #include "ObjLoader.hpp"
@@ -17,6 +16,29 @@ void MainScene::initialize(){
     ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
     ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
     ShaderLibrary::load("highlight", "shaders/passthrough.vert", "shaders/highlight.frag");
+
+    // --- Init Camera
+    auto main_cam = std::make_shared<PerspectiveCamera>(
+        glm::vec3(0.0f, 3.0f, 8.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+    main_cam->set_aspect_ratio(16.0f / 9.0f);
+    main_cam->update_view();
+
+    add_camera("main", main_cam);
+    set_active_camera("main");
+    renderer->set_default_camera(main_cam);
+
+    auto alt_cam = std::make_shared<PerspectiveCamera>(
+            glm::vec3(8.0f, 5.0f, 0.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+            );
+    alt_cam->set_aspect_ratio(16.0f / 9.0f);
+    alt_cam->update_view();
+
+    add_camera("side", alt_cam);
 
 
     renderer->set_highlight_shader(ShaderLibrary::get("highlight"));
@@ -65,6 +87,7 @@ void MainScene::initialize(){
     transform.cache_trigger = true;
     transform.update_matrices();
     objects.emplace_back("human", mesh, default_material, transform);
+    LOG_INFO("MainScene initialized; current object count: " + std::to_string(objects.size()));
 
 }
 

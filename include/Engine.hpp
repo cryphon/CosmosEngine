@@ -21,6 +21,19 @@ class Engine : public std::enable_shared_from_this<Engine>{
 
         bool init();
         void run();
+        bool init_glfw();
+        bool create_window();
+        bool init_glad();
+        void init_renderer();
+        void init_camera();
+        void init_input();
+        void init_scene_factories();
+        void init_ui();
+        void init_skybox();
+        void init_grid();
+        void resize_viewport();
+        void on_resize(int width, int height);
+
         InputManager* get_input();
 
         float get_delta_time() const { return delta_t; }
@@ -33,7 +46,6 @@ class Engine : public std::enable_shared_from_this<Engine>{
         std::shared_ptr<SceneManager> scene_manager;
         std::shared_ptr<UI> ui;
         std::unique_ptr<InputManager> input;
-        std::shared_ptr<Camera> camera;
 
 
         // --- Timing ---
