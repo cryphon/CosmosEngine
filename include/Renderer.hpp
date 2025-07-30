@@ -12,7 +12,7 @@
 #include "Light.hpp"
 
 class Camera;
-
+class UI;
 
 class Renderer {
 public:
@@ -26,6 +26,7 @@ public:
     void render_skybox(const Camera& camera, int screen_width, int screen_height);
     void init_grid(std::shared_ptr<Shader> shader, float size = 10.0f, float step = 1.0f);
     void render_grid(const Camera& camera, int screen_width, int screen_height, float size = 10.0f, float step = 1.0f);
+    void set_ui(std::shared_ptr<UI> ui_ptr) { ui = ui_ptr; }
     void clear();
 
     void set_light(const Light& light);
@@ -39,6 +40,7 @@ public:
 
 private:
     std::vector<RenderCommand> render_queue;
+    std::shared_ptr<UI> ui = nullptr;
     Light light = Light({2.0f, 2.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
 
     // --- Sky Box ---

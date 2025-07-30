@@ -84,6 +84,7 @@ bool Engine::init() {
     renderer = std::make_shared<Renderer>();
     scene_manager = std::make_shared<SceneManager>();
     ui = std::make_shared<UI>();
+    renderer->set_ui(ui);
 
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
