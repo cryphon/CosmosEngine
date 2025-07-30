@@ -12,6 +12,8 @@ class UI {
 public:
     UI();
     ~UI();
+    float reflectivity_slider = 0.5f;
+    float alpha_slider = 0.5f;
 
     void initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, std::shared_ptr<Engine> e, std::shared_ptr<Camera> c);
     void render();

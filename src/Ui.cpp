@@ -6,6 +6,7 @@
 #include "ShaderLibrary.hpp"
 #include <GLFW/glfw3.h>
 #include "Engine.hpp"
+#include "UniformContext.hpp"
 
 UI::UI() {}
 UI::~UI() {}
@@ -26,6 +27,7 @@ void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const
 }
 
 void UI::render() {
+    UniformContext ctx;
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Debug")) {
             ImGui::MenuItem("Show Debug", nullptr, &show_debug);
@@ -98,6 +100,8 @@ void UI::render() {
             changed |= ImGui::DragFloat3("Position", glm::value_ptr(obj.transform.position), 0.1f);
             changed |= ImGui::DragFloat3("Rotation", glm::value_ptr(obj.transform.rotation), 0.5f);
             changed |= ImGui::DragFloat3("Scale", glm::value_ptr(obj.transform.scale), 0.05f);
+            changed |= ImGui::SliderFloat("Reflect", &reflectivity_slider, 0.0f, 1.0f);
+            changed |= ImGui::SliderFloat("Alpha", &alpha_slider, 0.0f, 1.0f);
 
             std::vector<std::string> shader_keys = ShaderLibrary::get_keys();
             std::string current_shader_name = ShaderLibrary::get_name(obj.material->shader);
@@ -118,6 +122,9 @@ void UI::render() {
             if (changed) {
                 obj.transform.cache_trigger = true;
                 obj.transform.update_matrices();
+
+                ctx.reflectivity = reflectivity_slider;
+                obj.material->apply_uniforms(ctx);
             }
         }
 

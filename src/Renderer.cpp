@@ -8,6 +8,7 @@
 #include "Material.hpp"
 #include "UniformContext.hpp"
 #include "UniformPresets.hpp"
+#include "Ui.hpp"
 
 
 Renderer::Renderer() {}
@@ -28,6 +29,13 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
     // Light properties (temporary static light)
     ctx.light_pos = light.position;
     ctx.light_color = light.color;
+
+
+    // set ui controlled ctx vars
+    if(ui) {
+        ctx.reflectivity = ui->reflectivity_slider;
+        ctx.alpha = ui->alpha_slider;
+    };
 
     for (const auto& cmd : render_queue) {
         auto& material = *cmd.material;

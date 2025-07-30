@@ -46,6 +46,8 @@ void Mesh::init_positions_only(const float* vertices, size_t v_size) {
 }
 
 void Mesh::draw() const {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     if (!vbo) {
         LOG_ERROR("[Mesh::draw] Error: VBO not initialized");
         return;
