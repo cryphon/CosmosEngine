@@ -22,6 +22,7 @@ float last_x = 400.0f, last_y = 400.0f;
 bool first_mouse = true;
 bool rotate_drag = false;   // true while holding RMB
 bool first_drag = true;     // reset delta to avoid jump
+std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
 
 InputManager* Engine::get_input() {
     return input.get();
@@ -50,7 +51,22 @@ std::string format_mat4(const glm::mat4& mat, const std::string& label = "mat4x4
 }
 
 
-std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+
+    auto engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
+    if (!engine || height == 0) return;
+
+    engine->screen_width = width;
+    engine->screen_height = height;
+
+    if (g_camera) {
+        g_camera->set_aspect_ratio(static_cast<float>(width) / height);
+    }
+}
+
+
+
 
 Engine::Engine() {}
 Engine::~Engine() {
@@ -82,6 +98,8 @@ bool Engine::init() {
         return false;
     }
     glfwMakeContextCurrent(window);
+
+
    
 
 
@@ -99,20 +117,7 @@ bool Engine::init() {
     g_camera = persp_camera;  // assign to global pointer for callback access
 
 
-    glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int w, int h) {
-            glViewport(0, 0, w, h);
-
-            auto engine = static_cast<Engine*>(glfwGetWindowUserPointer(win));
-            if (!engine || h == 0) return;
-
-            engine->screen_width = w;
-            engine->screen_height = h;
-
-            if (g_camera) {
-            g_camera->set_aspect_ratio(static_cast<float>(w) / h);
-            }
-    });
+    
     // --- Setup Input Manager ---
     input = std::make_unique<InputManager>(window, persp_camera, scene_manager, renderer);
 
@@ -121,6 +126,12 @@ bool Engine::init() {
         LOG_ERROR("Failed to initialize GLAD");
         return false;
     }
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    framebuffer_size_callback(window, w, h);
 
     glEnable(GL_DEPTH_TEST);
     LOG_DEBUG(std::string(format_mat4(camera->get_projection_matrix(), "Projection: ")));
@@ -134,9 +145,18 @@ bool Engine::init() {
     "textures/skybox/front.jpg",
     "textures/skybox/back.jpg"
     };
+
+    auto capture_shader = std::make_shared<Shader>("shaders/hdr_to_cubemap.vert", "shaders/hdr_to_cubemap.frag");
     auto skybox_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
-    renderer->init_skybox(faces, skybox_shader);
+
+    renderer->init_hdri_skybox("textures/skybox/brown_photostudio.hdr", capture_shader, skybox_shader);
     LOG_DEBUG("Skybox rendered");
+
+    // --- required to reset the viewport after cubemap rendering for skybox ---
+    glfwGetFramebufferSize(window, &w, &h);
+    glViewport(0, 0, w, h);
+    screen_width = w;
+    screen_height = h;
 
     // --- Set Grid
     auto grid_shader = std::make_shared<Shader>("shaders/grid.vert", "shaders/grid.frag");
