@@ -11,7 +11,7 @@
 GLuint equirectangular_to_cubemap(GLuint hdr_texture, std::shared_ptr<Shader> capture_shader, GLuint capture_fbo, GLuint capture_rbo) {
     // Create output cubemap texture
     GLuint cubemap;
-    const unsigned int cubemap_size = 2048;
+    const unsigned int cubemap_size = 1024;
     glGenTextures(1, &cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
     for (unsigned int i = 0; i < 6; ++i) {
