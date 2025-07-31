@@ -2,7 +2,7 @@
 
 **cosmosEngine** is a lightweight 3D rendering engine built from scratch using OpenGL — designed as a modular, simulation-ready sandbox for learning real-time graphics, shader programming, and procedural geometry.
 
-Named this way because I like space 🚀
+Named this way because I/we like space 🚀
 
 ---
 
