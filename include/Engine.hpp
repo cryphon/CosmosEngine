@@ -4,36 +4,31 @@
 #include <chrono>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "CameraControls.hpp"
 
 class UI;
 class Renderer;
 class SceneManager;
-class InputManager;
 class Camera;
+class Window;
 
-class InputManager;
 
 class Engine : public std::enable_shared_from_this<Engine>{
     public:
         Engine();
         ~Engine(); 
-        int screen_width = 1000, screen_height = 1000;
 
         bool init();
         void run();
-        InputManager* get_input();
 
-        float get_delta_time() const { return delta_t; }
-        int get_fps() const { return fps; }
         std::shared_ptr<Engine> get_ptr() { return shared_from_this(); }
 
     private:
-        GLFWwindow* window;
+        std::shared_ptr<Window> window;
+        std::shared_ptr<Camera> camera;
         std::shared_ptr<Renderer> renderer;
         std::shared_ptr<SceneManager> scene_manager;
         std::shared_ptr<UI> ui;
-        std::unique_ptr<InputManager> input;
-        std::shared_ptr<Camera> camera;
 
 
         // --- Timing ---
@@ -50,6 +45,9 @@ class Engine : public std::enable_shared_from_this<Engine>{
         void process_input();
         void update();
         void draw();
+
+
+        std::shared_ptr<FlyCameraControls> cameracontrols;
 };
 
 

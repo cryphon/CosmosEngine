@@ -9,6 +9,8 @@
 #include "UniformContext.hpp"
 #include "UniformPresets.hpp"
 #include "Ui.hpp"
+#include "Logger.hpp"
+#include <glm/gtx/string_cast.hpp>
 
 
 Renderer::Renderer() {}
@@ -22,9 +24,10 @@ void Renderer::submit(const RenderCommand& render_cmd) {
 void Renderer::render_all(const Camera& camera, int screen_width, int screen_height) {
     UniformContext ctx;
     // View and projection matrices
+    
     ctx.view = camera.get_view_matrix();
-    ctx.view_pos = camera.get_position();
-    ctx.projection = camera.get_projection_matrix();
+    ctx.view_pos = camera.get_transform().position;
+    ctx.projection = camera.get_projection_transform();
 
     // Light properties (temporary static light)
     ctx.light_pos = light.position;
@@ -60,7 +63,7 @@ void Renderer::render_all(const Camera& camera, int screen_width, int screen_hei
                 highlight_shader->activate_shader();
                 highlight_shader->set_mat4("model", cmd.transform.model_matrix);
                 highlight_shader->set_mat4("view", camera.get_view_matrix());
-                highlight_shader->set_mat4("projection", camera.get_projection_matrix());
+                highlight_shader->set_mat4("projection", camera.get_projection_transform());
                 highlight_shader->set_vec3("color", glm::vec3(1.0f, 1.0f, 0.0f)); // Yellow outline
 
                 // Optional wireframe
@@ -119,7 +122,7 @@ void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_
 
     UniformContext ctx;
     ctx.view = camera.get_view_matrix();
-    ctx.projection = camera.get_projection_matrix();
+    ctx.projection = camera.get_projection_transform();
 
     skybox_material->shader->activate_shader();
     if (skybox_material->bind_uniforms)
@@ -175,7 +178,7 @@ void Renderer::render_grid(const Camera& camera, int screen_width, int screen_he
 
     grid_shader->activate_shader();
     grid_shader->set_mat4("view", camera.get_view_matrix());
-    grid_shader->set_mat4("projection", camera.get_projection_matrix());
+    grid_shader->set_mat4("projection", camera.get_projection_transform());
     grid_shader->set_vec3("gridColor", glm::vec3(0.4f)); // gray
 
     grid_vao.bind();

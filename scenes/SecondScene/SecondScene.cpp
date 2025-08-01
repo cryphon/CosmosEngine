@@ -1,5 +1,4 @@
 #include "SecondScene.hpp"
-#include "PerspectiveCamera.hpp"
 #include "Shader.hpp"
 #include "Mesh.hpp"
 #include "Renderer.hpp"

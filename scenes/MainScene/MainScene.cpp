@@ -1,7 +1,5 @@
 #include "MainScene.hpp"
-#include "PerspectiveCamera.hpp"
 #include "Shader.hpp"
-#include "Mesh.hpp"
 #include "Renderer.hpp"
 #include "SceneObject.hpp"
 #include "ObjLoader.hpp"
