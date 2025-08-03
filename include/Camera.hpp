@@ -154,8 +154,6 @@ class OrbitalCameraControls : public CameraControls {
 };
 
 
-
-
 class CameraInputAdapter : public InputListener {
 public:
     CameraInputAdapter(CameraControls* controls, Camera& camera)

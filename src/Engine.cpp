@@ -44,8 +44,7 @@ bool Engine::init() {
     camera_->set_aspect_ratio(SCREEN_WIDTH / SCREEN_HEIGHT);
     camera_->update_view();
     camera_->update_projection();
-    camera_->set_manual_orientation(true); // required for orbit cam
-
+   
     controls_ = std::make_unique<OrbitalCameraControls>(window->get_glfw_ref(), camera_, glm::vec3(0.0f, 0.0f, 0.0f));
     camera_input_adapter_ = std::make_unique<CameraInputAdapter>(controls_.get(), *camera_);
     window->get_inputmanager()->add_listener(camera_input_adapter_.get());
