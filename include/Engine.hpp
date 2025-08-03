@@ -4,6 +4,7 @@
 #include <chrono>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "Window.hpp"
 
 class UI;
 class Renderer;
@@ -21,6 +22,7 @@ class Engine : public std::enable_shared_from_this<Engine>{
 
         bool init();
         void run();
+        void create_camera();
         InputManager* get_input();
 
         float get_delta_time() const { return delta_t; }
@@ -28,11 +30,9 @@ class Engine : public std::enable_shared_from_this<Engine>{
         std::shared_ptr<Engine> get_ptr() { return shared_from_this(); }
 
     private:
-        GLFWwindow* window;
+        Window* window;
         std::shared_ptr<Renderer> renderer;
         std::shared_ptr<SceneManager> scene_manager;
-        std::shared_ptr<UI> ui;
-        std::unique_ptr<InputManager> input;
         std::shared_ptr<Camera> camera;
 
 

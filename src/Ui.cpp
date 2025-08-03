@@ -6,10 +6,13 @@
 #include "ShaderLibrary.hpp"
 #include <GLFW/glfw3.h>
 #include "Engine.hpp"
-#include "UniformContext.hpp"
+#include <imgui_impl_opengl3.h>
+#include "Logger.hpp"
 
 UI::UI() {}
-UI::~UI() {}
+UI::~UI() {
+    shutdown();
+}
 
 void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, const std::shared_ptr<Engine> e, std::shared_ptr<Camera> c) {
     IMGUI_CHECKVERSION();
@@ -27,6 +30,15 @@ void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const
 }
 
 void UI::render() {
+    if(camera == nullptr) {
+        LOG_ERROR("Initialize and add camera to UI before calling UI::render");
+        exit(-1);
+    }
+    if(renderer == nullptr) {
+        LOG_ERROR("Initialize and add renderer to UI before calling UI::render");
+        exit(-1);
+    }
+
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Debug")) {
             ImGui::MenuItem("Show Debug", nullptr, &show_debug);

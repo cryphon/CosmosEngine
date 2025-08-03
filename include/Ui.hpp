@@ -2,11 +2,12 @@
 #include <memory>
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+
 class Renderer;
 class Camera;
 class SceneManager;
 class Engine;
+class Window;
 
 class UI {
 public:
@@ -19,6 +20,10 @@ public:
     void render();
     void update();
     void shutdown();
+    void set_camera(std::shared_ptr<Camera> camera);
+    void set_renderer(std::shared_ptr<Renderer> renderer);
+    void set_engine(std::shared_ptr<Engine> engine);
+    void set_window(std::shared_ptr<Window> window);
 
 private:
     std::shared_ptr<Renderer> renderer = nullptr;

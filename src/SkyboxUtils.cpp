@@ -12,6 +12,11 @@ GLuint equirectangular_to_cubemap(GLuint hdr_texture, std::shared_ptr<Shader> ca
     // Create output cubemap texture
     GLuint cubemap;
     const unsigned int cubemap_size = 1024;
+    // --- Viewport
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+
     glGenTextures(1, &cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
     for (unsigned int i = 0; i < 6; ++i) {
@@ -60,6 +65,9 @@ GLuint equirectangular_to_cubemap(GLuint hdr_texture, std::shared_ptr<Shader> ca
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cube->draw();
     }
+
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return cubemap;
