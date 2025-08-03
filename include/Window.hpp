@@ -100,6 +100,10 @@ class Window : public std::enable_shared_from_this<Window> {
     bool resize_updates_enabled_ = false;
     void framebuffersize_callback(GLFWwindow* window, int width, int height);
 
+
+    // Loop
+    void loop(const std::function<void(float)>& frame_callback);
+
     private:
         std::shared_ptr<InputManager> input_manager_;
         std::shared_ptr<UI> ui_;

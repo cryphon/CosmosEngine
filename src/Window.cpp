@@ -3,6 +3,8 @@
 #include "Camera.hpp"
 #include "Ui.hpp"
 #include "InputManager.hpp"
+#include <GLFW/glfw3.h>
+#include <imgui_impl_opengl3.h>
 
 
 bool glfwErrorLoggingEnabled = true;
@@ -114,4 +116,39 @@ void Window::init_inputmanager() {
 
 void Window::set_resize_callback(ResizeCallback cb) {
     resize_callback_ = std::move(cb);
+}
+
+
+void Window::loop(const std::function<void(float)>& frame_callback) {
+    auto last_frame = std::chrono::high_resolution_clock::now();
+
+    while(!glfwWindowShouldClose(window_)) {
+        auto now = std::chrono::high_resolution_clock::now();
+        float delta_t = std::chrono::duration<float>(now - last_frame).count();
+        last_frame = now;
+
+        // begin frame
+        glClearColor(clear_color_.r, clear_color_.g, clear_color_.b, clear_color_.a);
+
+        GLbitfield clearBits = GL_COLOR_BUFFER_BIT;
+        if (depthtest_enabled) clearBits |= GL_DEPTH_BUFFER_BIT;
+        if (stenciltest_enabled) clearBits |= GL_STENCIL_BUFFER_BIT;
+        glClear(clearBits);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+
+        // call user provided logic
+        frame_callback(delta_t);
+
+        // end frame
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window_);
+        glfwPollEvents();
+
+    }
 }
