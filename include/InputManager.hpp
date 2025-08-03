@@ -4,17 +4,26 @@
 #include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
 #include "SceneObject.hpp"
+#include "Logger.hpp"
 
 class GLFWwindow;
 class Renderer;
 
 class InputManager {
     public:
-        InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer);
+        InputManager(GLFWwindow* window);
         void update(float dt);
         void cursor_pos_callback(GLFWwindow* window, double pos_x, double pos_y);
         void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+        void set_input_cbs();
+        void set_camera(std::shared_ptr<PerspectiveCamera> cam) { 
+            auto log = (cam ? "valid" : "nullptr");
+            LOG_DEBUG("Setting camera: " + std::string(log));
+            camera = cam; } 
+        void set_renderer(std::shared_ptr<Renderer> ren) { renderer = ren; }
         int get_selected_object_id() { return selected_object_id; }
+
+        void set_scenemanager(std::shared_ptr<SceneManager> manager) { scene_manager = manager; }
 
     private:
         GLFWwindow* window;

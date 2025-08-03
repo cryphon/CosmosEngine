@@ -7,31 +7,37 @@ class Engine;
 #include "SceneObject.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "ShaderLibrary.hpp"
 #include "Renderer.hpp"
-
-InputManager* get_input(GLFWwindow* window);  // from Engine.cpp
-
+#include "Window.hpp"
 
 
-InputManager::InputManager(GLFWwindow* window, std::shared_ptr<PerspectiveCamera> camera, std::shared_ptr<SceneManager> scene_manager, std::shared_ptr<Renderer> renderer)
-    : window(window), camera(camera), scene_manager(scene_manager), renderer(renderer)
-{
+void InputManager::set_input_cbs() {
     glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
-        if (auto* input = get_input(win)) {
+            auto* data = static_cast<WindowData*>(glfwGetWindowUserPointer(win));
+            if (!data || !data->input) return;
+            auto* input = data->input;    
             input->handle_mouse(xpos, ypos);
-        }
     });
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow* win, int button, int action, int mods) {
-        if (auto* input = get_input(win)) {
+            auto* data = static_cast<WindowData*>(glfwGetWindowUserPointer(win));
+            if (!data || !data->input) return;
+            auto* input = data->input;    
             input->handle_mouse_button(button, action, mods);
-        }
     });
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
+
+
+InputManager::InputManager(GLFWwindow* window) 
+    : window(window) {
+        if(!window) {
+            LOG_ERROR("[InputManager] Constructor received null GLFWwindow*");
+        }
+        set_input_cbs();
+    }
 
 void InputManager::handle_mouse(double xpos, double ypos) {
     if (!rotating) return;

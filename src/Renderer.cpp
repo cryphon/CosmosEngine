@@ -86,7 +86,8 @@ void Renderer::init_skybox(const std::vector<std::string>& faces, std::shared_pt
 
 }
 
-void Renderer::init_grid(std::shared_ptr<Shader> shader, float size, float step){
+void Renderer::init_grid(float size, float step){
+    auto shader = std::make_shared<Shader>("shaders/grid.vert", "shaders/grid.frag");
     std::vector<float> grid_vertices;
 
     for (float i = -size; i <= size; i += step) {
@@ -134,7 +135,10 @@ void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_
 #include "TextureHDR.hpp"
 #include "SkyboxUtils.hpp"
 
-void Renderer::init_hdri_skybox(const std::string& hdr_path, std::shared_ptr<Shader> capture_shader, std::shared_ptr<Shader> render_shader) {
+void Renderer::init_hdri_skybox(const std::string& hdr_path) {
+    auto capture_shader = std::make_shared<Shader>("shaders/hdr_to_cubemap.vert", "shaders/hdr_to_cubemap.frag");
+    auto render_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
+
     // 1. Load HDR texture
     GLuint hdr_texture = load_hdr_texture(hdr_path);
     if (hdr_texture == 0) {

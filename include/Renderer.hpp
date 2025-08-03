@@ -22,9 +22,9 @@ public:
     void submit(const RenderCommand& render_cmd);
     void render_all(const Camera& camera, int screen_width, int screen_height);
     void init_skybox(const std::vector<std::string>& faces, std::shared_ptr<Shader> shader);
-    void init_hdri_skybox(const std::string& hdr_path, std::shared_ptr<Shader> capture_shader, std::shared_ptr<Shader> render_shader);
+    void init_hdri_skybox(const std::string& hdr_path);
     void render_skybox(const Camera& camera, int screen_width, int screen_height);
-    void init_grid(std::shared_ptr<Shader> shader, float size = 10.0f, float step = 1.0f);
+    void init_grid(float size = 10.0f, float step = 1.0f);
     void render_grid(const Camera& camera, int screen_width, int screen_height, float size = 10.0f, float step = 1.0f);
     void set_ui(std::shared_ptr<UI> ui_ptr) { ui = ui_ptr; }
     void clear();
