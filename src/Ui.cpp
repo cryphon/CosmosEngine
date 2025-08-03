@@ -141,22 +141,32 @@ void UI::render() {
 
     if (show_debug && camera_controls) {
 
-        static float yaw_slider = -90.0f;
-        static float pitch_slider = 0.0f;
-        ImGui::Begin("Debug Options");
-        ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
-        ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
-        ImGui::SliderFloat("Yaw", &yaw_slider, -180.0f, 180.0f);
-        ImGui::SliderFloat("Pitch", &pitch_slider, -89.0f, 89.0f);
+        std::shared_ptr<CameraControls> base_ptr = camera_controls;
+        std::shared_ptr<OrbitalCameraControls> orbital_ptr = std::dynamic_pointer_cast<OrbitalCameraControls>(base_ptr);
+
+        if (orbital_ptr && passive_rotation == false) {
+            yaw_slider = orbital_ptr->get_yaw();
+            pitch_slider = orbital_ptr->get_pitch();
+        }
+
+
+        ImGui::Begin("Camera/Debug Options");
+        bool changed = false;
+        changed |= ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
+        changed |= ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
+        changed |= ImGui::SliderFloat("Yaw", &yaw_slider, -180.0f, 180.0f);
+        changed |= ImGui::SliderFloat("Pitch", &pitch_slider, -89.0f, 89.0f);
+        changed |= ImGui::Checkbox("Enable Passive Rotation", &passive_rotation);
+        changed |= ImGui::SliderFloat("Passive Yaw Speed", &rotation_speed, -100.0f, 100.0f);
         ImGui::End();
 
-        std::shared_ptr<CameraControls> base_ptr = camera_controls;
-
-        std::shared_ptr<OrbitalCameraControls> orbital_ptr = std::dynamic_pointer_cast<OrbitalCameraControls>(base_ptr);
-        if (orbital_ptr) {
+        if (orbital_ptr && changed) {
             orbital_ptr->set_angles(yaw_slider, pitch_slider);
             orbital_ptr->apply_man_update();
-        }    }
+            orbital_ptr->set_passive_rotation(passive_rotation);
+            orbital_ptr->set_rotation_speed(rotation_speed);
+        }    
+    }
 }
 
 void UI::update() {

@@ -40,6 +40,7 @@ void Camera::update_vectors() {
 CameraControls::~CameraControls() = default;
 void CameraControls::on_mouse_move(double, double) {}
 void CameraControls::on_mouse_button(int, int, int) {}
+void CameraControls::on_scroll(double, double) {}
 
 
 
@@ -179,8 +180,19 @@ void OrbitalCameraControls::on_mouse_move(double xpos, double ypos) {
 }
 
 void OrbitalCameraControls::update(Camera& cam, float delta_t) {
+    if (passive_rotation_enabled_) {
+        yaw += passive_rotation_speed_ * delta_t;
+        if (yaw > 360.0f) yaw -= 360.0f;
+    }
+
     update_camera(cam);
 }
+
+void OrbitalCameraControls::on_scroll(double xoffset, double yoffset) {
+    radius -= static_cast<float>(yoffset) * zoom_speed;
+    radius = glm::clamp(radius, 1.0f, 200.0f);
+}
+
 
 void OrbitalCameraControls::update_camera(Camera& cam) {
     float yaw_rad = glm::radians(yaw);
@@ -195,7 +207,6 @@ void OrbitalCameraControls::update_camera(Camera& cam) {
     glm::vec3 position = target + offset;
     glm::vec3 front = glm::normalize(target - position);
 
-    // 🔁 Recalculate yaw and pitch from front
     float computed_yaw = glm::degrees(atan2(front.z, front.x));
     float computed_pitch = glm::degrees(asin(front.y));
 
@@ -208,8 +219,8 @@ void OrbitalCameraControls::update_camera(Camera& cam) {
     cam.set_right(right);
     cam.set_up(up);
 
-    cam.set_yaw(computed_yaw);     // 🔑 Keep camera's yaw in sync
-    cam.set_pitch(computed_pitch); // 🔑 Keep camera's pitch in sync
+    cam.set_yaw(computed_yaw);     
+    cam.set_pitch(computed_pitch);
 
     cam.update_view();
 }

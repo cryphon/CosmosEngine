@@ -30,16 +30,18 @@ private:
     std::shared_ptr<SceneManager> scene_manager;
     std::shared_ptr<Renderer> renderer;
 
-    std::vector<InputListener*> listeners;
+    std::vector<InputListener*> listeners_;
 
     // Callback dispatchers
     static void glfw_cursor_cb(GLFWwindow* win, double xpos, double ypos);
     static void glfw_mouse_button_cb(GLFWwindow* win, int button, int action, int mods);
     static void glfw_key_cb(GLFWwindow* win, int key, int scancode, int action, int mods);
+    static void glfw_scroll_cb(GLFWwindow* win, double xoffset, double yoffset);
 
     // Actual dispatcher methods
     void dispatch_mouse_move(double xpos, double ypos);
     void dispatch_mouse_button(int button, int action, int mods);
     void dispatch_key(int key, int action, int mods);
+    void dispatch_scroll(double xoffset, double yoffset);
 };
 
