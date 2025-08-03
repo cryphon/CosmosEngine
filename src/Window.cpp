@@ -138,7 +138,7 @@ void Window::loop(const std::function<void(float)>& frame_callback) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         
-        LOG_INFO("FPS: " + std::to_string(get_avg_fps()));
+        //LOG_INFO("FPS: " + std::to_string(get_avg_fps()));
 
 
         // call user provided logic

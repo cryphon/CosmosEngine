@@ -40,12 +40,12 @@ bool Engine::init() {
 
 
     camera_ = std::make_shared<Camera>();
-    camera_->set_position(glm::vec3(0.0f, 1.0f, 3.0f));
+    camera_->set_position(glm::vec3(0.0f, 0.0f, 10.0f));
     camera_->set_aspect_ratio(SCREEN_WIDTH / SCREEN_HEIGHT);
     camera_->update_view();
     camera_->update_projection();
-
-    controls_ = std::make_unique<FlyCameraControls>(window->get_glfw_ref(), camera_);
+   
+    controls_ = std::make_unique<OrbitalCameraControls>(window->get_glfw_ref(), camera_, glm::vec3(0.0f, 0.0f, 0.0f));
     camera_input_adapter_ = std::make_unique<CameraInputAdapter>(controls_.get(), *camera_);
     window->get_inputmanager()->add_listener(camera_input_adapter_.get());
 
@@ -68,7 +68,7 @@ bool Engine::init() {
         return std::make_unique<SecondScene>(renderer.get(), camera_);
     });
     scene_manager->set_scene("main");
-    ui->initialize(window->get_glfw_ref(), renderer, scene_manager, shared_from_this(), camera_);
+    ui->initialize(window->get_glfw_ref(), renderer, scene_manager, shared_from_this(), controls_);
 
     return true;
 }

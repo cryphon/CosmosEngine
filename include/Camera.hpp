@@ -53,6 +53,7 @@ class Camera : public InputListener {
         void update_view();
         void update_vectors();
 
+        void set_manual_orientation(bool stat) { use_manual_orientation_ = stat; }
 
     private:
         glm::vec3 position_;
@@ -68,8 +69,10 @@ class Camera : public InputListener {
         float far_plane_ = 1000.0f;
 
 
-         glm::mat4 view_matrix;
-         glm::mat4 projection_matrix;
+        glm::mat4 view_matrix;
+        glm::mat4 projection_matrix;
+
+        bool use_manual_orientation_ = false;
 };
 
 
@@ -79,6 +82,7 @@ class CameraControls {
 
         virtual void on_mouse_move(double xpos, double ypos);
         virtual void on_mouse_button(int button, int action, int mods);
+        virtual void on_scroll(double xoffset, double yoffset);
 
         virtual ~CameraControls();
 };
@@ -110,6 +114,46 @@ private:
 };
 
 
+class OrbitalCameraControls : public CameraControls {
+    public:
+        OrbitalCameraControls(GLFWwindow* window, std::shared_ptr<Camera> camera, glm::vec3 target = glm::vec3(0.0f));
+
+        void update(Camera& camera, float delta_t) override;
+        void on_mouse_move(double xpos, double ypos) override;
+        void on_mouse_button(int button, int action, int mods) override;
+        void on_scroll(double xoffset, double yoffset) override;
+        void set_angles(float new_yaw, float new_pitch);
+        void set_passive_rotation(bool enabled) { passive_rotation_enabled_ = enabled; }
+        void set_rotation_speed(float speed) { passive_rotation_speed_ = speed; }
+        void apply_man_update();
+        float get_yaw() const { return yaw; }
+        float get_pitch() const { return pitch; }
+
+
+    private:
+        void update_camera(Camera& camera);
+
+        GLFWwindow* window;
+        std::shared_ptr<Camera> camera;
+        glm::vec3 target;
+
+        bool rotating = false;
+        bool first_mouse = true;
+        double last_x = 0.0, last_y = 0.0;
+
+        float radius = 10.0f;
+        float yaw = -90.0f;
+        float pitch = 0.0f;
+
+        float sensitivity = 0.3f;
+        float zoom_speed = 0.5f;
+
+        float passive_rotation_speed_ = 10.0f; // degrees per second
+        bool passive_rotation_enabled_ = false;
+
+};
+
+
 class CameraInputAdapter : public InputListener {
 public:
     CameraInputAdapter(CameraControls* controls, Camera& camera)
@@ -125,6 +169,10 @@ public:
 
     void on_mouse_move(double xpos, double ypos) override {
         if (controls_) controls_->on_mouse_move(xpos, ypos);
+    }
+
+    void on_scroll(double xoffset, double yoffset) override {
+        if(controls_) controls_->on_scroll(xoffset, yoffset);
     }
 
 private:

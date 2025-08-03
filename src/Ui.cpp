@@ -7,13 +7,14 @@
 #include "Engine.hpp"
 #include <imgui_impl_opengl3.h>
 #include "Logger.hpp"
+#include "Camera.hpp"
 
 UI::UI() {}
 UI::~UI() {
     shutdown();
 }
 
-void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, const std::shared_ptr<Engine> e, std::shared_ptr<Camera> c) {
+void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, const std::shared_ptr<Engine> e, std::shared_ptr<CameraControls> c) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -25,12 +26,12 @@ void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const
     renderer = r;
     scene_manager = s;
     engine = e;
-    camera = c;
+    camera_controls = c;
 }
 
 void UI::render() {
-    if(camera == nullptr) {
-        LOG_ERROR("Initialize and add camera to UI before calling UI::render");
+    if(camera_controls == nullptr) {
+        LOG_ERROR("Initialize and add camera controls to UI before calling UI::render");
         exit(-1);
     }
     if(renderer == nullptr) {
@@ -138,11 +139,33 @@ void UI::render() {
         ImGui::End();
     } catch(int err) { }
 
-    if (show_debug) {
-        ImGui::Begin("Debug Options");
-        ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
-        ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
+    if (show_debug && camera_controls) {
+
+        std::shared_ptr<CameraControls> base_ptr = camera_controls;
+        std::shared_ptr<OrbitalCameraControls> orbital_ptr = std::dynamic_pointer_cast<OrbitalCameraControls>(base_ptr);
+
+        if (orbital_ptr && passive_rotation == false) {
+            yaw_slider = orbital_ptr->get_yaw();
+            pitch_slider = orbital_ptr->get_pitch();
+        }
+
+
+        ImGui::Begin("Camera/Debug Options");
+        bool changed = false;
+        changed |= ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
+        changed |= ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
+        changed |= ImGui::SliderFloat("Yaw", &yaw_slider, -180.0f, 180.0f);
+        changed |= ImGui::SliderFloat("Pitch", &pitch_slider, -89.0f, 89.0f);
+        changed |= ImGui::Checkbox("Enable Passive Rotation", &passive_rotation);
+        changed |= ImGui::SliderFloat("Passive Yaw Speed", &rotation_speed, -100.0f, 100.0f);
         ImGui::End();
+
+        if (orbital_ptr && changed) {
+            orbital_ptr->set_angles(yaw_slider, pitch_slider);
+            orbital_ptr->apply_man_update();
+            orbital_ptr->set_passive_rotation(passive_rotation);
+            orbital_ptr->set_rotation_speed(rotation_speed);
+        }    
     }
 }
 
