@@ -14,47 +14,12 @@
 #include "Logger.hpp"
 #include <imgui_impl_opengl3.h>
 #include "Window.hpp"
-#include "Camera.hpp"
 
 #define SCREEN_WIDTH 1200.0f
 #define SCREEN_HEIGHT 800.0f
 
 
 std::shared_ptr<PerspectiveCamera> g_camera = nullptr; //forward declare
-
-
-std::string format_mat4(const glm::mat4& mat, const std::string& label = "mat4x4") {
-    std::ostringstream oss;
-    oss << label << "(\n";
-    for (int row = 0; row < 4; ++row) {
-        oss << "  ";
-        for (int col = 0; col < 4; ++col) {
-            oss << std::setw(10) << std::fixed << std::setprecision(4) << mat[col][row];
-            if (col < 3) oss << ", ";
-        }
-        oss << "\n";
-    }
-    oss << ")";
-    return oss.str();
-}
-
-
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-
-    auto engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
-    if (!engine || height == 0) return;
-
-    engine->screen_width = width;
-    engine->screen_height = height;
-
-    if (g_camera) {
-        g_camera->set_aspect_ratio(static_cast<float>(width) / height);
-    }
-}
-
-
-
 
 Engine::Engine() {}
 Engine::~Engine() {
@@ -103,19 +68,8 @@ bool Engine::init() {
             camera->update_projection();
             });
 
-
-    LOG_DEBUG(std::string(format_mat4(camera->get_projection_matrix(), "Projection: ")));
-    LOG_DEBUG("Starting skybox rendering...");
-
-    auto capture_shader = std::make_shared<Shader>("shaders/hdr_to_cubemap.vert", "shaders/hdr_to_cubemap.frag");
-    auto skybox_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
-
-    renderer->init_hdri_skybox("textures/skybox/brown_photostudio.hdr", capture_shader, skybox_shader);
-    LOG_DEBUG("Skybox rendered");
- 
-    // --- Set Grid
-    auto grid_shader = std::make_shared<Shader>("shaders/grid.vert", "shaders/grid.frag");
-    renderer->init_grid(grid_shader);
+    renderer->init_hdri_skybox("textures/skybox/brown_photostudio.hdr");
+    renderer->init_grid();
 
 
     // --- Set Scene, Init Render & UI ---
@@ -132,63 +86,20 @@ bool Engine::init() {
 }
 
 void Engine::run() {
-    last_frame_time = std::chrono::high_resolution_clock::now();
-    fps_timer = last_frame_time;
+    window->loop([this](float dt) {
+            delta_t = dt;
 
-    while (!glfwWindowShouldClose(window->get_glfw_ref())) {
-        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+            window->get_inputmanager()->update(dt);
 
+            renderer->render_skybox(*camera, screen_width, screen_height);
+            renderer->render_grid(*camera, screen_width, screen_height);
 
-        // Clear the appropriate buffers.
-        auto clearBits = GL_COLOR_BUFFER_BIT;
-        if (window->depthtest_enabled) {
-            clearBits |= GL_DEPTH_BUFFER_BIT;
-        }
-        if (window->stenciltest_enabled) {
-            clearBits |= GL_STENCIL_BUFFER_BIT;
-        }
-        glClear(clearBits);
+            scene_manager->update(dt);
+            scene_manager->render();
 
+            window->get_ui()->update();
+            window->get_ui()->render();
+            scene_manager->render_ui();
 
-        // --- Update last_frame and dt
-        auto now = std::chrono::high_resolution_clock::now();
-        delta_t = std::chrono::duration<float>(now - last_frame_time).count();
-        last_frame_time = now;
-
-        // --- ImGui Frame Start ---
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-
-        window->get_inputmanager()->update(delta_t);
- 
-        renderer->render_skybox(*camera, screen_width, screen_height);
-        renderer->render_grid(*camera, screen_width, screen_height);
-
-        scene_manager->update(delta_t);
-        scene_manager->render();
-
-        window->get_ui()->update();
-        window->get_ui()->render();
-
-        scene_manager->render_ui();
-        
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // --- Update FPS ---
-        frame_count++;
-        float elapsed = std::chrono::duration<float>(now - fps_timer).count();
-        if (elapsed >= 1.0f) {
-            fps = frame_count;
-            frame_count = 0;
-            fps_timer = now;
-        }
-
-
-        // --- ImGui Frame End ---
-        glfwSwapBuffers(window->get_glfw_ref());
-        glfwPollEvents();
-    }
+    });
 }
