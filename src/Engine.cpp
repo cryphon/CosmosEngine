@@ -1,6 +1,4 @@
 #include "Engine.hpp"
-#include <iostream>
-#include <chrono>
 #include <memory>
 #include <glm/gtx/string_cast.hpp>
 #include "PerspectiveCamera.hpp"
@@ -9,9 +7,7 @@
 #include "SecondScene.hpp"
 #include "InputManager.hpp"
 #include "Ui.hpp"
-#include "Shader.hpp"
 #include "Renderer.hpp"
-#include "Logger.hpp"
 #include <imgui_impl_opengl3.h>
 #include "Window.hpp"
 
