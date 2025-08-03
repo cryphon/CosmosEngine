@@ -1,48 +1,45 @@
 #pragma once
 
 #include <memory>
-#include "PerspectiveCamera.hpp"
-#include "SceneManager.hpp"
-#include "SceneObject.hpp"
-#include "Logger.hpp"
+#include <vector>
 
 class GLFWwindow;
 class Renderer;
+class Camera;
+class InputListener;
+class SceneManager;
 
 class InputManager {
-    public:
-        InputManager(GLFWwindow* window);
-        void update(float dt);
-        void cursor_pos_callback(GLFWwindow* window, double pos_x, double pos_y);
-        void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-        void set_input_cbs();
-        void set_camera(std::shared_ptr<PerspectiveCamera> cam) { 
-            auto log = (cam ? "valid" : "nullptr");
-            LOG_DEBUG("Setting camera: " + std::string(log));
-            camera = cam; } 
-        void set_renderer(std::shared_ptr<Renderer> ren) { renderer = ren; }
-        int get_selected_object_id() { return selected_object_id; }
+public:
+    InputManager(GLFWwindow* window);
 
-        void set_scenemanager(std::shared_ptr<SceneManager> manager) { scene_manager = manager; }
+    void update(float dt);
+    void set_input_cbs();
 
-    private:
-        GLFWwindow* window;
-        std::shared_ptr<PerspectiveCamera> camera;
-        std::shared_ptr<SceneManager> scene_manager;
-        std::shared_ptr<Renderer> renderer;
+    void add_listener(InputListener* listener);
 
-        double last_x = 400.0, last_y = 400.0;
-        bool first_drag = true;
-        bool rotating = false;
-        int selected_object_id = -1;
-        float sensitivity = 0.1f;
+    void set_camera(std::shared_ptr<Camera> cam);
+    void set_renderer(std::shared_ptr<Renderer> ren);
+    void set_scenemanager(std::shared_ptr<SceneManager> manager);
 
-        void handle_mouse(double pos_x, double pos_y);
-        void handle_mouse_button(int button, int action, int mods);
-        void handle_click(double xpos, double ypos);
-        
-        glm::vec3 compute_mouse_ray(double xpos, double ypos);
-        int ray_intersects_object(const glm::vec3& origin, const glm::vec3& ray, const std::vector<SceneObject>& objects);
-        bool intersect_ray_triangle(const glm::vec3&, const glm::vec3&, const glm::vec3&, const glm::vec3&, const glm::vec3&, float&);
-};      
+    int get_selected_object_id();
+
+private:
+    GLFWwindow* window;
+    std::shared_ptr<Camera> camera;
+    std::shared_ptr<SceneManager> scene_manager;
+    std::shared_ptr<Renderer> renderer;
+
+    std::vector<InputListener*> listeners;
+
+    // Callback dispatchers
+    static void glfw_cursor_cb(GLFWwindow* win, double xpos, double ypos);
+    static void glfw_mouse_button_cb(GLFWwindow* win, int button, int action, int mods);
+    static void glfw_key_cb(GLFWwindow* win, int key, int scancode, int action, int mods);
+
+    // Actual dispatcher methods
+    void dispatch_mouse_move(double xpos, double ypos);
+    void dispatch_mouse_button(int button, int action, int mods);
+    void dispatch_key(int key, int action, int mods);
+};
 

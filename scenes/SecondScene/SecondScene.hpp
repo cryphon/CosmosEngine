@@ -6,7 +6,6 @@ class Renderer;
 class Camera;
 class Mesh;
 class Material;
-class PerspectiveCamera;
 
 class SecondScene : public RenderableScene {
     public:

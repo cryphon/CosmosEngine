@@ -35,8 +35,9 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/Window.cpp
     ${SRC_DIR}/Engine.cpp
     ${SRC_DIR}/Renderer.cpp
-    ${SRC_DIR}/PerspectiveCamera.cpp
+    ${SRC_DIR}/Camera.cpp
     ${SRC_DIR}/InputManager.cpp
+    ${SRC_DIR}/InputListener.cpp
     ${SRC_DIR}/ObjLoader.cpp
     ${SRC_DIR}/ShaderLibrary.cpp
     ${SRC_DIR}/SkyboxUtils.cpp
