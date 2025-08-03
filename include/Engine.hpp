@@ -25,6 +25,7 @@ class Engine : public std::enable_shared_from_this<Engine>{
         void run();
         void create_camera();
         InputManager* get_input();
+        Window* get_window() { return window; }
 
         std::shared_ptr<Engine> get_ptr() { return shared_from_this(); }
 

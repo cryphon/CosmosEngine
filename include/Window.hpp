@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <functional>
+#include <chrono>
 
 
 class InputManager;
@@ -107,4 +108,9 @@ class Window : public std::enable_shared_from_this<Window> {
         std::shared_ptr<InputManager> input_manager_;
         std::shared_ptr<UI> ui_;
         std::shared_ptr<WindowData> window_data_;
+
+
+        mutable std::chrono::high_resolution_clock::time_point last_fps_time_ = std::chrono::high_resolution_clock::now();
+        mutable int frame_count_ = 0;
+        mutable float avg_fps_ = 0.0f;
 };

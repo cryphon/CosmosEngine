@@ -28,7 +28,7 @@ Engine::~Engine() {
 bool Engine::init() {
     window = new Window(1200, 800, "Cosmos Engine", false, 4);
     window->set_clear_color(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-    window->enable_vsync();
+    //window->enable_vsync();
     window->activate();
     window->init_ui();
     window->init_inputmanager();

@@ -138,7 +138,8 @@ void UI::render() {
         ImGui::End();
     } catch(int err) { }
 
-    if (show_debug && camera) {
+    if (show_debug) {
+        ImGui::Begin("Debug Options");
         ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
         ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
         ImGui::End();

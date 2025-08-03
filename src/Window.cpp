@@ -1,6 +1,5 @@
 #include "Window.hpp"
 #include "Logger.hpp"
-#include "Camera.hpp"
 #include "Ui.hpp"
 #include "InputManager.hpp"
 #include <GLFW/glfw3.h>
@@ -138,6 +137,8 @@ void Window::loop(const std::function<void(float)>& frame_callback) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        
+        LOG_INFO("FPS: " + std::to_string(get_avg_fps()));
 
 
         // call user provided logic
@@ -152,3 +153,21 @@ void Window::loop(const std::function<void(float)>& frame_callback) {
 
     }
 }
+
+
+float Window::get_avg_fps() const {
+    using namespace std::chrono;
+
+    frame_count_++;
+    auto now = high_resolution_clock::now();
+    duration<float> elapsed = now - last_fps_time_;
+
+    if (elapsed.count() >= 1.0f) {
+        avg_fps_ = static_cast<float>(frame_count_) / elapsed.count();
+        frame_count_ = 0;
+        last_fps_time_ = now;
+    }
+
+    return avg_fps_;
+}
+
