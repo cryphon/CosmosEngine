@@ -45,10 +45,9 @@ bool Engine::init() {
     camera_->update_view();
     camera_->update_projection();
 
-    controls_ = std::make_shared<FlyCameraControls>(window->get_glfw_ref(), camera_);
-    fly_camera_adapter_ = std::make_shared<FlyCameraInputAdapter>(
-    static_cast<FlyCameraControls*>(controls_.get())); 
-    window->get_inputmanager()->add_listener(fly_camera_adapter_.get());
+    controls_ = std::make_unique<FlyCameraControls>(window->get_glfw_ref(), camera_);
+    camera_input_adapter_ = std::make_unique<CameraInputAdapter>(controls_.get(), *camera_);
+    window->get_inputmanager()->add_listener(camera_input_adapter_.get());
 
 
     window->set_resize_callback([this](int width, int height) {

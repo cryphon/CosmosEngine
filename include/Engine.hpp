@@ -11,7 +11,7 @@ class SceneManager;
 class InputManager;
 class Camera;
 class CameraControls;
-class FlyCameraInputAdapter;
+class CameraInputAdapter;
 
 class InputManager;
 
@@ -34,7 +34,7 @@ class Engine : public std::enable_shared_from_this<Engine>{
         std::shared_ptr<SceneManager> scene_manager;
         std::shared_ptr<Camera> camera_;
         std::shared_ptr<CameraControls> controls_;
-        std::shared_ptr<FlyCameraInputAdapter> fly_camera_adapter_;
+        std::shared_ptr<CameraInputAdapter> camera_input_adapter_;
 
 
 

@@ -76,7 +76,11 @@ class Camera : public InputListener {
 class CameraControls {
     public:
         virtual void update(Camera& camera, float delta_t) = 0;
-        virtual ~CameraControls() = default;
+
+        virtual void on_mouse_move(double xpos, double ypos);
+        virtual void on_mouse_button(int button, int action, int mods);
+
+        virtual ~CameraControls();
 };
 
 
@@ -85,8 +89,8 @@ public:
     FlyCameraControls(GLFWwindow* window, std::shared_ptr<Camera> camera);
     void update(Camera& camera, float delta_t) override;
     void update(float delta_t);
-    void on_mouse_button(int button, int action, int mods);
-    void on_mouse_move(double xpos, double ypos);
+    void on_mouse_button(int button, int action, int mods) override;
+    void on_mouse_move(double xpos, double ypos) override;
 
 
 private:
@@ -106,22 +110,24 @@ private:
 };
 
 
-class FlyCameraInputAdapter : public InputListener {
+class CameraInputAdapter : public InputListener {
 public:
-    FlyCameraInputAdapter(FlyCameraControls* ctrl)
-        : controls(ctrl) {}
+    CameraInputAdapter(CameraControls* controls, Camera& camera)
+        : controls_(controls), camera_(camera) {}
 
     void update(float dt) override {
-        if (controls) controls->update(dt);
+        if (controls_) controls_->update(camera_, dt);
     }
 
     void on_mouse_button(int button, int action, int mods) override {
-        if (controls) controls->on_mouse_button(button, action, mods);
+        if (controls_) controls_->on_mouse_button(button, action, mods);
     }
+
     void on_mouse_move(double xpos, double ypos) override {
-        if (controls) controls->on_mouse_move(xpos, ypos);
+        if (controls_) controls_->on_mouse_move(xpos, ypos);
     }
 
 private:
-    FlyCameraControls* controls;
+    CameraControls* controls_;
+    Camera& camera_;
 };

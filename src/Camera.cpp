@@ -30,6 +30,13 @@ void Camera::update_vectors() {
     up_    = glm::normalize(glm::cross(right_, front_));
 }
 
+// Force vtable generation
+CameraControls::~CameraControls() = default;
+void CameraControls::on_mouse_move(double, double) {}
+void CameraControls::on_mouse_button(int, int, int) {}
+
+
+
 
 FlyCameraControls::FlyCameraControls(GLFWwindow* win, std::shared_ptr<Camera> cam)
     : window(win), camera(cam)
