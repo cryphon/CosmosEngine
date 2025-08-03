@@ -7,7 +7,6 @@
 
 
 class InputManager;
-class PerspectiveCamera;
 class UI;
 class Window;
 

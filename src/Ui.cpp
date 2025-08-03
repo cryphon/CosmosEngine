@@ -1,6 +1,5 @@
 #include "Ui.hpp"
 #include "Renderer.hpp"
-#include "PerspectiveCamera.hpp"
 #include "SceneManager.hpp"
 #include "RenderableScene.hpp"
 #include "ShaderLibrary.hpp"
@@ -140,17 +139,8 @@ void UI::render() {
     } catch(int err) { }
 
     if (show_debug && camera) {
-        ImGui::Begin("Camera Position");
-        if (auto persp = dynamic_cast<PerspectiveCamera*>(camera.get())) {
-            glm::vec3 pos = persp->get_position();
-            if (ImGui::DragFloat3("Camera Pos", &pos.x, 0.1f)) {
-                persp->set_position(pos);
-                persp->update_view();
-            }
-        }
         ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
         ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
-        ImGui::Text("FPS: %d", engine->get_fps());
         ImGui::End();
     }
 }
