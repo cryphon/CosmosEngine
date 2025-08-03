@@ -2,6 +2,7 @@
 #include "Camera.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <imgui.h>
 
 
 Camera::Camera()
@@ -92,8 +93,7 @@ void FlyCameraControls::on_mouse_button(int button, int action, int mods) {
 }
 
 void FlyCameraControls::on_mouse_move(double xpos, double ypos) {
-    if (!rotating) return;
-
+    if (!rotating || ImGui::GetIO().WantCaptureMouse) return;
     if (first_mouse) {
         last_x = xpos;
         last_y = ypos;
