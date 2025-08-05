@@ -18,6 +18,7 @@ struct Vec2 { float u, v; };
 struct Vertex {
     Vec3 position;
     Vec3 normal;
+    Vec3 color;
     Vec2 texcoord;
     
     bool operator==(const Vertex& other) const {

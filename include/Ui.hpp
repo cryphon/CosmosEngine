@@ -8,6 +8,7 @@ class CameraControls;
 class SceneManager;
 class Engine;
 class Window;
+class SceneObject;
 
 class UI {
 public:
@@ -15,6 +16,8 @@ public:
     ~UI();
     float reflectivity_slider = 0.5f;
     float alpha_slider = 0.5f;
+    float roughness_slider = 0.0f;
+    float metallic_slider = 0.0f;
     float yaw_slider = -90.0f;
     float pitch_slider = 0.0f;
     bool passive_rotation = false;
@@ -28,6 +31,7 @@ public:
     void set_renderer(std::shared_ptr<Renderer> renderer);
     void set_engine(std::shared_ptr<Engine> engine);
     void set_window(std::shared_ptr<Window> window);
+    void show_shader_settings_popup(SceneObject& obj);
 
 private:
     std::shared_ptr<Renderer> renderer = nullptr;

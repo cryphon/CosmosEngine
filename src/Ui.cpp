@@ -105,15 +105,9 @@ void UI::render() {
 
         if (selected_index >= 0 && selected_index < objects.size()) {
             SceneObject& obj = objects[selected_index];
-
             ImGui::Text("Editing: %s", obj.name.c_str());
-            bool changed = false;
-            changed |= ImGui::DragFloat3("Position", glm::value_ptr(obj.transform.position), 0.1f);
-            changed |= ImGui::DragFloat3("Rotation", glm::value_ptr(obj.transform.rotation), 0.5f);
-            changed |= ImGui::DragFloat3("Scale", glm::value_ptr(obj.transform.scale), 0.05f);
-            changed |= ImGui::SliderFloat("Reflect", &reflectivity_slider, 0.0f, 1.0f);
-            changed |= ImGui::SliderFloat("Alpha", &alpha_slider, 0.0f, 1.0f);
 
+            // Shader selection
             std::vector<std::string> shader_keys = ShaderLibrary::get_keys();
             std::string current_shader_name = ShaderLibrary::get_name(obj.material->shader);
 
@@ -130,12 +124,14 @@ void UI::render() {
                 ImGui::EndCombo();
             }
 
-            if (changed) {
-                obj.transform.cache_trigger = true;
-                obj.transform.update_matrices();
+            // Open shader config window on button click
+            if (ImGui::Button("Open Shader Settings")) {
+                ImGui::OpenPopup("ShaderSettingsPopup");
             }
-        }
 
+            // Show the popup or window
+            show_shader_settings_popup(obj);
+        }
         ImGui::End();
     } catch(int err) { }
 
@@ -168,6 +164,38 @@ void UI::render() {
         }    
     }
 }
+
+
+void UI::show_shader_settings_popup(SceneObject& obj) {
+    if (ImGui::BeginPopup("ShaderSettingsPopup")) {
+        std::string shader_name = ShaderLibrary::get_name(obj.material->shader);
+
+        ImGui::Text("Shader: %s", shader_name.c_str());
+        ImGui::Separator();
+
+        // Example: Check for known uniforms based on shader name
+        if (shader_name == "Reflective" || shader_name == "PBR") {
+            ImGui::SliderFloat("Reflectivity", &reflectivity_slider , 0.0f, 1.0f);
+            obj.material->shader->set_float("uReflectivity", reflectivity_slider);
+
+            ImGui::SliderFloat("Alpha", &alpha_slider, 0.0f, 1.0f);
+            obj.material->shader->set_float("uAlpha", alpha_slider);
+        }
+
+        if (shader_name == "PBR") {
+            ImGui::SliderFloat("Roughness", &roughness_slider, 0.0f, 1.0f);
+            obj.material->shader->set_float("uRoughness", roughness_slider);
+
+            ImGui::SliderFloat("Metallic", &metallic_slider, 0.0f, 1.0f);
+            obj.material->shader->set_float("uMetallic", metallic_slider);
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
+
+
 
 void UI::update() {
     static bool prev_f1 = false;

@@ -101,11 +101,12 @@ static void flatten_vbuf(const std::vector<Vertex> &verts, std::vector<float> &o
         out_data.push_back(v.normal.x);
         out_data.push_back(v.normal.y);
         out_data.push_back(v.normal.z);
-        out_data.push_back(1.0f); // default white color R
-        out_data.push_back(1.0f); // default white color G
-        out_data.push_back(1.0f); // default white color B
+        out_data.push_back(v.color.x); // default white color R
+        out_data.push_back(v.color.y); // default white color G
+        out_data.push_back(v.color.z); // default white color B
         out_data.push_back(v.texcoord.u);
         out_data.push_back(v.texcoord.v);
+
     }
 }
 
@@ -134,6 +135,11 @@ std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radi
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
+    if (!vertices.empty()) {
+        std::cout << "First texcoord: (" 
+            << vertices[0].texcoord.u << ", " 
+            << vertices[0].texcoord.v << ")\n";
+    };
     for (int y = 0; y <= rings; ++y) {
         float v = static_cast<float>(y) / rings;
         float theta = v * glm::pi<float>();
@@ -153,9 +159,16 @@ std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radi
                 radius * sinTheta * sinPhi
             );
             glm::vec3 normal = glm::normalize(pos);
-            glm::vec2 texcoord = glm::vec2(u, 1.0f - v);
+            glm::vec3 color = glm::vec3(1.0f); // unused but required
+            float tile = 4.0f; // Try 4x tiling
+            glm::vec2 texcoord = glm::vec2(u * tile, v * tile);
 
-            vertices.push_back({ { pos.x, pos.y, pos.z }, { normal.x, normal.y, normal.z }, { texcoord.x, texcoord.y } });
+            vertices.push_back({ 
+                { pos.x, pos.y, pos.z },
+                { normal.x, normal.y, normal.z },
+                { color.x, color.y, color.z },
+                { texcoord.x, texcoord.y }
+            });
         }
     }
 

@@ -67,7 +67,9 @@ bool Engine::init() {
     scene_manager->register_factory("second", [this]() {
         return std::make_unique<SecondScene>(renderer.get(), camera_);
     });
+
     scene_manager->set_scene("main");
+    scene_manager->set_scene("second");
     ui->initialize(window->get_glfw_ref(), renderer, scene_manager, shared_from_this(), controls_);
 
     return true;

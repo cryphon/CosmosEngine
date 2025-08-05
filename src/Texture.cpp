@@ -8,21 +8,46 @@ Texture::Texture(const char* image, GLenum tex_type, GLenum slot, GLenum format,
     stbi_set_flip_vertically_on_load(true);
     unsigned char* bytes = stbi_load(image, &width_img, &height_img, &num_cols, 0);
 
+    if (!bytes) {
+        LOG_ERROR("Failed to load texture: " + std::string(image));
+        return; // Don't continue
+    }
+
+    GLenum data_format, internal_format;
+
+    switch (num_cols) {
+        case 1:
+            data_format = GL_RED;
+            internal_format = GL_RED;
+            break;
+        case 3:
+            data_format = GL_RGB;
+            internal_format = GL_RGB;
+            break;
+        case 4:
+            data_format = GL_RGBA;
+            internal_format = GL_RGBA;
+            break;
+        default:
+            LOG_ERROR("Unsupported channel count: " + std::to_string(num_cols));
+            stbi_image_free(bytes);
+            return;
+    }
+
     glGenTextures(1, &ID);
     glActiveTexture(slot);
     glBindTexture(tex_type, ID);
 
-	glTexParameteri(tex_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-	glTexParameteri(tex_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(tex_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(tex_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(tex_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(tex_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glTexParameteri(tex_type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(tex_type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTexImage2D(tex_type, 0, GL_RGBA, width_img, height_img, 0, format, pixel_type, bytes);
+    glTexImage2D(tex_type, 0, internal_format, width_img, height_img, 0, data_format, pixel_type, bytes);
     glGenerateMipmap(tex_type);
 
+    LOG_INFO("Loaded texture: " + std::string(image));
     stbi_image_free(bytes);
-
     glBindTexture(tex_type, 0);
 }
 
@@ -68,8 +93,8 @@ void Texture::tex_unit(Shader& shader, const char* uniform, GLuint unit) {
     glUniform1i(tex_uni, unit);
 }
 
-void Texture::bind() { 
-    glActiveTexture;
+void Texture::bind(GLenum slot) { 
+    glActiveTexture(slot);
     glBindTexture(type, ID);
 }
 
