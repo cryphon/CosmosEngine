@@ -65,7 +65,7 @@ void SecondScene::initialize(){
     t2.update_matrices();
 
     //objects.emplace_back("basic", std::move(sphere1), default_material, t1);
-    objects.emplace_back("pbr",   std::move(sphere2), pbr_material,     t0);
+    objects.emplace_back("pbr",   std::move(sphere2), pbr_material, t0);
 
 }
 

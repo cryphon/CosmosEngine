@@ -8,8 +8,21 @@ in vec3 FragPos;
 
 uniform vec3 viewPos;
 
+uniform vec3 uAlbedo;
+uniform float uMetallic;
+uniform float uRoughness;
+
 uniform sampler2D uAlbedoMap;
 uniform bool useAlbedoMap;
+
+uniform sampler2D uNormalMap;
+uniform bool useNormalMap;
+
+uniform sampler2D uRoughnessMap;
+uniform bool useRoughnessMap;
+
+uniform sampler2D uMetallicMap;
+uniform bool useMetallicMap;
 
 const float PI = 3.14159265359;
 
@@ -51,13 +64,13 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main() {
 
-    float roughness = 0.95;
-    float metallic = 0.0;
     vec3 lightColor = vec3(1.0, 0.95, 0.9); // slightly warm white
     float lightIntensity = 5.0;
 
     vec3 radiance = lightColor * lightIntensity;
-    vec3 albedo = useAlbedoMap ? texture(uAlbedoMap, TexCoords).rgb : vec3(1.0, 0.0, 1.0);
+    vec3 albedo = useAlbedoMap ? texture(uAlbedoMap, TexCoords).rgb : uAlbedo;
+    float roughness = useRoughnessMap ? texture(uRoughnessMap, TexCoords).r : uRoughness;
+    float metallic = useMetallicMap ? texture(uMetallicMap, TexCoords).r : uMetallic;
     
     // normalize the normal vector
     vec3 N = normalize(Normal);
@@ -102,7 +115,7 @@ void main() {
     vec3 Lo = (diffuse + specular) * radiance * NdotL;
 
     vec3 color = albedo * diff;
-    FragColor = vec4(Lo,  1.0);
+    FragColor = vec4(vec3(roughness),  1.0);
 }
 
 

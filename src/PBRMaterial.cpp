@@ -38,6 +38,22 @@ void PBRMaterial::bind() {
     } else {
         shader->set_bool("useRoughnessMap", false);
     }
+
+    if(metallicMap) {
+        metallicMap->bind(GL_TEXTURE3);
+        shader->set_bool("useMetallicMap", true);
+        shader->set_int("uMetallicMap", 3);
+    } else {
+        shader->set_bool("useMetallicMap", false);
+    }
+
+    if(aoMap) {
+        aoMap->bind(GL_TEXTURE4);
+        shader->set_bool("useAoMap", true);
+        shader->set_int("uMetallicMap", 4);
+    } else {
+        shader->set_bool("useAoMap", false);
+    }
     // ... repeat for metallicMap, aoMap as needed
 }
 
