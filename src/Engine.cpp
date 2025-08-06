@@ -57,7 +57,7 @@ bool Engine::init() {
             });
 
     renderer->init_hdri_skybox("textures/skybox/brown_photostudio.hdr");
-    renderer->init_grid();
+    renderer->init_grid(); 
 
 
     // --- Set Scene, Init Render & UI ---

@@ -10,7 +10,6 @@
 #include "UniformPresets.hpp"
 #include "Ui.hpp"
 
-
 Renderer::Renderer() {}
 
 Renderer::~Renderer() {} 
@@ -134,10 +133,12 @@ void Renderer::render_skybox(const Camera& camera, int screen_width, int screen_
 
 #include "TextureHDR.hpp"
 #include "SkyboxUtils.hpp"
+#include "SkyboxManager.hpp"
 
 void Renderer::init_hdri_skybox(const std::string& hdr_path) {
     auto capture_shader = std::make_shared<Shader>("shaders/hdr_to_cubemap.vert", "shaders/hdr_to_cubemap.frag");
     auto render_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
+    auto skybox_manager = std::make_shared<SkyBoxManager>();
 
     // 1. Load HDR texture
     GLuint hdr_texture = load_hdr_texture(hdr_path);
@@ -169,6 +170,10 @@ void Renderer::init_hdri_skybox(const std::string& hdr_path) {
     skybox_mesh->init_positions_only(skybox_vertices, sizeof(skybox_vertices));
     skybox_mesh->set_vertex_cnt(36);
     skybox_mesh->set_draw_mode(MeshDrawMode::Arrays);
+
+    skybox_manager->register_factory("loft", [this]() {
+        return std::make_unique<SkyBox>(skybox_mesh, skybox_material);
+    });
 
     skybox_enabled = true;
 }
