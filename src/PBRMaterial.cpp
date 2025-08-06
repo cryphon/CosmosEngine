@@ -49,10 +49,10 @@ void PBRMaterial::bind() {
 
     if(aoMap) {
         aoMap->bind(GL_TEXTURE4);
-        shader->set_bool("useAoMap", true);
-        shader->set_int("uMetallicMap", 4);
+        shader->set_bool("useAOMap", true);
+        shader->set_int("uAOMap", 4);
     } else {
-        shader->set_bool("useAoMap", false);
+        shader->set_bool("useAOMap", false);
     }
     // ... repeat for metallicMap, aoMap as needed
 }

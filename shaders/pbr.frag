@@ -24,6 +24,9 @@ uniform bool useRoughnessMap;
 uniform sampler2D uMetallicMap;
 uniform bool useMetallicMap;
 
+uniform sampler2D uAOMap;
+uniform bool useAOMap;
+
 const float PI = 3.14159265359;
 
 
@@ -71,6 +74,7 @@ void main() {
     vec3 albedo = useAlbedoMap ? texture(uAlbedoMap, TexCoords).rgb : uAlbedo;
     float roughness = useRoughnessMap ? texture(uRoughnessMap, TexCoords).r : uRoughness;
     float metallic = useMetallicMap ? texture(uMetallicMap, TexCoords).r : uMetallic;
+    float ao = useAOMap ? texture(uAOMap, TexCoords).r : 1.0;
     
     // normalize the normal vector
     vec3 N = normalize(Normal);
@@ -105,6 +109,11 @@ void main() {
     float diff = max(dot(N, L), 0.0);
 
 
+    // ao shading with dark gray fallback ambient
+    vec3 ambientColor = vec3(0.03); // dark gray fallback ambient
+    vec3 ambient = ao * ambientColor * albedo;
+
+
     
     // PBR
     vec3 kS = F;
@@ -114,8 +123,9 @@ void main() {
     vec3 diffuse = kD * albedo / PI;
     vec3 Lo = (diffuse + specular) * radiance * NdotL;
 
+    vec3 finalColor = ambient + Lo;
     vec3 color = albedo * diff;
-    FragColor = vec4(vec3(roughness),  1.0);
+    FragColor = vec4(finalColor,  1.0);
 }
 
 
