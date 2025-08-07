@@ -51,6 +51,7 @@ void SecondScene::initialize(){
     pbr_material->roughnessMap = std::make_shared<Texture>("assets/materials/wall/roughness.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     pbr_material->metallicMap = std::make_shared<Texture>("assets/materials/wall/metallic.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     pbr_material->aoMap = std::make_shared<Texture>("assets/materials/wall/ao.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    pbr_material->normalMap = std::make_shared<Texture>("assets/materials/wall/normal.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 
 
     auto sphere1 = Mesh::create_uv_sphere(64, 32, 1.0f);

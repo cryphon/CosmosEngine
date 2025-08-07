@@ -5,6 +5,8 @@ out vec4 FragColor;
 in vec3 Normal;
 in vec2 TexCoords;
 in vec3 FragPos;
+in vec3 Tangent;
+in vec3 Bitangent;
 
 uniform vec3 viewPos;
 
@@ -67,19 +69,26 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main() {
 
+
     vec3 lightColor = vec3(1.0, 0.95, 0.9); // slightly warm white
     float lightIntensity = 5.0;
 
     vec3 radiance = lightColor * lightIntensity;
     vec3 albedo = useAlbedoMap ? texture(uAlbedoMap, TexCoords).rgb : uAlbedo;
+    vec3 normalMap = useNormalMap ? texture(uNormalMap, TexCoords).rgb : Normal;    
+    normalMap = normalMap * 2.0 - 1.0; // convert from [0, 1] to [-1, 1]
     float roughness = useRoughnessMap ? texture(uRoughnessMap, TexCoords).r : uRoughness;
     float metallic = useMetallicMap ? texture(uMetallicMap, TexCoords).r : uMetallic;
     float ao = useAOMap ? texture(uAOMap, TexCoords).r : 1.0;
     
+
+    mat3 TBN = mat3(normalize(Tangent), normalize(Bitangent), normalize(Normal)); // make sure T, B, N are in the same space as lighting
     // normalize the normal vector
     vec3 N = normalize(Normal);
-
-    // view direction
+    if (useNormalMap) {
+        vec3 map = texture(uNormalMap, TexCoords).rgb * 2.0 - 1.0;
+        N = normalize(TBN * map);
+}    // view direction
     vec3 V = normalize(viewPos - FragPos);
 
     // Light direction (toward the light) -- fixed in world/view space 
