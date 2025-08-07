@@ -16,6 +16,7 @@ public:
     float alpha = 1.0f;
     float reflectivity = 0.0f;
     float tiling = 1.0f;
+    float displacement = 0.05f;
 
     std::shared_ptr<Texture> albedoMap = nullptr;
     std::shared_ptr<Texture> normalMap = nullptr;

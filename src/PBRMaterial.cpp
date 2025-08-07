@@ -12,6 +12,7 @@ void PBRMaterial::bind() {
     shader->set_float("uAlpha", alpha);
     shader->set_float("uReflectivity", reflectivity);
     shader->set_float("uTiling", tiling);
+    shader->set_float("uDisplacementStrength", displacement);
 
     // Texture 0: Albedo
     if (albedoMap) {

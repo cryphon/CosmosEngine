@@ -18,15 +18,33 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+
+uniform sampler2D uDisplacementMap;
+uniform float uDisplacementStrength;
+uniform bool useDisplacementMap;
+
+uniform float uTiling;
+
 void main() {
     Normal = mat3(transpose(inverse(model))) * aNormal;
 
     Tangent = mat3(model) * aTangent;
     Bitangent = mat3(model) * aBitangent;
 
-    FragPos = vec3(model * vec4(aPos, 1.0));
     TexCoords = aTexCoord;
 
-    gl_Position = projection * view * vec4(FragPos, 1.0);
-}
+    vec2 tiledUV = TexCoords * uTiling; // Same tiling factor used in fragment shader
+    float displacement = 0.0;
+    if(useDisplacementMap) {
+        displacement = texture(uDisplacementMap, tiledUV).r;
+    }
 
+    // apply displacement conditionally
+    vec3 displacedPos = aPos;
+    if(useDisplacementMap) {
+        displacedPos += aNormal * (displacement - 0.5) * uDisplacementStrength;
+    }
+
+    gl_Position = projection * view * model * vec4(displacedPos, 1.0);
+    FragPos = vec3(model * vec4(displacedPos, 1.0));
+}

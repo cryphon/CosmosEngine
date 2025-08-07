@@ -47,15 +47,13 @@ void SecondScene::initialize(){
     pbr_material->albedo = glm::vec3(1.0f, 0.8f, 0.6f);
     pbr_material->roughness = 0.5f;
     pbr_material->metallic = 0.0f;
-    pbr_material->tiling = 1.0f;
-    pbr_material->albedoMap = std::make_shared<Texture>("assets/materials/bricks/albedo.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->roughnessMap = std::make_shared<Texture>("assets/materials/bricks/roughness.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->metallicMap = std::make_shared<Texture>("assets/materials/bricks/metallic.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->aoMap = std::make_shared<Texture>("assets/materials/bricks/ao.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->normalMap = std::make_shared<Texture>("assets/materials/bricks/normal.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->displacementMap = std::make_shared<Texture>("assets/materials/bricks/displacement.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    auto sphere1 = Mesh::create_uv_sphere(64, 32, 1.0f);
-    auto sphere2 = Mesh::create_uv_sphere(64, 32, 1.0f);
+    pbr_material->albedoMap = std::make_shared<Texture>("assets/materials/roofing/albedo.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    pbr_material->roughnessMap = std::make_shared<Texture>("assets/materials/roofing/roughness.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    //pbr_material->metallicMap = std::make_shared<Texture>("assets/materials/roofing/metallic.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    pbr_material->aoMap = std::make_shared<Texture>("assets/materials/roofing/ao.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    pbr_material->normalMap = std::make_shared<Texture>("assets/materials/roofing/normal.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    pbr_material->displacementMap = std::make_shared<Texture>("assets/materials/roofing/displacement.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    auto sphere2 = Mesh::create_uv_sphere(256, 128, 1.0f);
 
     Transform t0, t1, t2;
     t0.position = {0.0f, 0.0f, 0.0f };

@@ -23,6 +23,7 @@ public:
     bool passive_rotation = false;
     float rotation_speed = 10.0f;
     float tiling_slider = 1.0f;
+    float displacement_slider = 0.05f;
 
     void initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, std::shared_ptr<Engine> e, std::shared_ptr<CameraControls> c);
     void render();

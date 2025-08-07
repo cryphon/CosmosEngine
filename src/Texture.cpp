@@ -5,7 +5,7 @@
 Texture::Texture(const char* image, GLenum tex_type, GLenum slot, GLenum format, GLenum pixel_type) {
     type = tex_type;
     int width_img, height_img, num_cols;
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
     unsigned char* bytes = stbi_load(image, &width_img, &height_img, &num_cols, 0);
 
     if (!bytes) {

@@ -202,6 +202,8 @@ void UI::show_shader_settings_popup(SceneObject& obj) {
             mat->metallic = metallic_slider;
             ImGui::SliderFloat("Tiling", &tiling_slider, 0.1f, 10.0f);
             mat->tiling = tiling_slider;
+            ImGui::SliderFloat("Displacement", &displacement_slider, 0.0f, 1.0f);
+            mat->displacement = displacement_slider;
         }
 
         ImGui::EndPopup();
