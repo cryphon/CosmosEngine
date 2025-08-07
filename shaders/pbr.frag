@@ -74,7 +74,7 @@ void main() {
     float lightIntensity = 5.0;
 
     vec3 radiance = lightColor * lightIntensity;
-    vec3 albedo = useAlbedoMap ? texture(uAlbedoMap, TexCoords).rgb : uAlbedo;
+    vec3 albedo = useAlbedoMap ? pow(texture(uAlbedoMap, TexCoords).rgb, vec3(2.2)) : uAlbedo;
     vec3 normalMap = useNormalMap ? texture(uNormalMap, TexCoords).rgb : Normal;    
     normalMap = normalMap * 2.0 - 1.0; // convert from [0, 1] to [-1, 1]
     float roughness = useRoughnessMap ? texture(uRoughnessMap, TexCoords).r : uRoughness;
@@ -134,7 +134,8 @@ void main() {
 
     vec3 finalColor = ambient + Lo;
     vec3 color = albedo * diff;
-    FragColor = vec4(finalColor,  1.0);
+    // Final output color (gamma correction manually)
+    FragColor = vec4(pow(finalColor, vec3(1.0/2.2)), 1.0);
 }
 
 
