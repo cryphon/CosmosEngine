@@ -13,6 +13,7 @@ uniform vec3 viewPos;
 uniform vec3 uAlbedo;
 uniform float uMetallic;
 uniform float uRoughness;
+uniform float uTiling;
 
 uniform sampler2D uAlbedoMap;
 uniform bool useAlbedoMap;
@@ -29,7 +30,11 @@ uniform bool useMetallicMap;
 uniform sampler2D uAOMap;
 uniform bool useAOMap;
 
+uniform sampler2D uDisplacementMap;
+uniform bool useDisplacementMap;
+
 const float PI = 3.14159265359;
+const float parallaxStrength = 0.02;
 
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0) {
@@ -69,24 +74,38 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main() {
 
+    vec2 tiledUV = TexCoords * uTiling;
+
+
+    vec2 displacedUV = tiledUV;
+    if(useDisplacementMap) {
+        // parallax mapping
+        float height = texture(uDisplacementMap, tiledUV).r;
+
+        vec3 viewDir = normalize(viewPos - FragPos);
+        vec2 offset = viewDir.xy * (height - 0.5) * parallaxStrength;
+        displacedUV += offset;
+    }
+
+
 
     vec3 lightColor = vec3(1.0, 0.95, 0.9); // slightly warm white
     float lightIntensity = 5.0;
 
     vec3 radiance = lightColor * lightIntensity;
-    vec3 albedo = useAlbedoMap ? pow(texture(uAlbedoMap, TexCoords).rgb, vec3(2.2)) : uAlbedo;
-    vec3 normalMap = useNormalMap ? texture(uNormalMap, TexCoords).rgb : Normal;    
+    vec3 albedo = useAlbedoMap ? pow(texture(uAlbedoMap, displacedUV).rgb, vec3(2.2)) : uAlbedo;
+    vec3 normalMap = useNormalMap ? texture(uNormalMap, tiledUV).rgb : Normal;    
     normalMap = normalMap * 2.0 - 1.0; // convert from [0, 1] to [-1, 1]
-    float roughness = useRoughnessMap ? texture(uRoughnessMap, TexCoords).r : uRoughness;
-    float metallic = useMetallicMap ? texture(uMetallicMap, TexCoords).r : uMetallic;
-    float ao = useAOMap ? texture(uAOMap, TexCoords).r : 1.0;
+    float roughness = useRoughnessMap ? texture(uRoughnessMap, tiledUV).r : uRoughness;
+    float metallic = useMetallicMap ? texture(uMetallicMap, tiledUV).r : uMetallic;
+    float ao = useAOMap ? texture(uAOMap, tiledUV).r : 1.0;
     
 
     mat3 TBN = mat3(normalize(Tangent), normalize(Bitangent), normalize(Normal)); // make sure T, B, N are in the same space as lighting
     // normalize the normal vector
     vec3 N = normalize(Normal);
     if (useNormalMap) {
-        vec3 map = texture(uNormalMap, TexCoords).rgb * 2.0 - 1.0;
+        vec3 map = texture(uNormalMap, tiledUV).rgb * 2.0 - 1.0;
         N = normalize(TBN * map);
 }    // view direction
     vec3 V = normalize(viewPos - FragPos);

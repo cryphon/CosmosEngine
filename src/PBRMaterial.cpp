@@ -11,6 +11,7 @@ void PBRMaterial::bind() {
     shader->set_float("uMetallic", metallic);
     shader->set_float("uAlpha", alpha);
     shader->set_float("uReflectivity", reflectivity);
+    shader->set_float("uTiling", tiling);
 
     // Texture 0: Albedo
     if (albedoMap) {
@@ -54,6 +55,13 @@ void PBRMaterial::bind() {
     } else {
         shader->set_bool("useAOMap", false);
     }
-    // ... repeat for metallicMap, aoMap as needed
+
+    if(displacementMap) {
+        displacementMap->bind(GL_TEXTURE5);
+        shader->set_bool("useDisplacementMap", true);
+        shader->set_int("uDisplacementMap", 5);
+    } else {
+        shader->set_bool("useDisplacementMap", false);
+    }
 }
 

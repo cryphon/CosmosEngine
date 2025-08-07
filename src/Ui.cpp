@@ -8,6 +8,7 @@
 #include <imgui_impl_opengl3.h>
 #include "Logger.hpp"
 #include "Camera.hpp"
+#include "PBRMaterial.hpp"
 
 UI::UI() {}
 UI::~UI() {
@@ -194,11 +195,13 @@ void UI::show_shader_settings_popup(SceneObject& obj) {
         }
 
         if (shader_name == "PBR") {
+            auto mat = std::dynamic_pointer_cast<PBRMaterial>(obj.material);
             ImGui::SliderFloat("Roughness", &roughness_slider, 0.0f, 1.0f);
-            obj.material->shader->set_float("uRoughness", roughness_slider);
-
+            mat->roughness = roughness_slider;
             ImGui::SliderFloat("Metallic", &metallic_slider, 0.0f, 1.0f);
-            obj.material->shader->set_float("uMetallic", metallic_slider);
+            mat->metallic = metallic_slider;
+            ImGui::SliderFloat("Tiling", &tiling_slider, 0.1f, 10.0f);
+            mat->tiling = tiling_slider;
         }
 
         ImGui::EndPopup();

@@ -139,7 +139,7 @@ std::unique_ptr<Mesh> Mesh::from_obj(const std::string& path) {
 };
 
 
-std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radius) {
+std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radius, float tile) {
     auto mesh = std::make_unique<Mesh>();
 
     std::vector<Vertex> vertices;
@@ -170,7 +170,6 @@ std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radi
             );
             glm::vec3 normal = glm::normalize(pos);
             glm::vec3 color = glm::vec3(1.0f); // unused but required
-            float tile = 4.0f; // Try 4x tiling
             glm::vec2 texcoord = glm::vec2(u * tile, v * tile);
 
             vertices.push_back({ 
