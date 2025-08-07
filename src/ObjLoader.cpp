@@ -14,9 +14,9 @@ std::shared_ptr<Mesh> ObjLoader::load(const std::string& path) {
         return nullptr;
     }
 
-    std::vector<Vec3> temp_pos;
-    std::vector<Vec2> temp_tex_coords;
-    std::vector<Vec3> temp_normals;
+    std::vector<glm::vec3> temp_pos;
+    std::vector<glm::vec2> temp_tex_coords;
+    std::vector<glm::vec3> temp_normals;
     std::vector<Vertex> out_vertices;
     std::vector<uint32_t> out_indices;
 
@@ -30,15 +30,15 @@ std::shared_ptr<Mesh> ObjLoader::load(const std::string& path) {
         ss >> type;
 
         if (type == "v") {
-            Vec3 pos;
+            glm::vec3 pos;
             ss >> pos.x >> pos.y >> pos.z;
             temp_pos.push_back(pos);
         } else if (type == "vt") {
-            Vec2 uv;
-            ss >> uv.u >> uv.v;
+            glm::vec2 uv;
+            ss >> uv.x >> uv.y;
             temp_tex_coords.push_back(uv);
         } else if (type == "vn") {
-            Vec3 normal;
+            glm::vec3 normal;
             ss >> normal.x >> normal.y >> normal.z;
             temp_normals.push_back(normal);
         } else if (type == "f") {
@@ -104,8 +104,8 @@ std::shared_ptr<Mesh> ObjLoader::load(const std::string& path) {
         packed.push_back(1.0f); // default color R
         packed.push_back(1.0f); // default color G
         packed.push_back(1.0f); // default color B
-        packed.push_back(v.texcoord.u);
-        packed.push_back(v.texcoord.v);
+        packed.push_back(v.texcoord.x);
+        packed.push_back(v.texcoord.y);
     }
 
     auto mesh = std::make_unique<Mesh>();

@@ -12,49 +12,50 @@ enum class MeshDrawMode {
     Arrays
 };
 
-struct Vec3 { float x, y, z; };
-struct Vec2 { float u, v; };
 
 struct Vertex {
-    Vec3 position;
-    Vec3 normal;
-    Vec2 texcoord;
-    
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec3 color;
+    glm::vec2 texcoord;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
+
     bool operator==(const Vertex& other) const {
-        return position.x == other.position.x && position.y == other.position.y && position.z == other.position.z &&
-               normal.x == other.normal.x && normal.y == other.normal.y && normal.z == other.normal.z &&
-               texcoord.u == other.texcoord.u && texcoord.v == other.texcoord.v;
+        return position == other.position &&
+        normal == other.normal &&
+        texcoord == other.texcoord;
     }
 };
 
 
+
 template<>
-    struct std::hash<Vertex> {
-        size_t operator()(const Vertex& vertex) const {
-            size_t h1 = hash<float>()(vertex.position.x);
-            size_t h2 = hash<float>()(vertex.position.y);
-            size_t h3 = hash<float>()(vertex.position.z);
+struct std::hash<glm::vec2> {
+    size_t operator()(const glm::vec2& v) const {
+        return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1);
+    }
+};
 
-            size_t h4 = hash<float>()(vertex.normal.x);
-            size_t h5 = hash<float>()(vertex.normal.y);
-            size_t h6 = hash<float>()(vertex.normal.z);
+template<>
+struct std::hash<glm::vec3> {
+    size_t operator()(const glm::vec3& v) const {
+        size_t h1 = std::hash<float>()(v.x);
+        size_t h2 = std::hash<float>()(v.y);
+        size_t h3 = std::hash<float>()(v.z);
+        return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
+};
 
-            size_t h7 = hash<float>()(vertex.texcoord.u);
-            size_t h8 = hash<float>()(vertex.texcoord.v);
-
-            // Combine hashes (boost-like hash combine)
-            size_t seed = h1;
-            seed ^= h2 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= h3 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= h4 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= h5 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= h6 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= h7 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= h8 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-
-            return seed;
-        }
-    };
+template<>
+struct std::hash<Vertex> {
+    size_t operator()(const Vertex& vertex) const {
+        size_t h1 = std::hash<glm::vec3>()(vertex.position);
+        size_t h2 = std::hash<glm::vec3>()(vertex.normal);
+        size_t h3 = std::hash<glm::vec2>()(vertex.texcoord);
+        return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
+};
 
 class Mesh {
     public:
@@ -70,7 +71,7 @@ class Mesh {
         void set_draw_mode(MeshDrawMode mode) { draw_mode = mode; }
         void init(const float* vertices, size_t v_size, const unsigned int* indices, size_t i_size);
         void init_positions_only(const float* vertices, size_t v_size);
-        static std::unique_ptr<Mesh> create_uv_sphere(int segments, int rings, float radius = 1.0f);
+        static std::unique_ptr<Mesh> create_uv_sphere(int segments, int rings, float radius = 1.0f, float tile = 1.0f);
         void draw() const;
 
         // Getters
