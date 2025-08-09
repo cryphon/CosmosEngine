@@ -30,7 +30,6 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/Material.cpp
 
     ${SRC_DIR}/Mesh.cpp
-    ${SRC_DIR}/Skybox.cpp
     ${SRC_DIR}/PBRMaterial.cpp
     ${SRC_DIR}/Application.cpp
     ${SRC_DIR}/Window.cpp

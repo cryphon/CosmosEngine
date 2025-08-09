@@ -10,6 +10,7 @@ class SceneManager;
 class Engine;
 class Window;
 class SceneObject;
+class SkyBoxManager;
 class Texture;
 
 class UI {
@@ -27,7 +28,7 @@ public:
     float tiling_slider = 1.0f;
     float displacement_slider = 0.05f;
 
-    void initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, std::shared_ptr<Engine> e, std::shared_ptr<CameraControls> c);
+    void initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, std::shared_ptr<Engine> e, std::shared_ptr<CameraControls> c, const std::shared_ptr<SkyBoxManager> sbm);
     void render();
     void update();
     void shutdown();
@@ -43,7 +44,7 @@ private:
     std::shared_ptr<SceneManager> scene_manager = nullptr;
     std::shared_ptr<Engine> engine = nullptr;
     std::shared_ptr<CameraControls> camera_controls = nullptr;
-
+    std::shared_ptr<SkyBoxManager> skybox_manager = nullptr;
 
     bool show_debug =false; 
 };

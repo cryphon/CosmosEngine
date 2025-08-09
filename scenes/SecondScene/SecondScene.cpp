@@ -7,6 +7,7 @@
 #include "ShaderLibrary.hpp"
 #include "UniformContext.hpp"
 #include "ObjLoader.hpp"
+#include "SkyboxUtils.hpp"
 #include "PBRMaterial.hpp"
 #include "MaterialLibrary.hpp"
 
@@ -61,6 +62,11 @@ void SecondScene::render() {
         renderer->submit({ obj.mesh, obj.material, obj.transform, obj.get_id()});
     }
     renderer->render_all(*camera, 1000, 1000);
+
+    if (skybox) {
+        renderer->render_skybox(*camera, 1000, 1000, skybox);
+    }
+
     renderer->clear();
 }
 

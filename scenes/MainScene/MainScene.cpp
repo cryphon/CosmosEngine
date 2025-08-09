@@ -9,6 +9,7 @@
 #include "UniformContext.hpp"
 #include "UniformPresets.hpp"
 #include <GLFW/glfw3.h>
+#include "SkyboxUtils.hpp"
 
 void MainScene::initialize(){ 
 
@@ -16,7 +17,6 @@ void MainScene::initialize(){
     ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
     ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
     ShaderLibrary::load("highlight", "shaders/passthrough.vert", "shaders/highlight.frag");
-
 
     renderer->set_highlight_shader(ShaderLibrary::get("highlight"));
 
@@ -43,8 +43,6 @@ void MainScene::initialize(){
     auto basic_material = std::make_shared<Material>(ShaderLibrary::get("basic"));
     basic_material->bind_uniforms = UniformPresets::basic_bind; 
 
-
-
     // --- Light Shader ---
     Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
     renderer->set_light(light1);
@@ -55,8 +53,6 @@ void MainScene::initialize(){
     light_transform.update_matrices();
     objects.emplace_back("light1", light_mesh, xyz_material, light_transform);
 
-
-    // 
     
     auto mesh = ObjLoader::load("models/Human.obj");            
     Transform transform;
@@ -73,15 +69,14 @@ void MainScene::update(float dt) {
     // --- Crude lighting update fix
     for (auto& obj : objects) {
     if (obj.name == "light1") {
-        renderer->set_light(Light{
-            obj.transform.position,
-            renderer->get_light().color // keep previous color
-        });
+            renderer->set_light(Light{
+                obj.transform.position,
+                renderer->get_light().color // keep previous color
+            });
+        }
     }
 }
 
-
-}
 void MainScene::render() { 
     for (auto& obj : objects) {
         if (obj.transform.cache_trigger) {
@@ -91,6 +86,11 @@ void MainScene::render() {
         renderer->submit({ obj.mesh, obj.material, obj.transform, obj.get_id()});
     }
     renderer->render_all(*camera, 1000, 1000);
+
+    if (skybox) {
+        renderer->render_skybox(*camera, 1000, 1000, skybox);
+    }
+
     renderer->clear();
 }
 

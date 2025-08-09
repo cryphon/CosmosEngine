@@ -3,10 +3,15 @@
 #include "Mesh.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Skybox.hpp"
-
-
-
+#include "SkyboxManager.hpp"
+#include "Shader.hpp"
+#include "Mesh.hpp"
+#include "Material.hpp"
+#include "TextureHDR.hpp"
+#include <glad/glad.h>
+#include "Texture.hpp"
+#include "UniformPresets.hpp"
+#include "Logger.hpp"
 
 GLuint equirectangular_to_cubemap(GLuint hdr_texture, std::shared_ptr<Shader> capture_shader, GLuint capture_fbo, GLuint capture_rbo) {
     // Create output cubemap texture
@@ -72,5 +77,95 @@ GLuint equirectangular_to_cubemap(GLuint hdr_texture, std::shared_ptr<Shader> ca
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return cubemap;
 }
+
+std::shared_ptr<SkyBox> init_hdri_skybox(const std::shared_ptr<SkyBoxManager> skybox_manager, const std::string name, const std::string& hdr_path) {
+    auto capture_shader = std::make_shared<Shader>("shaders/hdr_to_cubemap.vert", "shaders/hdr_to_cubemap.frag");
+    auto render_shader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
+
+    // 1. Load HDR texture
+    GLuint hdr_texture = load_hdr_texture(hdr_path);
+    if (hdr_texture == 0) {
+        LOG_ERROR("Failed to load HDR texture at path: " + hdr_path);
+        return nullptr;
+    }
+
+    // 2. Setup framebuffer and renderbuffer for capturing cubemap
+    GLuint capture_fbo, capture_rbo;
+    glGenFramebuffers(1, &capture_fbo);
+    glGenRenderbuffers(1, &capture_rbo);
+
+    // 3. Convert HDR texture to cubemap
+    GLuint cubemap = equirectangular_to_cubemap(hdr_texture, capture_shader, capture_fbo, capture_rbo);
+
+    // 4. Clean up FBOs
+    glDeleteFramebuffers(1, &capture_fbo);
+    glDeleteRenderbuffers(1, &capture_rbo);
+    glDeleteTextures(1, &hdr_texture); // We don’t need the 2D HDR texture anymore
+
+    // 5. Create skybox material
+    auto skybox_material = std::make_shared<Material>(render_shader, std::make_shared<Texture>(cubemap, GL_TEXTURE_CUBE_MAP, GL_TEXTURE0));
+    skybox_material->sampler_name = "skybox";
+    skybox_material->bind_uniforms = UniformPresets::skybox_bind;
+
+    // 6. Setup cube mesh
+    auto skybox_mesh = std::make_shared<Mesh>();
+    skybox_mesh->init_positions_only(skybox_vertices, sizeof(skybox_vertices));
+    skybox_mesh->set_vertex_cnt(36);
+    skybox_mesh->set_draw_mode(MeshDrawMode::Arrays);
+
+    // 7. Create SkyBox and return shared_ptr
+    auto skybox = std::make_shared<SkyBox>(skybox_mesh, skybox_material);
+
+    skybox_manager->register_factory(name, [skybox_mesh, skybox_material]() {
+        return std::make_shared<SkyBox>(skybox_mesh, skybox_material);
+    });
+
+    return skybox;
+}
+
+float skybox_vertices[] = {
+    // positions          
+    -1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f
+};
 
 
