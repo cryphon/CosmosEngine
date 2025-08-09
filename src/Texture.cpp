@@ -2,11 +2,11 @@
 #include "Logger.hpp"
 
 
-Texture::Texture(const char* image, GLenum tex_type, GLenum slot, GLenum format, GLenum pixel_type) {
+Texture::Texture(const std::string& image, GLenum tex_type, GLenum slot, GLenum format, GLenum pixel_type) {
     type = tex_type;
     int width_img, height_img, num_cols;
     stbi_set_flip_vertically_on_load(false);
-    unsigned char* bytes = stbi_load(image, &width_img, &height_img, &num_cols, 0);
+    unsigned char* bytes = stbi_load(image.c_str(), &width_img, &height_img, &num_cols, 0);
 
     if (!bytes) {
         LOG_ERROR("Failed to load texture: " + std::string(image));

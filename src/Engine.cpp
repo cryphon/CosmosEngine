@@ -12,6 +12,7 @@
 #include "Camera.hpp"
 #include "SkyboxManager.hpp"
 #include "SkyboxUtils.hpp"
+#include "MaterialLibrary.hpp"
 
 #define SCREEN_WIDTH 1200.0f
 #define SCREEN_HEIGHT 800.0f
@@ -60,9 +61,17 @@ bool Engine::init() {
 
     renderer->init_grid(); 
 
+
     auto skybox_manager = std::make_shared<SkyBoxManager> ();
     auto studio_skybox = init_hdri_skybox(skybox_manager, "studio", "textures/skybox/brown_photostudio.hdr");
     auto loft_skybox = init_hdri_skybox(skybox_manager, "loft", "textures/skybox/newport_loft.hdr");
+
+    ShaderLibrary::load("PBR", "shaders/pbr.vert", "shaders/pbr.frag");
+
+    // shader has to be loaded before materials
+    MaterialLibrary::load_from_path("roofing", "assets/materials/roofing");
+    MaterialLibrary::load_from_path("roofing", "assets/materials/bricks");
+    MaterialLibrary::load_from_path("roofing", "assets/materials/marble");
 
     // --- Set Scene, Init Render & UI ---
     scene_manager->register_factory("main", [this, studio_skybox]() {

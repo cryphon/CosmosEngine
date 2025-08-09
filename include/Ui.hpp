@@ -2,6 +2,7 @@
 #include <memory>
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
+#include <glad/glad.h>
 
 class Renderer;
 class CameraControls;
@@ -10,6 +11,7 @@ class Engine;
 class Window;
 class SceneObject;
 class SkyBoxManager;
+class Texture;
 
 class UI {
 public:
@@ -35,6 +37,7 @@ public:
     void set_engine(std::shared_ptr<Engine> engine);
     void set_window(std::shared_ptr<Window> window);
     void show_shader_settings_popup(SceneObject& obj);
+    bool EditTextureSlot(const char* label, bool& use_map, std::shared_ptr<Texture>& texture, GLenum texture_target = GL_TEXTURE_2D);
 
 private:
     std::shared_ptr<Renderer> renderer = nullptr;
