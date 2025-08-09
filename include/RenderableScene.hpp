@@ -13,4 +13,6 @@ class RenderableScene : public Scene  {
     public:
         virtual std::vector<SceneObject>& get_objects() { return objects; }
         virtual void add_object(const SceneObject& obj) { objects.push_back(obj); }
+        void set_skybox(std::shared_ptr<SkyBox> new_skybox) { skybox = new_skybox; }
+        
 };

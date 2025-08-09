@@ -2,7 +2,7 @@
 #include "Logger.hpp"
 
 int Application::run() {
-    Logger::set_level(LogLevel::INFO);
+    Logger::set_level(LogLevel::DEBUG);
     auto engine = std::make_shared<Engine>();
     LOG_INFO("Starting engine...");
     if (!engine->init()) return -1;

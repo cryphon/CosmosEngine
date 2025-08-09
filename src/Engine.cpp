@@ -10,6 +10,8 @@
 #include <imgui_impl_opengl3.h>
 #include "Window.hpp"
 #include "Camera.hpp"
+#include "SkyboxManager.hpp"
+#include "SkyboxUtils.hpp"
 
 #define SCREEN_WIDTH 1200.0f
 #define SCREEN_HEIGHT 800.0f
@@ -56,19 +58,26 @@ bool Engine::init() {
             camera_->update_projection();
             });
 
-    renderer->init_hdri_skybox("textures/skybox/brown_photostudio.hdr");
     renderer->init_grid(); 
 
+    auto skybox_manager = std::make_shared<SkyBoxManager> ();
+    auto studio_skybox = init_hdri_skybox(skybox_manager, "studio", "textures/skybox/brown_photostudio.hdr");
+    auto loft_skybox = init_hdri_skybox(skybox_manager, "loft", "textures/skybox/newport_loft.hdr");
 
     // --- Set Scene, Init Render & UI ---
-    scene_manager->register_factory("main", [this]() {
-        return std::make_unique<MainScene>(renderer.get(), camera_);
+    scene_manager->register_factory("main", [this, studio_skybox]() {
+        auto scene = std::make_unique<MainScene>(renderer.get(), camera_);
+        scene->set_skybox(studio_skybox);
+        return scene;
     });
-    scene_manager->register_factory("second", [this]() {
-        return std::make_unique<SecondScene>(renderer.get(), camera_);
+    scene_manager->register_factory("second", [this, loft_skybox]() {
+        auto scene = std::make_unique<SecondScene>(renderer.get(), camera_);
+        scene->set_skybox(loft_skybox);
+        return scene;
     });
     scene_manager->set_scene("main");
-    ui->initialize(window->get_glfw_ref(), renderer, scene_manager, shared_from_this(), controls_);
+
+    ui->initialize(window->get_glfw_ref(), renderer, scene_manager, shared_from_this(), controls_, skybox_manager);
 
     return true;
 }
@@ -76,17 +85,16 @@ bool Engine::init() {
 void Engine::run() {
     window->loop([this](float dt) {
 
-            window->get_inputmanager()->update(dt);
+        window->get_inputmanager()->update(dt);
 
-            renderer->render_skybox(*camera_, screen_width, screen_height);
-            renderer->render_grid(*camera_, screen_width, screen_height);
+        renderer->render_grid(*camera_, screen_width, screen_height);
 
-            scene_manager->update(dt);
-            scene_manager->render();
+        scene_manager->update(dt);
+        scene_manager->render();
 
-            window->get_ui()->update();
-            window->get_ui()->render();
-            scene_manager->render_ui();
+        window->get_ui()->update();
+        window->get_ui()->render();
+        scene_manager->render_ui();
 
     });
 }

@@ -7,6 +7,7 @@
 #include "ShaderLibrary.hpp"
 #include "UniformContext.hpp"
 #include "ObjLoader.hpp"
+#include "SkyboxUtils.hpp"
 
 void SecondScene::initialize(){ 
     ShaderLibrary::load("reflect", "shaders/reflect.vert", "shaders/reflect.frag");
@@ -23,7 +24,7 @@ void SecondScene::initialize(){
         shader.set_float("reflectivity", ctx.reflectivity);
         shader.set_float("alpha", ctx.alpha);
     };
-    reflect_material->texture = renderer->get_skybox_material()->texture;
+    reflect_material->texture = skybox->get_material()->texture;
 
 
     auto sphere = Mesh::create_uv_sphere(64, 32, 1.0f);
@@ -34,7 +35,6 @@ void SecondScene::initialize(){
     reflective_transform.update_matrices();
 
     objects.emplace_back("reflective", std::move(sphere), reflect_material, reflective_transform);
-
 
 }
 
@@ -50,6 +50,11 @@ void SecondScene::render() {
         renderer->submit({ obj.mesh, obj.material, obj.transform, obj.get_id()});
     }
     renderer->render_all(*camera, 1000, 1000);
+
+    if (skybox) {
+        renderer->render_skybox(*camera, 1000, 1000, skybox);
+    }
+
     renderer->clear();
 }
 
