@@ -9,6 +9,8 @@
 #include "Logger.hpp"
 #include "Camera.hpp"
 #include "PBRMaterial.hpp"
+#include "MaterialLibrary.hpp"
+#include "Texture.hpp"
 
 UI::UI() {}
 UI::~UI() {
@@ -84,15 +86,16 @@ void UI::render() {
 
     // Set the position and size of the right panel
     ImGui::SetNextWindowPos(ImVec2(display_size.x - panel_width, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(panel_width, display_size.y), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(panel_width, display_size.y / 2), ImGuiCond_Always);
 
     // Optional flags: NoResize, NoMove, NoCollapse to make it truly fixed
     ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
     ImGui::Begin("Scene Objects", nullptr, panelFlags);
+    RenderableScene* scene = static_cast<RenderableScene*>(scene_manager->get_current_scene_obj());
+
 
     try {
-        RenderableScene* scene = static_cast<RenderableScene*>(scene_manager->get_current_scene_obj());
         auto& objects = scene->get_objects();
         // List your scene objects here
 
@@ -175,6 +178,40 @@ void UI::render() {
             orbital_ptr->set_rotation_speed(rotation_speed);
         }    
     }
+
+    ImGui::SetNextWindowPos(ImVec2(display_size.x - panel_width, display_size.y / 2), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(panel_width, display_size.y / 2), ImGuiCond_Always);
+
+
+    if (ImGui::Begin("Material Editor")) {
+        if (selected_index >= 0) {
+            SceneObject& obj = scene->get_objects()[selected_index];
+            auto mat = std::dynamic_pointer_cast<PBRMaterial>(obj.material);
+            if (mat) {
+
+                EditTextureSlot("Albedo Map", mat->useAlbedoMap, mat->albedoMap);
+                if (!mat->albedoMap)
+                    ImGui::ColorEdit3("Albedo Color", glm::value_ptr(mat->albedo));
+
+                EditTextureSlot("Normal Map", mat->useNormalMap, mat->normalMap);
+                EditTextureSlot("Roughness Map", mat->useRoughnessMap, mat->roughnessMap);
+                if (!mat->roughnessMap)
+                    ImGui::SliderFloat("Roughness", &mat->roughness, 0.0f, 1.0f);
+
+                EditTextureSlot("Metallic Map", mat->useMetallicMap, mat->metallicMap);
+                if (!mat->metallicMap)
+                    ImGui::SliderFloat("Metallic", &mat->metallic, 0.0f, 1.0f);
+
+                EditTextureSlot("AO Map", mat->useAoMap, mat->aoMap);
+                EditTextureSlot("Displacement Map", mat->useDisplacementMap, mat->displacementMap);
+                if (!mat->displacementMap)
+                    ImGui::SliderFloat("Displacement", &mat->displacement, 0.0f, 1.0f);
+
+                ImGui::SliderFloat("Tiling", &mat->tiling, 0.1f, 10.0f);
+            }
+        }
+    }
+    ImGui::End();
 }
 
 
@@ -209,6 +246,31 @@ void UI::show_shader_settings_popup(SceneObject& obj) {
         ImGui::EndPopup();
     }
 }
+
+bool UI::EditTextureSlot(const char* label, bool& use_map, std::shared_ptr<Texture>& texture, GLenum texture_target) {
+    bool changed = false;
+
+    if (ImGui::Checkbox(label, &use_map)) {
+        if (!use_map) {
+            changed = true;
+        } else {
+            // Set enabled, but don't load until user clicks button
+        }
+    }
+
+    if (use_map) {
+        if (texture) {
+            ImGui::SameLine();
+            ImGui::Image((ImTextureID)texture->ID, ImVec2(64, 64));
+        }
+    }
+
+    return changed;
+}
+
+
+
+
 
 
 

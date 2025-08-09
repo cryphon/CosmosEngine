@@ -8,6 +8,11 @@ public:
     PBRMaterial(const std::shared_ptr<Shader> shader) 
     : super(shader) {}
     void bind() override;
+    void bind_texture(const std::shared_ptr<Shader>& shader,
+                      const std::shared_ptr<Texture>& texture,
+                      bool use_texture,
+                      int texture_unit,
+                      const std::string& name);
 
 
     glm::vec3 albedo = glm::vec3(0.0f);
@@ -24,4 +29,13 @@ public:
     std::shared_ptr<Texture> metallicMap = nullptr;
     std::shared_ptr<Texture> aoMap = nullptr;
     std::shared_ptr<Texture> displacementMap = nullptr;
+
+
+    bool useAlbedoMap = true;
+    bool useNormalMap = true;
+    bool useRoughnessMap = true;
+    bool useMetallicMap = true;
+    bool useAoMap = true;
+    bool useDisplacementMap = true;
+
 };

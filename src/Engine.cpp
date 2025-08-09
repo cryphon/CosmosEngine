@@ -10,6 +10,7 @@
 #include <imgui_impl_opengl3.h>
 #include "Window.hpp"
 #include "Camera.hpp"
+#include "MaterialLibrary.hpp"
 
 #define SCREEN_WIDTH 1200.0f
 #define SCREEN_HEIGHT 800.0f
@@ -58,6 +59,13 @@ bool Engine::init() {
 
     renderer->init_hdri_skybox("textures/skybox/brown_photostudio.hdr");
     renderer->init_grid();
+
+    ShaderLibrary::load("PBR", "shaders/pbr.vert", "shaders/pbr.frag");
+
+    // shader has to be loaded before materials
+    MaterialLibrary::load_from_path("roofing", "assets/materials/roofing");
+    MaterialLibrary::load_from_path("roofing", "assets/materials/bricks");
+    MaterialLibrary::load_from_path("roofing", "assets/materials/marble");
 
 
     // --- Set Scene, Init Render & UI ---

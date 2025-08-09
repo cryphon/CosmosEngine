@@ -8,9 +8,9 @@
 #include "UniformContext.hpp"
 #include "ObjLoader.hpp"
 #include "PBRMaterial.hpp"
+#include "MaterialLibrary.hpp"
 
 void SecondScene::initialize(){ 
-    ShaderLibrary::load("PBR", "shaders/pbr.vert", "shaders/pbr.frag");
 
     auto default_bind = [](Shader& shader, const UniformContext& ctx) {
     shader.set_mat4("model", ctx.model);
@@ -26,34 +26,15 @@ void SecondScene::initialize(){
     };
 
     auto default_material = std::make_shared<Material>(ShaderLibrary::get("default"));
-    default_material->bind_uniforms = default_bind;
-
-    auto pbr_bind = [](Shader& shader, const UniformContext& ctx) {
-    shader.set_mat4("model", ctx.model);
-    shader.set_mat4("view", ctx.view);
-    shader.set_mat4("projection", ctx.projection);
-
-    shader.set_vec3("lightPos", ctx.light_pos);
-    shader.set_vec3("viewPos", ctx.view_pos);
-    shader.set_vec3("lightColor", ctx.light_color);
-    };
-
+    default_material->bind_uniforms = default_bind; 
 
 
  
-    auto pbr_shader = ShaderLibrary::get("PBR");
-    auto pbr_material = std::make_shared<PBRMaterial>(pbr_shader);
-    pbr_material->bind_uniforms = pbr_bind;
+    auto pbr_material = MaterialLibrary::get("roofing");
     pbr_material->albedo = glm::vec3(1.0f, 0.8f, 0.6f);
     pbr_material->roughness = 0.5f;
     pbr_material->metallic = 0.0f;
-    pbr_material->albedoMap = std::make_shared<Texture>("assets/materials/roofing/albedo.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->roughnessMap = std::make_shared<Texture>("assets/materials/roofing/roughness.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    //pbr_material->metallicMap = std::make_shared<Texture>("assets/materials/roofing/metallic.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->aoMap = std::make_shared<Texture>("assets/materials/roofing/ao.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->normalMap = std::make_shared<Texture>("assets/materials/roofing/normal.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    pbr_material->displacementMap = std::make_shared<Texture>("assets/materials/roofing/displacement.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    auto sphere2 = Mesh::create_uv_sphere(256, 128, 1.0f);
+        auto sphere2 = Mesh::create_uv_sphere(256, 128, 1.0f);
 
     Transform t0, t1, t2;
     t0.position = {0.0f, 0.0f, 0.0f };
