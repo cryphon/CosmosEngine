@@ -6,6 +6,7 @@ class Renderer;
 class Camera;
 class Mesh;
 class Material;
+class SkyBox;
 
 class MainScene : public RenderableScene {
     public:

@@ -9,13 +9,15 @@
 #include "Logger.hpp"
 #include "Camera.hpp"
 #include "PBRMaterial.hpp"
+#include "SkyboxManager.hpp"
+#include <memory>
 
 UI::UI() {}
 UI::~UI() {
     shutdown();
 }
 
-void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, const std::shared_ptr<Engine> e, std::shared_ptr<CameraControls> c) {
+void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const std::shared_ptr<SceneManager> s, const std::shared_ptr<Engine> e, std::shared_ptr<CameraControls> c, const std::shared_ptr<SkyBoxManager> sbm) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -28,6 +30,7 @@ void UI::initialize(GLFWwindow* window, const std::shared_ptr<Renderer> r, const
     scene_manager = s;
     engine = e;
     camera_controls = c;
+    skybox_manager = sbm;
 }
 
 void UI::render() {
@@ -71,6 +74,42 @@ void UI::render() {
 
             if (ImGui::Button("Reload Scene")) {
                 scene_manager->reset_scene();
+            }
+
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Skybox Manager")) {
+            auto skybox_names = skybox_manager->get_skybox_names();
+            std::string current_skybox = skybox_manager->get_current_skybox_name();
+
+            // Find current skybox index
+            int current_index = 0;
+            for (int i = 0; i < static_cast<int>(skybox_names.size()); ++i) {
+                if (skybox_names[i] == current_skybox) {
+                    current_index = i;
+                    break;
+                }
+            }
+
+            if (ImGui::Combo("Select Skybox", &current_index,
+                [](void* data, int idx, const char** out_text) {
+                    const auto& names = *static_cast<std::vector<std::string>*>(data);
+                    if (idx < 0 || idx >= static_cast<int>(names.size())) return false;
+                    *out_text = names[idx].c_str();
+                    return true;
+                }, static_cast<void*>(&skybox_names), static_cast<int>(skybox_names.size()))) {
+
+                RenderableScene* scene = dynamic_cast<RenderableScene*>(scene_manager->get_current_scene_obj());
+                if (scene) {
+                    skybox_manager->set_skybox(skybox_names[current_index]);
+
+                    std::shared_ptr<SkyBox> skybox = std::shared_ptr<SkyBox>(skybox_manager->get_current_skybox());
+                    scene->set_skybox(skybox);
+                }
+            }
+
+            if (ImGui::Button("Reload Skybox")) {
+                skybox_manager->set_skybox(current_skybox);
             }
 
             ImGui::EndMenu();
