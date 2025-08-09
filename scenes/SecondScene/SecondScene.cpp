@@ -13,28 +13,7 @@
 
 void SecondScene::initialize(){ 
 
-    auto default_bind = [](Shader& shader, const UniformContext& ctx) {
-    shader.set_mat4("model", ctx.model);
-    shader.set_mat4("view", ctx.view);
-    shader.set_mat4("projection", ctx.projection);
-
-    shader.set_vec3("lightPos", ctx.light_pos);
-    shader.set_vec3("viewPos", ctx.view_pos);
-    shader.set_vec3("lightColor", ctx.light_color);
-
-    shader.set_bool("selected", false);       // change this if highlighting
-    shader.set_bool("use_texture", true);     // set to false if no texture is used
-    };
-
-    auto default_material = std::make_shared<Material>(ShaderLibrary::get("default"));
-    default_material->bind_uniforms = default_bind; 
-
-
- 
-    auto pbr_material = MaterialLibrary::get("roofing");
-    pbr_material->albedo = glm::vec3(1.0f, 0.8f, 0.6f);
-    pbr_material->roughness = 0.5f;
-    pbr_material->metallic = 0.0f;
+        auto pbr_material = MaterialLibrary::get("roofing");
         auto sphere2 = Mesh::create_uv_sphere(256, 128, 1.0f);
 
     Transform t0, t1, t2;
