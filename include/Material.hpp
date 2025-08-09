@@ -10,7 +10,7 @@ class UniformContext;
 class Material {
     public:
         Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture = nullptr);
-        void bind();
+        virtual void bind();
         std::shared_ptr<Shader> shader;
         std::shared_ptr<Texture> texture;
         std::string sampler_name = "uTexture";

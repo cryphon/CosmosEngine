@@ -22,10 +22,12 @@ void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indice
     vbo = std::make_unique<VBO>(vertices, v_size);
     ebo = std::make_unique<EBO>(indices, i_size);
 
-    vao.link_attr(*vbo, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);                      // position
-    vao.link_attr(*vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));    // normal
-    vao.link_attr(*vbo, 2, 3, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));    // color
-    vao.link_attr(*vbo, 3, 2, GL_FLOAT, 11 * sizeof(float), (void*)(9 * sizeof(float)));    // texCoord
+    vao.link_attr(*vbo, 0, 3, GL_FLOAT, 17 * sizeof(float), (void*)(0));                 // Position
+    vao.link_attr(*vbo, 1, 3, GL_FLOAT, 17 * sizeof(float), (void*)(3 * sizeof(float)));  // Normal
+    vao.link_attr(*vbo, 2, 3, GL_FLOAT, 17 * sizeof(float), (void*)(6 * sizeof(float)));  // Color
+    vao.link_attr(*vbo, 3, 2, GL_FLOAT, 17 * sizeof(float), (void*)(9 * sizeof(float)));  // TexCoord
+    vao.link_attr(*vbo, 4, 3, GL_FLOAT, 17 * sizeof(float), (void*)(11 * sizeof(float))); // Tangent
+    vao.link_attr(*vbo, 5, 3, GL_FLOAT, 17 * sizeof(float), (void*)(14 * sizeof(float))); // Bitangent
     vao.unbind();
     vbo->unbind();
 
@@ -92,7 +94,7 @@ void Mesh::draw() const {
 
 static void flatten_vbuf(const std::vector<Vertex> &verts, std::vector<float> &out_data) {
     out_data.clear();
-    out_data.reserve(verts.size() * 11);
+    out_data.reserve(verts.size() * 17);
 
     for(const auto& v : verts) {
         out_data.push_back(v.position.x);
@@ -101,11 +103,20 @@ static void flatten_vbuf(const std::vector<Vertex> &verts, std::vector<float> &o
         out_data.push_back(v.normal.x);
         out_data.push_back(v.normal.y);
         out_data.push_back(v.normal.z);
-        out_data.push_back(1.0f); // default white color R
-        out_data.push_back(1.0f); // default white color G
-        out_data.push_back(1.0f); // default white color B
-        out_data.push_back(v.texcoord.u);
-        out_data.push_back(v.texcoord.v);
+        out_data.push_back(v.color.x); // default white color R
+        out_data.push_back(v.color.y); // default white color G
+        out_data.push_back(v.color.z); // default white color B
+        out_data.push_back(v.texcoord.x);
+        out_data.push_back(v.texcoord.y);
+
+        out_data.push_back(v.tangent.x);
+        out_data.push_back(v.tangent.y);
+        out_data.push_back(v.tangent.z);
+        out_data.push_back(v.bitangent.x);
+        out_data.push_back(v.bitangent.y);
+        out_data.push_back(v.bitangent.z);
+
+
     }
 }
 
@@ -128,12 +139,17 @@ std::unique_ptr<Mesh> Mesh::from_obj(const std::string& path) {
 };
 
 
-std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radius) {
+std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radius, float tile) {
     auto mesh = std::make_unique<Mesh>();
 
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
+    if (!vertices.empty()) {
+        std::cout << "First texcoord: (" 
+            << vertices[0].texcoord.x << ", " 
+            << vertices[0].texcoord.y << ")\n";
+    };
     for (int y = 0; y <= rings; ++y) {
         float v = static_cast<float>(y) / rings;
         float theta = v * glm::pi<float>();
@@ -153,9 +169,15 @@ std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radi
                 radius * sinTheta * sinPhi
             );
             glm::vec3 normal = glm::normalize(pos);
-            glm::vec2 texcoord = glm::vec2(u, 1.0f - v);
+            glm::vec3 color = glm::vec3(1.0f); // unused but required
+            glm::vec2 texcoord = glm::vec2(u * tile, v * tile);
 
-            vertices.push_back({ { pos.x, pos.y, pos.z }, { normal.x, normal.y, normal.z }, { texcoord.x, texcoord.y } });
+            vertices.push_back({ 
+                { pos.x, pos.y, pos.z },
+                { normal.x, normal.y, normal.z },
+                { color.x, color.y, color.z },
+                { texcoord.x, texcoord.y }
+            });
         }
     }
 
@@ -173,6 +195,37 @@ std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radi
             indices.push_back(i1 + 1);
         }
     }
+
+    for (size_t i = 0; i < indices.size(); i += 3) {
+        Vertex& v0 = vertices[indices[i + 0]];
+        Vertex& v1 = vertices[indices[i + 1]];
+        Vertex& v2 = vertices[indices[i + 2]];
+
+        glm::vec3 edge1 = v1.position - v0.position;
+        glm::vec3 edge2 = v2.position - v0.position;
+        glm::vec2 deltaUV1 = v1.texcoord - v0.texcoord;
+        glm::vec2 deltaUV2 = v2.texcoord - v0.texcoord;
+
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        glm::vec3 tangent = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
+        glm::vec3 bitangent = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
+
+        v0.tangent += tangent;
+        v1.tangent += tangent;
+        v2.tangent += tangent;
+
+        v0.bitangent += bitangent;
+        v1.bitangent += bitangent;
+        v2.bitangent += bitangent;
+    }
+
+    // Normalize tangents and bitangents
+    for (auto& v : vertices) {
+        v.tangent = glm::normalize(v.tangent);
+        v.bitangent = glm::normalize(v.bitangent);
+    }
+
 
     std::vector<float> packed;
     flatten_vbuf(vertices, packed);

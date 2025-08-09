@@ -75,8 +75,9 @@ bool Engine::init() {
         scene->set_skybox(loft_skybox);
         return scene;
     });
-    scene_manager->set_scene("main");
 
+    scene_manager->set_scene("main");
+    
     ui->initialize(window->get_glfw_ref(), renderer, scene_manager, shared_from_this(), controls_, skybox_manager);
 
     return true;
