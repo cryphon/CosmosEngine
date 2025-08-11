@@ -1,9 +1,9 @@
 #include "Material.hpp"
+#include "VertexLayouts.hpp"
 #include <glm/glm.hpp>
 
-Material::Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture)
-    : shader(shader), texture(texture) {
-    // Optional: any initialization or logging
+Material::Material(std::shared_ptr<Shader> shader,  std::shared_ptr<Texture> texture, const VertexLayout& layout)
+    : shader(shader), texture(texture), layout_(&layout) {
 }
 
 

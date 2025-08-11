@@ -1,19 +1,19 @@
 #pragma once
 #include "Material.hpp"
+#include "VertexLayouts.hpp"
 
 class PBRMaterial : public Material {
 private:
     typedef Material super;
 public:
     PBRMaterial(const std::shared_ptr<Shader> shader) 
-    : super(shader) {}
+    : super(shader,nullptr, VertexLayouts::PBR) {}
     void bind() override;
     void bind_texture(const std::shared_ptr<Shader>& shader,
                       const std::shared_ptr<Texture>& texture,
                       bool use_texture,
                       int texture_unit,
                       const std::string& name);
-
 
     glm::vec3 albedo = glm::vec3(0.0f);
     float roughness = 0.5f;

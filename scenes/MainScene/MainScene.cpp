@@ -10,6 +10,7 @@
 #include "UniformPresets.hpp"
 #include <GLFW/glfw3.h>
 #include "SkyboxUtils.hpp"
+#include "VertexLayouts.hpp"
 
 void MainScene::initialize(){ 
 

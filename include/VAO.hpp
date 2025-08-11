@@ -3,6 +3,9 @@
 
 #include <glad/glad.h>
 #include "VBO.hpp"
+#include "VertexLayout.hpp"
+
+
 
 class VAO {
     public:
@@ -12,8 +15,9 @@ class VAO {
 
         void create();
         void link_attr(VBO& vbo, GLuint layout, GLuint num_components, GLenum type, GLsizeiptr stride, void* offset);
+        void link_layout(VBO& vbo, const VertexLayout& layout);
         void bind() const;
-        void unbind();
+        void unbind() const;
         void delete_vao();
 };
 

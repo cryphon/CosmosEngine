@@ -41,6 +41,7 @@ set(MAIN_SOURCE_FILES
     ${SRC_DIR}/ObjLoader.cpp
     ${SRC_DIR}/ShaderLibrary.cpp
     ${SRC_DIR}/SkyboxUtils.cpp
+    ${SRC_DIR}/VertexLayouts.cpp
     ${SRC_DIR}/Ui.cpp
 
     # ImGui core

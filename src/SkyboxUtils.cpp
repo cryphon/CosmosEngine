@@ -12,6 +12,7 @@
 #include "Texture.hpp"
 #include "UniformPresets.hpp"
 #include "Logger.hpp"
+#include "VertexLayouts.hpp"
 
 GLuint equirectangular_to_cubemap(GLuint hdr_texture, std::shared_ptr<Shader> capture_shader, GLuint capture_fbo, GLuint capture_rbo) {
     // Create output cubemap texture
@@ -68,7 +69,7 @@ GLuint equirectangular_to_cubemap(GLuint hdr_texture, std::shared_ptr<Shader> ca
         capture_shader->set_mat4("view", capture_views[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        cube->draw();
+        cube->draw(VertexLayouts::PositionOnly);
     }
 
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -106,6 +107,7 @@ std::shared_ptr<SkyBox> init_hdri_skybox(const std::shared_ptr<SkyBoxManager> sk
     auto skybox_material = std::make_shared<Material>(render_shader, std::make_shared<Texture>(cubemap, GL_TEXTURE_CUBE_MAP, GL_TEXTURE0));
     skybox_material->sampler_name = "skybox";
     skybox_material->bind_uniforms = UniformPresets::skybox_bind;
+    skybox_material->set_vertex_layout(VertexLayouts::PositionOnly);
 
     // 6. Setup cube mesh
     auto skybox_mesh = std::make_shared<Mesh>();

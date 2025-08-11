@@ -38,12 +38,6 @@ void PBRMaterial::bind() {
     shader->set_bool("useAOMap", useAoMap);
     shader->set_bool("useDisplacementMap", useDisplacementMap);
 
-
-
-
-
-
-
     bind_texture(shader, albedoMap, useAlbedoMap, 0, "AlbedoMap");
     bind_texture(shader, normalMap, useNormalMap, 1, "NormalMap");
     bind_texture(shader, roughnessMap, useRoughnessMap, 2, "RoughnessMap");
@@ -51,4 +45,3 @@ void PBRMaterial::bind() {
     bind_texture(shader, aoMap, useAoMap, 4, "AoMap");
     bind_texture(shader, displacementMap, useDisplacementMap, 5, "DisplacementMap");
 }
-

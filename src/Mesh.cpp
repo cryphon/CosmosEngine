@@ -13,83 +13,59 @@ Mesh::Mesh() {
 
 
 
-void Mesh::init(const float* vertices, size_t v_size, const unsigned int* indices, size_t i_size) {
-    index_cnt = i_size;
+void Mesh::init(const float* vertices, size_t v_size,
+                const unsigned int* indices, size_t i_size) {
+    index_cnt = static_cast<size_t>(i_size / sizeof(unsigned int));
+    vertex_cnt = static_cast<size_t>(v_size / sizeof(float)); // Not exact verts, just float count
 
-    vao.create();
-    vao.bind();
-
+    // Create buffers but DO NOT bind attributes yet
     vbo = std::make_unique<VBO>(vertices, v_size);
-    ebo = std::make_unique<EBO>(indices, i_size);
+    if (i_size > 0) {
+        ebo = std::make_unique<EBO>(indices, i_size);
+    }
 
-    vao.link_attr(*vbo, 0, 3, GL_FLOAT, 17 * sizeof(float), (void*)(0));                 // Position
-    vao.link_attr(*vbo, 1, 3, GL_FLOAT, 17 * sizeof(float), (void*)(3 * sizeof(float)));  // Normal
-    vao.link_attr(*vbo, 2, 3, GL_FLOAT, 17 * sizeof(float), (void*)(6 * sizeof(float)));  // Color
-    vao.link_attr(*vbo, 3, 2, GL_FLOAT, 17 * sizeof(float), (void*)(9 * sizeof(float)));  // TexCoord
-    vao.link_attr(*vbo, 4, 3, GL_FLOAT, 17 * sizeof(float), (void*)(11 * sizeof(float))); // Tangent
-    vao.link_attr(*vbo, 5, 3, GL_FLOAT, 17 * sizeof(float), (void*)(14 * sizeof(float))); // Bitangent
-    vao.unbind();
-    vbo->unbind();
-
-
-    LOG_DEBUG(std::string("index_cnt: ") += std::to_string(index_cnt));
+    vao_cache.clear(); // Reset per-layout VAOs
 }
+
 
 void Mesh::init_positions_only(const float* vertices, size_t v_size) {
-    index_cnt = 36; // no EBO
-    vao.create();
-    vao.bind();
+    vertex_cnt = static_cast<size_t>(v_size / sizeof(float) / 3);
+    index_cnt = 0; // No EBO
 
     vbo = std::make_unique<VBO>(vertices, v_size);
-    vao.link_attr(*vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0); // only position
-    
-    vao.unbind();
-    vbo->unbind();
+    ebo.reset(); // No index buffer
+
+    vao_cache.clear();
 }
 
-void Mesh::draw() const {
+
+void Mesh::draw(const VertexLayout& layout) const {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    if (!vbo) {
-        LOG_ERROR("[Mesh::draw] Error: VBO not initialized");
-        return;
-    }
 
-    if (vao.ID == 0) {
-        LOG_ERROR("[Mesh::draw] Error: VAO not initialized");
-        return;
-    }
+    if (!vbo) { LOG_ERROR("[Mesh::draw] VBO not initialized"); return; }
 
+    // BIND THE VAO FOR THIS LAYOUT
+    const VAO& vao = vao_for(layout);                                // now callable
     vao.bind();
 
     switch (draw_mode) {
         case MeshDrawMode::Indexed:
-            if (!ebo) {
-                LOG_ERROR("[Mesh::draw] Error: EBO not initialized for Indexed draw mode");
-                return;
-            }
-            if (index_cnt == 0) {
-                LOG_DEBUG("[Mesh::draw] Warning: index_cnt is 0");
-                return;
-            }
-            glDrawElements(GL_TRIANGLES, index_cnt, GL_UNSIGNED_INT, nullptr);
+            if (!ebo) { LOG_ERROR("[Mesh::draw] EBO not initialized for Indexed"); vao.unbind(); return; }
+            if (index_cnt == 0) { LOG_DEBUG("[Mesh::draw] index_cnt == 0"); vao.unbind(); return; }
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_cnt), GL_UNSIGNED_INT, nullptr);
             break;
-
         case MeshDrawMode::Arrays:
-            if (vertex_cnt == 0) {
-                LOG_DEBUG("[Mesh::draw] Warning: vertex_cnt is 0");
-                return;
-            }
-            glDrawArrays(GL_TRIANGLES, 0, vertex_cnt);
+            if (vertex_cnt == 0) { LOG_DEBUG("[Mesh::draw] vertex_cnt == 0"); vao.unbind(); return; }
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_cnt));
             break;
-
         default:
-            LOG_ERROR("[Mesh::draw] Error: Invalid draw_mode");
+            LOG_ERROR("[Mesh::draw] Invalid draw_mode");
             break;
     }
 
+    vao.unbind();
 }
-
 
 
 static void flatten_vbuf(const std::vector<Vertex> &verts, std::vector<float> &out_data) {
@@ -130,6 +106,7 @@ std::unique_ptr<Mesh> Mesh::from_obj(const std::string& path) {
     if(!ObjLoader::load(path)) {
         LOG_ERROR(std::string("Failed to load OBJ: ") += path);
     }
+
 
     std::vector<float> packed;
     flatten_vbuf(vertices, packed);
@@ -235,9 +212,23 @@ std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radi
     return mesh;
 }
 
+const VAO& Mesh::vao_for(const VertexLayout& layout) const {
+    size_t key = layout.hash();
+    auto it = vao_cache.find(key);
+    if (it != vao_cache.end()) return it->second;
+
+    VAO vao; vao.create(); vao.bind();
+    vbo->bind();
+    if (ebo) ebo->bind();                                           // EBO bound to this VAO
+    for (auto& a : layout.attributes) {
+        glEnableVertexAttribArray(a.index);
+        glVertexAttribPointer(a.index, a.size, a.type, GL_FALSE, layout.stride, (void*)a.offset);
+    }
+    vao.unbind();
+    return vao_cache.emplace(key, std::move(vao)).first->second;
+}
 
 Mesh::~Mesh() {
-    vao.delete_vao();
     if (vbo) vbo->delete_vbo();
     if (ebo) ebo->delete_ebo();
 }
