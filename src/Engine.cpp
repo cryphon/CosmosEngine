@@ -72,6 +72,7 @@ bool Engine::init() {
     MaterialLibrary::load_from_path("roofing", "assets/materials/roofing");
     MaterialLibrary::load_from_path("bricks", "assets/materials/bricks");
     MaterialLibrary::load_from_path("marble", "assets/materials/marble");
+    MaterialLibrary::load_from_path("gold", "assets/materials/gold");
 
     // --- Set Scene, Init Render & UI ---
     scene_manager->register_factory("main", [this, studio_skybox]() {

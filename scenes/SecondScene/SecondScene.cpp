@@ -13,7 +13,7 @@
 
 void SecondScene::initialize(){ 
 
-        auto pbr_material = MaterialLibrary::get("roofing");
+        auto pbr_material = MaterialLibrary::get("gold");
         auto sphere2 = Mesh::create_uv_sphere(256, 128, 1.0f);
 
     Transform t0, t1, t2;

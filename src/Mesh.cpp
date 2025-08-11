@@ -45,8 +45,7 @@ void Mesh::draw(const VertexLayout& layout) const {
 
     if (!vbo) { LOG_ERROR("[Mesh::draw] VBO not initialized"); return; }
 
-    // BIND THE VAO FOR THIS LAYOUT
-    const VAO& vao = vao_for(layout);                                // now callable
+    const VAO& vao = vao_for(layout);
     vao.bind();
 
     switch (draw_mode) {
