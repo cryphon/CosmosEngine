@@ -14,6 +14,7 @@
 // Cosmos
 // ==
 #include <cosmos/render/PBRMaterial.hpp>
+#include <cosmos/render/Texture.hpp>
 #include <cosmos/render/UniformContext.hpp>
 #include <cosmos/render/UniformPresets.hpp>
 #include <cosmos/assets/ShaderLibrary.hpp>

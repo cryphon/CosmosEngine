@@ -39,22 +39,16 @@ void VAO::delete_vao() {
 }
 
 // VAO.cpp
-void VAO::link_layout(VBO& vbo, const VertexLayout& layout) {
+void VAO::link_layout(VBO& vbo, const VertexLayoutView& layout) {
     bind();          // make sure this VAO is current
     vbo.bind();      // make sure glVertexAttribPointer uses THIS VBO
 
-    for (const auto& attr : layout.attributes) {
-        glEnableVertexAttribArray(attr.index);
-        glVertexAttribPointer(
-            attr.index,
-            attr.size,
-            attr.type,
-            GL_FALSE,
-            layout.stride,
-            reinterpret_cast<void*>(attr.offset)
-        );
+    for (std::size_t i = 0; i < layout.count; ++i) {
+        const auto& a = layout.attributes[i];
+        glVertexAttribPointer(a.index, a.size, a.type, GL_FALSE, layout.stride,
+                              reinterpret_cast<const void*>(a.offset));
+        glEnableVertexAttribArray(a.index);
     }
-
     vbo.unbind();
     // leave the VAO bound if you’ll continue configuring; else:
     // unbind();

@@ -23,23 +23,32 @@ namespace cosmos::render { class UniformContext; class Texture; }
 
 namespace cosmos::render {
 class Material {
-    public:
-        Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture = nullptr, const VertexLayout& layout = VertexLayouts::BasicOBJ);
-        virtual void bind();
-        std::shared_ptr<Shader> shader;
-        std::shared_ptr<Texture> texture;
-        std::string sampler_name = "uTexture";
-        std::function<void(Shader& shader, const UniformContext& ctx)> bind_uniforms;
-        virtual const VertexLayout& vertex_layout() const { return *layout_; }
+public:
+    Material(std::shared_ptr<Shader> shader,
+             std::shared_ptr<Texture> texture = nullptr,
+             VertexLayoutView layout = VertexLayouts::BasicOBJ);
+    virtual void bind();
+    std::shared_ptr<Shader> shader;
+    std::shared_ptr<Texture> texture;
+    std::string sampler_name = "uTexture";
+    std::function<void(Shader& shader, const UniformContext& ctx)> bind_uniforms;
+    VertexLayoutView vertex_layout() const {
+        return { layout_.stride,
+                 layout_.attributes.data(),
+                 layout_.attributes.size() };
+    }    
 
-        void set_vertex_layout(const VertexLayout& layout) { layout_ = &layout; }
-        
-        void apply_uniforms(const UniformContext& ctx) {
-            shader->activate_shader();
-            if(bind_uniforms) bind_uniforms(*shader, ctx);
-        }
+    void set_vertex_layout(VertexLayoutView layout) {
+        layout_.stride = layout.stride;
+        layout_.attributes.assign(layout.begin(), layout.end());
+    }
 
-    private:
-    const VertexLayout* layout_;   // points to a static layout singleton
+    void apply_uniforms(const UniformContext& ctx) {
+        shader->activate_shader();
+        if(bind_uniforms) bind_uniforms(*shader, ctx);
+    }
+
+private:
+    VertexLayoutDesc layout_;   // points to a static layout singleton
 };
 }

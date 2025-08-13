@@ -13,12 +13,12 @@
 // Cosmos
 // ==
 #include <cosmos/scene/Scene.hpp>
+#include <cosmos/scene/SceneObject.hpp>
 
 // ==
 // Forward Declare
 // ==
 namespace cosmos::assets { class SkyBox; }
-namespace cosmos::scene { class SceneObject; }
 
 namespace cosmos::scene {
 

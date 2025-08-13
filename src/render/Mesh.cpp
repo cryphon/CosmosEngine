@@ -12,6 +12,7 @@
 // Cosmos
 // ==
 #include <cosmos/render/Mesh.hpp>
+#include <cosmos/render/VertexLayout.hpp>
 #include <cosmos/assets/ObjLoader.hpp>
 #include <cosmos/core/Logger.hpp>
 
@@ -52,7 +53,7 @@ void Mesh::init_positions_only(const float* vertices, size_t v_size) {
 }
 
 
-void Mesh::draw(const VertexLayout& layout) const {
+void Mesh::draw(const VertexLayoutView& layout) const {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -224,21 +225,38 @@ std::unique_ptr<Mesh> Mesh::create_uv_sphere(int segments, int rings, float radi
     return mesh;
 }
 
-const VAO& Mesh::vao_for(const VertexLayout& layout) const {
-    size_t key = layout.hash();
-    auto it = vao_cache.find(key);
-    if (it != vao_cache.end()) return it->second;
+const VAO& Mesh::vao_for(const VertexLayoutView& layout) const {
 
-    VAO vao; vao.create(); vao.bind();
+    if (!layout.attributes) {
+        LOG_ERROR("[vao_for] layout.attributes == nullptr!");
+        throw std::runtime_error("Invalid VertexLayoutView: null attributes");
+    }
+    if (layout.count > 32) {
+        LOG_ERROR("[vao_for] layout.count is insane: ");
+        throw std::runtime_error("Invalid VertexLayoutView: count too large");
+    }
+
+    // Make an owning copy of the layout
+    VertexLayoutDesc key{ layout.stride, { layout.begin(), layout.end() } };
+
+    auto it = vao_cache.find(key);
+    if (it != vao_cache.end())
+        return it->second;
+
+    VAO vao;
+    vao.create();
+    vao.bind();
     vbo->bind();
-    if (ebo) ebo->bind();                                           // EBO bound to this VAO
-    for (auto& a : layout.attributes) {
+    if (ebo) ebo->bind();
+    for (auto& a : key.attributes) {
         glEnableVertexAttribArray(a.index);
-        glVertexAttribPointer(a.index, a.size, a.type, GL_FALSE, layout.stride, (void*)a.offset);
+        glVertexAttribPointer(a.index, a.size, a.type, GL_FALSE, key.stride, (void*)a.offset);
     }
     vao.unbind();
-    return vao_cache.emplace(key, std::move(vao)).first->second;
+
+    return vao_cache.emplace(std::move(key), std::move(vao)).first->second;
 }
+
 
 Mesh::~Mesh() {
     if (vbo) vbo->delete_vbo();

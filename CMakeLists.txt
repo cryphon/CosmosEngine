@@ -40,15 +40,15 @@ target_include_directories(imgui PUBLIC
   ${IMGUI_BACKENDS}
   ${GLFW3_INCLUDE_DIRS}
 )
-target_link_libraries(imgui PUBLIC glad ${GLFW3_LIBRARIES} OpenGL::GL)
+target_link_libraries(imgui PUBLIC glad ${GLFW3_LIBRARIES} OpenGL::GL ${CMAKE_DL_LIBS})
 target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 
 
 
 # ---------- stb (single TU that defines STB_IMAGE_IMPLEMENTATION) ----------
-if(EXISTS ${SRC_DIR}/third_party/stb_image_impl.cpp)
-  add_library(stb_image STATIC ${SRC_DIR}/third_party/stb_image_impl.cpp)
+if(EXISTS ${SRC_DIR}/stb.cpp)
+  add_library(stb_image STATIC ${SRC_DIR}/stb.cpp)
   target_include_directories(stb_image PUBLIC ${ROOT_DIR})
 else()
   add_library(stb_image INTERFACE)
@@ -62,8 +62,7 @@ file(GLOB_RECURSE COSMOS_INPUT_SRC    CONFIGURE_DEPENDS ${SRC_DIR}/input/*.cpp)
 file(GLOB_RECURSE COSMOS_UI_SRC       CONFIGURE_DEPENDS ${SRC_DIR}/ui/*.cpp)
 file(GLOB_RECURSE COSMOS_CORE_SRC     CONFIGURE_DEPENDS ${SRC_DIR}/core/*.cpp)
 
-add_subdirectory(scenes/MainScene)
-add_subdirectory(scenes/SecondScene)
+
 
 # --- render ---
 add_library(cosmos_render STATIC ${COSMOS_RENDER_SRC})
@@ -96,6 +95,11 @@ add_library(cosmos_ui STATIC ${COSMOS_UI_SRC})
 target_include_directories(cosmos_ui PUBLIC ${INCLUDE_DIR})
 target_include_directories(cosmos_ui PUBLIC ${SRC_DIR}/imgui)
 target_link_libraries(cosmos_ui PUBLIC imgui)
+
+
+add_subdirectory(scenes/MainScene)
+add_subdirectory(scenes/SecondScene)
+
 
 # --- core (Window/Engine/Application) ---
 add_library(cosmos_core STATIC ${COSMOS_CORE_SRC})

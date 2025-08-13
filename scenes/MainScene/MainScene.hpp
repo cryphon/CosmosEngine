@@ -1,9 +1,6 @@
 #include <cosmos/scene/RenderableScene.hpp>
 #include <memory>
 
-class Camera;
-class SkyBox;
-
 namespace cosmos::render { class Renderer; class Mesh; class Material; }
 namespace cosmos::scene { class Camera; }
 namespace cosmos::assets { class SkyBox; }

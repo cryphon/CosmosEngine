@@ -11,11 +11,12 @@
 // ==
 // Cosmos
 // ==
+#include <cosmos/render/VertexLayout.hpp>
 
 // ==
 // Forward Declare
 // ==
-namespace cosmos::render { class VBO; class VertexLayout; }
+namespace cosmos::render { class VBO; }
 
 namespace cosmos::render {
 
@@ -27,7 +28,7 @@ class VAO {
 
         void create();
         void link_attr(VBO& vbo, GLuint layout, GLuint num_components, GLenum type, GLsizeiptr stride, void* offset);
-        void link_layout(VBO& vbo, const VertexLayout& layout);
+        void link_layout(VBO& vbo, const VertexLayoutView& layout);
         void bind() const;
         void unbind() const;
         void delete_vao();

@@ -21,7 +21,7 @@ private:
     typedef Material super;
 public:
     PBRMaterial(const std::shared_ptr<Shader> shader) 
-    : super(shader,nullptr, VertexLayouts::PBR) {}
+    : super(shader,nullptr, cosmos::render::VertexLayouts::PBR) {}
     void bind() override;
     void bind_texture(const std::shared_ptr<Shader>& shader,
                       const std::shared_ptr<Texture>& texture,

@@ -56,8 +56,8 @@ class Mesh {
         void init(const float* vertices, size_t v_size, const unsigned int* indices, size_t i_size);
         void init_positions_only(const float* vertices, size_t v_size);
         static std::unique_ptr<Mesh> create_uv_sphere(int segments, int rings, float radius = 1.0f, float tile = 1.0f);
-        const VAO& vao_for(const VertexLayout& layout) const;
-        void draw(const VertexLayout& layout) const;
+        const VAO& vao_for(const VertexLayoutView& layout) const;
+        void draw(const VertexLayoutView& layout) const;
 
         // Getters
         const std::vector<glm::vec3> get_vertices() const { return vbo->get_vertices(); }
@@ -66,7 +66,7 @@ class Mesh {
     private:
         std::unique_ptr<VBO> vbo;
         std::unique_ptr<EBO> ebo;
-        mutable std::unordered_map<size_t, VAO> vao_cache;
+        mutable std::unordered_map<VertexLayoutDesc, VAO, VertexLayoutDescHash> vao_cache;
 
         GLsizei index_cnt = 0;
         int vertex_cnt = 0;
