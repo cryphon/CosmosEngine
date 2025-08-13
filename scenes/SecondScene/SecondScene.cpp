@@ -13,7 +13,7 @@
 
 void SecondScene::initialize(){ 
 
-        auto pbr_material = MaterialLibrary::get("gold");
+        auto pbr_material = MaterialLibrary::get("rock");
         auto sphere2 = Mesh::create_uv_sphere(256, 128, 1.0f);
 
     Transform t0, t1, t2;
@@ -24,7 +24,6 @@ void SecondScene::initialize(){
     t1.update_matrices();
     t2.update_matrices();
 
-    //objects.emplace_back("basic", std::move(sphere1), default_material, t1);
     objects.emplace_back("pbr",   std::move(sphere2), pbr_material, t0);
 
 }

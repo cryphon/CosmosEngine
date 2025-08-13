@@ -1,13 +1,13 @@
+#include <cosmos/scene/RenderableScene.hpp>
 #include "imgui.h"
 #include <memory>
-#include "RenderableScene.hpp"
 
 class Renderer;
 class Camera;
 class Mesh;
 class Material;
 
-class SecondScene : public RenderableScene {
+class SecondScene : public cosmos::scene::RenderableScene {
     public:
         SecondScene(Renderer* renderer, std::shared_ptr<Camera> camera)
             : renderer(renderer), camera(camera) {}

@@ -1,28 +1,32 @@
 #include "MainScene.hpp"
-#include "Shader.hpp"
-#include "Mesh.hpp"
-#include "Renderer.hpp"
-#include "SceneObject.hpp"
-#include "ObjLoader.hpp"
-#include "Transform.hpp"
-#include "ShaderLibrary.hpp"
-#include "UniformContext.hpp"
-#include "UniformPresets.hpp"
-#include <GLFW/glfw3.h>
-#include "SkyboxUtils.hpp"
-#include "VertexLayouts.hpp"
+
+#include <cosmos/render/Renderer.hpp>
+#include <cosmos/render/Shader.hpp>
+#include <cosmos/render/Mesh.hpp>
+#include <cosmos/render/Transform.hpp>
+#include <cosmos/render/Material.hpp>
+#include <cosmos/render/UniformContext.hpp>
+#include <cosmos/render/UniformPresets.hpp>
+#include <cosmos/render/RenderCommand.hpp>
+#include <cosmos/render/VertexLayouts.hpp>
+#include <cosmos/assets/ShaderLibrary.hpp>
+#include <cosmos/assets/SkyboxUtils.hpp>
+#include <cosmos/scene/SceneObject.hpp>
+#include <cosmos/assets/ObjLoader.hpp>
+
 
 void MainScene::initialize(){ 
 
-    ShaderLibrary::load("basic", "shaders/basic.vert", "shaders/basic.frag");
-    ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
-    ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
-    ShaderLibrary::load("highlight", "shaders/passthrough.vert", "shaders/highlight.frag");
+    cosmos::assets::ShaderLibrary::load("basic", "shaders/basic.vert", "shaders/basic.frag");
+    cosmos::assets::ShaderLibrary::load("xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
+    cosmos::assets::ShaderLibrary::load("default", "shaders/default.vert", "shaders/default.frag");
+    cosmos::assets::ShaderLibrary::load("highlight", "shaders/passthrough.vert", "shaders/highlight.frag");
 
-    renderer->set_highlight_shader(ShaderLibrary::get("highlight"));
+    renderer->set_highlight_shader(cosmos::assets::ShaderLibrary::get("highlight"));
+
 
     // --- Shader binds ---
-    auto default_bind = [](Shader& shader, const UniformContext& ctx) {
+    auto default_bind = [](cosmos::render::Shader& shader, const cosmos::render::UniformContext& ctx) {
     shader.set_mat4("model", ctx.model);
     shader.set_mat4("view", ctx.view);
     shader.set_mat4("projection", ctx.projection);
@@ -35,28 +39,28 @@ void MainScene::initialize(){
     shader.set_bool("use_texture", true);     // set to false if no texture is used
     };
 
-    auto default_material = std::make_shared<Material>(ShaderLibrary::get("default"));
+    auto default_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::get("default"));
     default_material->bind_uniforms = default_bind;
 
-    auto xyz_material = std::make_shared<Material>(ShaderLibrary::get("xyzmap"));
-    xyz_material->bind_uniforms = UniformPresets::normal_debug_bind; 
+    auto xyz_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::get("xyzmap"));
+    xyz_material->bind_uniforms = cosmos::render::UniformPresets::normal_debug_bind; 
 
-    auto basic_material = std::make_shared<Material>(ShaderLibrary::get("basic"));
-    basic_material->bind_uniforms = UniformPresets::basic_bind; 
+    auto basic_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::get("basic"));
+    basic_material->bind_uniforms = cosmos::render::UniformPresets::basic_bind; 
 
     // --- Light Shader ---
-    Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
+    cosmos::scene::Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
     renderer->set_light(light1);
-    auto light_mesh = ObjLoader::load("models/Sphere.obj");
-    Transform light_transform;
+    auto light_mesh = cosmos::assets::ObjLoader::load("models/Sphere.obj");
+    cosmos::render::Transform light_transform;
     light_transform.position = light1.position;
     light_transform.cache_trigger = true;
     light_transform.update_matrices();
     objects.emplace_back("light1", light_mesh, xyz_material, light_transform);
 
     
-    auto mesh = ObjLoader::load("models/Human.obj");            
-    Transform transform;
+    auto mesh = cosmos::assets::ObjLoader::load("models/Human.obj");            
+    cosmos::render::Transform transform;
     transform.position = {0.0f, 0.0f, 0.0f};
     transform.cache_trigger = true;
     transform.update_matrices();
@@ -70,7 +74,7 @@ void MainScene::update(float dt) {
     // --- Crude lighting update fix
     for (auto& obj : objects) {
     if (obj.name == "light1") {
-            renderer->set_light(Light{
+            renderer->set_light(cosmos::scene::Light{
                 obj.transform.position,
                 renderer->get_light().color // keep previous color
             });
