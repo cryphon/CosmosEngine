@@ -33,24 +33,19 @@ UI::~UI() {
     shutdown();
 }
 
-void UI::initialize(GLFWwindow* window, const std::shared_ptr<render::Renderer> r, 
-                    const std::shared_ptr<scene::SceneManager> s, 
-                    const std::shared_ptr<core::Engine> e, 
-                    std::shared_ptr<scene::CameraControls> c, 
-                    const std::shared_ptr<assets::SkyBoxManager> sbm) {
+void UI::initialize(const core::UiContext& ctx) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(ctx.window.get_glfw_ref(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
     ImGui::SetNextWindowSize(ImVec2(300, 400));
 
-    renderer = r;
-    scene_manager = s;
-    engine = e;
-    camera_controls = c;
-    skybox_manager = sbm;
+    renderer = &ctx.renderer;
+    scene_manager = &ctx.scene_manager;
+    camera_controls = ctx.controls;
+    skybox_manager = ctx.skybox_manager;
 }
 
 void UI::render() {

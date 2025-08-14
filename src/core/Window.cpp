@@ -57,8 +57,7 @@ Window::Window(int width, int height, const char* title, bool fullscreen, int sa
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         LOG_ERROR("Failed to initialize GLAD");
-    }
-
+    } 
 
     window_data_ = std::make_shared<WindowData>();
     window_data_->window = this;
@@ -77,7 +76,11 @@ Window::Window(int width, int height, const char* title, bool fullscreen, int sa
 
 
 Window::~Window() {
-    if(window_ != nullptr) {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    if (window_ != nullptr) {
         glfwDestroyWindow(window_);
     }
 }

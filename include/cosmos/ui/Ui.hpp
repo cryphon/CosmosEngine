@@ -7,14 +7,14 @@
 // ==
 // Third Party
 // ==
+#include <glad/glad.h>
 #include <imgui.h>
 #include "backends/imgui_impl_glfw.h"
-#include <glad/glad.h>
 
 // ==
 // Cosmos
 // ==
-
+#include <cosmos/core/AppAPI.hpp>
 
 // ==
 // Forward Declare
@@ -42,12 +42,7 @@ public:
     float tiling_slider = 1.0f;
     float displacement_slider = 0.05f;
 
-    void initialize(GLFWwindow* window, 
-                    const std::shared_ptr<render::Renderer> r, 
-                    const std::shared_ptr<scene::SceneManager> s, 
-                    std::shared_ptr<core::Engine> e, 
-                    std::shared_ptr<scene::CameraControls> c, 
-                    const std::shared_ptr<assets::SkyBoxManager> sbm);
+    void initialize(const core::UiContext& ctx);    
     void render();
     void update();
     void shutdown();
@@ -59,11 +54,13 @@ public:
     bool EditTextureSlot(const char* label, bool& use_map, std::shared_ptr<render::Texture>& texture, GLenum texture_target = GL_TEXTURE_2D);
 
 private:
-    std::shared_ptr<render::Renderer> renderer = nullptr;
-    std::shared_ptr<scene::SceneManager> scene_manager = nullptr;
-    std::shared_ptr<core::Engine> engine = nullptr;
-    std::shared_ptr<scene::CameraControls> camera_controls = nullptr;
-    std::shared_ptr<assets::SkyBoxManager> skybox_manager = nullptr;
+    core::Window* window = nullptr;  // non-owning pointer (comes from EngineServices)
+    render::Renderer* renderer = nullptr;  // non-owning pointer
+    scene::SceneManager* scene_manager = nullptr; // non-owning pointer
+
+    std::shared_ptr<scene::Camera> camera; // shared ownership with AppContext
+    std::shared_ptr<scene::CameraControls> camera_controls; // shared ownership
+    std::shared_ptr<assets::SkyBoxManager> skybox_manager; // shared ownership
 
     bool show_debug =false; 
 };
