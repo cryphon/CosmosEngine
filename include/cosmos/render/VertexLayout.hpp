@@ -17,8 +17,8 @@
 namespace cosmos::render {
 
 struct VertexAttribute {
-    GLuint index;       // shader location
-    GLint size;         // num. components
+    uint32_t index;       // shader location
+    uint32_t size;         // num. components
     GLenum type;        // GL_FLOAT, etc...
     size_t offset;      // byte offset from start
 };

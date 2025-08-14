@@ -9,6 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <imgui_impl_opengl3.h>
 
+
 // ==
 // Cosmos
 // ==
@@ -38,69 +39,29 @@ Engine::~Engine() {
 }
 
 
-bool Engine::init() {
-    window_ = new Window(1200, 800, "Cosmos Engine", false, 4);
+bool Engine::init(const EngineConfig& config, IApp& app) {
+    cfg_ = config;
+    window_ = std::make_unique<Window>(cfg_.width, cfg_.height, cfg_.title, cfg_.fullscreen, cfg_.msaa);
     window_->set_clear_color(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
     //window_->enable_vsync();
     window_->activate();
     window_->init_ui();
     window_->init_inputmanager();
-    auto ui = window_->get_ui();
 
     renderer_ = std::make_shared<render::Renderer>();
     scene_manager_ = std::make_shared<scene::SceneManager>();
-    renderer_->set_ui(ui);
+    renderer_->set_ui(window_->get_ui());
 
+    EngineServices svc{
+        *window_,
+        *renderer_,
+        *scene_manager_,
+        *window_->get_ui(),
+        *window_->get_inputmanager()
+    };
 
-    camera_ = std::make_shared<scene::Camera>();
-    camera_->set_position(glm::vec3(0.0f, 0.0f, 10.0f));
-    camera_->set_aspect_ratio(SCREEN_WIDTH / SCREEN_HEIGHT);
-    camera_->update_view();
-    camera_->update_projection();
-   
-    controls_ = std::make_unique<scene::OrbitalCameraControls>(window_->get_glfw_ref(), camera_, glm::vec3(0.0f, 0.0f, 0.0f));
-    camera_input_adapter_ = std::make_unique<scene::CameraInputAdapter>(controls_.get(), *camera_);
-    window_->get_inputmanager()->add_listener(camera_input_adapter_.get());
-
-
-    window_->set_resize_callback([this](int width, int height) {
-            float aspect = static_cast<float>(width) / height;
-            camera_->set_aspect_ratio(aspect);
-            camera_->update_projection();
-            });
-
-    renderer_->init_grid(); 
-
-
-    auto skybox_manager = std::make_shared<assets::SkyBoxManager> ();
-    auto studio_skybox = init_hdri_skybox(skybox_manager, "studio", "textures/skybox/brown_photostudio.hdr");
-    auto loft_skybox = init_hdri_skybox(skybox_manager, "loft", "textures/skybox/newport_loft.hdr");
-
-    assets::ShaderLibrary::load("PBR", "shaders/pbr.vert", "shaders/pbr.frag");
-
-    // shader has to be loaded before materials
-    assets::MaterialLibrary::load_from_path("roofing", "assets/materials/roofing");
-    assets::MaterialLibrary::load_from_path("bricks", "assets/materials/bricks");
-    assets::MaterialLibrary::load_from_path("marble", "assets/materials/marble");
-    assets::MaterialLibrary::load_from_path("gold", "assets/materials/gold");
-    assets::MaterialLibrary::load_from_path("rock", "assets/materials/rock");
-
-    // --- Set Scene, Init Render & UI ---
-    scene_manager_->register_factory("main", [this, studio_skybox]() {
-        auto scene = std::make_unique<MainScene>(renderer_.get(), camera_);
-        scene->set_skybox(studio_skybox);
-        return scene;
-    });
-
-    scene_manager_->register_factory("second", [this, loft_skybox]() {
-        auto scene = std::make_unique<SecondScene>(renderer_.get(), camera_);
-        scene->set_skybox(loft_skybox);
-        return scene;
-    });
-
-    scene_manager_->set_scene("main");
-    
-    ui->initialize(window_->get_glfw_ref(), renderer_, scene_manager_, shared_from_this(), controls_, skybox_manager);
+    app_ctx_ = std::make_shared<AppContext>();
+    app.bootstrap(*this, svc, *app_ctx_);  
 
     return true;
 }
@@ -110,10 +71,10 @@ void Engine::run() {
 
         window_->get_inputmanager()->update(dt);
 
-        renderer_->render_grid(*camera_, screen_width, screen_height);
 
         scene_manager_->update(dt);
         scene_manager_->render();
+        renderer_->render_grid(*app_ctx_->camera, cfg_.width, cfg_.height);
 
         window_->get_ui()->update();
         window_->get_ui()->render();

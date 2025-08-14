@@ -12,7 +12,6 @@
 // ==
 // Third Party
 // ==
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -25,7 +24,7 @@ std::string get_file_contents(const char* filename);
 
 class Shader {
 public:
-    GLuint ID;
+    uint32_t ID;
     
     // Constructor
     Shader(const char* vertex_path, const char* fragment_path);

@@ -80,15 +80,17 @@ add_library(cosmos_assets STATIC ${COSMOS_ASSETS_SRC})
 target_include_directories(cosmos_assets PUBLIC ${INCLUDE_DIR} PRIVATE ${INTERNAL_DIR})
 target_link_libraries(cosmos_assets PUBLIC cosmos_render)  # assets build materials/textures, so they depend on render
 
-# --- scene ---
-add_library(cosmos_scene STATIC ${COSMOS_SCENE_SRC})
-target_include_directories(cosmos_scene PUBLIC ${INCLUDE_DIR} PRIVATE ${INTERNAL_DIR})
-target_link_libraries(cosmos_scene PUBLIC cosmos_render imgui)
-
 # --- input ---
 add_library(cosmos_input STATIC ${COSMOS_INPUT_SRC})
 target_include_directories(cosmos_input PUBLIC ${INCLUDE_DIR})
 target_link_libraries(cosmos_input PUBLIC ${GLFW3_LIBRARIES})
+
+# --- scene ---
+add_library(cosmos_scene STATIC ${COSMOS_SCENE_SRC})
+target_include_directories(cosmos_scene PUBLIC ${INCLUDE_DIR} PRIVATE ${INTERNAL_DIR})
+target_link_libraries(cosmos_scene PUBLIC cosmos_render imgui cosmos_input)
+
+
 
 # --- ui ---
 add_library(cosmos_ui STATIC ${COSMOS_UI_SRC})
