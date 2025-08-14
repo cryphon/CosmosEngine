@@ -87,6 +87,12 @@ public:
     void cull_front_faces() { glCullFace(GL_FRONT); }
     void cull_back_faces() { glCullFace(GL_BACK); }
 
+    float get_aspect_ratio() const {
+        int w, h;
+        glfwGetFramebufferSize(window_, &w, &h);
+        return h > 0 ? static_cast<float>(w) / static_cast<float>(h) : 0.0f;
+    }
+
     void set_size(int width, int height);
     void set_resize_callback(ResizeCallback cb);
     void enable_resize_updates();

@@ -25,16 +25,15 @@ void AppBootstrap::bootstrap(cosmos::core::Engine& engine,
     app.camera   = std::make_shared<scene::Camera>();
 
     app.camera->set_position(glm::vec3(0.0f, 0.0f, 10.0f));
-    app.camera->set_aspect_ratio(1200.0f / 800.0f);
+    app.camera->set_aspect_ratio(svc.window.get_aspect_ratio());
     app.camera->update_view();
     app.camera->update_projection();
     app.controls = std::make_shared<scene::OrbitalCameraControls>(svc.window.get_glfw_ref(), app.camera, glm::vec3(0.0f));
     app.camera_adapter = std::make_unique<scene::CameraInputAdapter>(app.controls.get(), *app.camera);
     svc.window.get_inputmanager()->add_listener(app.camera_adapter.get());
 
-    svc.window.set_resize_callback([camera = app.camera](int width, int height) {
-        float aspect = static_cast<float>(width) / height;
-        camera->set_aspect_ratio(aspect);
+    svc.window.set_resize_callback([camera = app.camera, &window = svc.window](int width, int height) {
+        camera->set_aspect_ratio(window.get_aspect_ratio());
         camera->update_projection();
     });
 
