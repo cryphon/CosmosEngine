@@ -76,13 +76,8 @@ Window::Window(int width, int height, const char* title, bool fullscreen, int sa
 
 
 Window::~Window() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    if (window_ != nullptr) {
-        glfwDestroyWindow(window_);
-    }
+    if(ui_) ui_->shutdown();
+    if (window_) glfwDestroyWindow(window_);
 }
 
 void Window::activate() { glfwMakeContextCurrent(window_); }

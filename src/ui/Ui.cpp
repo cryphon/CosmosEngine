@@ -29,9 +29,7 @@
 
 namespace cosmos::ui {
 UI::UI() {}
-UI::~UI() {
-    shutdown();
-}
+UI::~UI() { }
 
 void UI::initialize(const core::UiContext& ctx) {
     IMGUI_CHECKVERSION();
