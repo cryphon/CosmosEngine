@@ -36,13 +36,13 @@ enum class LogLevel {
 class Logger {
 public:
     static void set_level(LogLevel level) {
-        current_level = level;
+        current_level_ = level;
     }
 
     static void log(const std::string& message, LogLevel level) {
-        if (level > current_level) return;
+        if (level > current_level_) return;
 
-        const std::string timestamp = current_time();
+        const std::string timestamp = current_time_();
 
         switch (level) {
             case LogLevel::ERROR:
@@ -58,9 +58,9 @@ public:
     }
 
 private:
-    static inline LogLevel current_level = LogLevel::DEBUG;
+    static inline LogLevel current_level_ = LogLevel::DEBUG;
 
-    static std::string current_time() {
+    static std::string current_time_() {
         auto now = std::chrono::system_clock::now();
         auto t_c = std::chrono::system_clock::to_time_t(now);
         std::tm tm;
