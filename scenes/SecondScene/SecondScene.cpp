@@ -18,7 +18,7 @@
 #include <cosmos/render/Texture.hpp>
 #include <cosmos/render/PBRMaterial.hpp>
 #include <cosmos/render/UniformContext.hpp>
-#include <cosmos/render/RenderCommand.hpp>
+#include <cosmos/render/gfx/RenderCommand.hpp>
 #include <cosmos/assets/ShaderLibrary.hpp>
 #include <cosmos/assets/MaterialLibrary.hpp>
 #include <cosmos/assets/SkyboxUtils.hpp>

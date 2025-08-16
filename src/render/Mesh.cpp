@@ -53,10 +53,7 @@ void Mesh::init_positions_only(const float* vertices, size_t v_size) {
 }
 
 
-void Mesh::draw(const VertexLayoutView& layout) const {
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+void Mesh::draw(const VertexLayoutView& layout) const { 
     if (!vbo) { LOG_ERROR("[Mesh::draw] VBO not initialized"); return; }
 
     const VAO& vao = vao_for(layout);

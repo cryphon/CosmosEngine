@@ -7,7 +7,7 @@
 #include <cosmos/render/Material.hpp>
 #include <cosmos/render/UniformContext.hpp>
 #include <cosmos/render/UniformPresets.hpp>
-#include <cosmos/render/RenderCommand.hpp>
+#include <cosmos/render/gfx/RenderCommand.hpp>
 #include <cosmos/render/VertexLayouts.hpp>
 #include <cosmos/assets/ShaderLibrary.hpp>
 #include <cosmos/assets/SkyboxUtils.hpp>

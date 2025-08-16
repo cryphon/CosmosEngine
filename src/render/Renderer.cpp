@@ -17,7 +17,7 @@
 #include <cosmos/render/Material.hpp>
 #include <cosmos/render/UniformContext.hpp>
 #include <cosmos/render/UniformPresets.hpp>
-#include <cosmos/render/RenderCommand.hpp>
+#include <cosmos/render/gfx/RenderCommand.hpp>
 #include <cosmos/assets/Skybox.hpp>
 #include <cosmos/scene/Camera.hpp>
 #include <cosmos/ui/Ui.hpp>
@@ -50,6 +50,11 @@ void Renderer::render_all(const scene::Camera& camera, int screen_width, int scr
     };
 
     for (const auto& cmd : render_queue) {
+
+        // --- Apply pipeline state for this draw (once per pass)
+        state_cache_.apply(cmd.state);
+
+
         auto& material = *cmd.material;
         auto shader = material.shader;
         shader->activate_shader();
