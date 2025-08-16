@@ -69,6 +69,7 @@ void AppBootstrap::bootstrap(cosmos::core::Engine& engine,
     UiContext ui_ctx{
         svc.window,
         svc.renderer,
+        svc.profiler,
         svc.scene_manager,
         app.camera,
         app.controls,

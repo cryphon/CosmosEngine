@@ -15,6 +15,8 @@
 // Cosmos
 // ==
 #include <cosmos/core/AppAPI.hpp>
+#include <cosmos/core/Profiler.hpp>
+#include <cosmos/ui/PerfOverlay.hpp>
 
 // ==
 // Forward Declare
@@ -57,6 +59,8 @@ private:
     core::Window* window = nullptr;  // non-owning pointer (comes from EngineServices)
     render::Renderer* renderer = nullptr;  // non-owning pointer
     scene::SceneManager* scene_manager = nullptr; // non-owning pointer
+    core::Profiler* profiler_ = nullptr;
+    PerfOverlayConfig perf_cfg_;
 
     std::shared_ptr<scene::Camera> camera; // shared ownership with AppContext
     std::shared_ptr<scene::CameraControls> camera_controls; // shared ownership

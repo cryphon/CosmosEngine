@@ -23,6 +23,7 @@ namespace cosmos::render { class Renderer; }
 namespace cosmos::scene { class SceneManager; class Camera; class CameraControls; class CameraInputAdapter; }
 namespace cosmos::input { class InputManager; }
 namespace cosmos::assets { class SkyBoxManager; }
+namespace cosmos::core { class Profiler; }
 
 namespace cosmos::core {
 
@@ -53,7 +54,6 @@ public:
     scene::CameraControls& get_camera_controls() { return *controls_; }
     scene::CameraInputAdapter& get_camera_adapter() { return *camera_adapter_; }
 
-
     std::shared_ptr<Engine> get_ptr() { return shared_from_this(); }
 
 private:
@@ -65,6 +65,7 @@ private:
     std::shared_ptr<scene::CameraInputAdapter> camera_adapter_;
     std::shared_ptr<core::AppContext> app_ctx_;
     EngineConfig cfg_;
+    std::shared_ptr<Profiler> profiler_;
 
 
 
