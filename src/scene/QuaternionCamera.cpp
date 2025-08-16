@@ -1,23 +1,45 @@
+// ==
+// Standard Library
+// ==
+
+// ==
+// Third Party
+// ==
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include "QuaternionCamera.hpp"
 
+// ==
+// Cosmos
+// ==   
+#include <cosmos/scene/Camera.hpp>
+#include <cosmos/scene/QuaternionCamera.hpp>
+
+namespace cosmos::scene {
+    
 QuaternionCameraControls::QuaternionCameraControls(GLFWwindow* window, std::shared_ptr<Camera> camera, glm::vec3 target)
-    : window(window), camera(camera), target(target) {}
+    : window(window), camera(camera), target(target) 
+{
+    position_ = this->camera ? this->camera->get_position()
+                             : (target - glm::vec3(0,0,-1) * radius);
+}
 
-void OrbitalCameraControls::on_mouse_button(int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        if (action == GLFW_PRESS) {
-            rotating = true;
-            first_mouse = true;
-        } else if (action == GLFW_RELEASE) {
-            rotating = false;
+void QuaternionCameraControls::on_mouse_button(int button, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        first_mouse = true;
+        dragging = true;
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            mode_ = MouseMode::FreeLook;
+        } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            mode_ = MouseMode::Pan;
         }
+    } else if (action == GLFW_RELEASE) {
+        dragging = false;
+        mode_ = MouseMode::None;
     }
 }
 
 void QuaternionCameraControls::on_mouse_move(double xpos, double ypos) {
-    if (!rotating) return;
+    if (!dragging) return;
 
     if (first_mouse) {
         last_x = xpos;
@@ -26,29 +48,17 @@ void QuaternionCameraControls::on_mouse_move(double xpos, double ypos) {
         return;
     }
 
-    float x_offset = static_cast<float>(xpos - last_x);
-    float y_offset = static_cast<float>(last_y - ypos); // reversed: y ranges bottom to top
+    float dx = static_cast<float>(xpos - last_x);
+    float dy = static_cast<float>(last_y - ypos);
+    last_x = xpos; last_y = ypos;
 
-    last_x = xpos;
-    last_y = ypos;
+    dx *= sensitivity; 
+    dy *= sensitivity; 
 
-    x_offset *= sensitivity;
-    y_offset *= sensitivity;
-
-    yaw += x_offset;
-    pitch += y_offset;
-
-    // clamp pitch to prevent flipping
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
+   
 }
 
 void QuaternionCameraControls::update(Camera& cam, float delta_t) {
-    if (passive_rotation_enabled_) {
-        yaw += passive_rotation_speed_ * delta_t;
-        if (yaw > 360.0f) yaw -= 360.0f;
-    }
-
     update_camera(cam);
 }
 
@@ -59,10 +69,9 @@ void QuaternionCameraControls::on_scroll(double xoffset, double yoffset) {
 
 
 void QuaternionCameraControls::update_camera(Camera& cam) {
-    float yaw_rad = glm::radians(yaw);
-    float pitch_rad = glm::radians(pitch);
+    float yaw_rad = glm::radians(yaw_deg_);
+    float pitch_rad = glm::radians(pitch_deg_);
 
-    // Compute new position
     glm::vec3 offset;
     offset.x = radius * cos(pitch_rad) * sin(yaw_rad);
     offset.y = radius * sin(pitch_rad);
@@ -88,24 +97,4 @@ void QuaternionCameraControls::update_camera(Camera& cam) {
 
     cam.update_view();
 }
-
-void Rotate(float angle, glm::vec3 vectors) {
-    
-}
-
-glm::quat rotation (float angle, glm::vec3) {
-
-}
-
-glm::quat conjugate(float w, float x, float y, float z) {
-    return glm::quat{w, -x, -y, -z};
-}
-
-void QuaternionCameraControls::set_angles(float new_yaw, float new_pitch) {
-    yaw = new_yaw;
-    pitch = glm::clamp(new_pitch, -89.0f, 89.0f); // prevent flip
-}
-
-void QuaternionCameraControls::apply_man_update() {
-    update_camera(*camera);
 }

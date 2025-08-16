@@ -13,6 +13,7 @@
 #include <cosmos/ui/Ui.hpp>
 #include "MainScene.hpp"
 #include "SecondScene.hpp"
+#include <cosmos/scene/QuaternionCamera.hpp>
 
 using cosmos::core::AppBootstrap;
 
@@ -28,7 +29,7 @@ void AppBootstrap::bootstrap(cosmos::core::Engine& engine,
     app.camera->set_aspect_ratio(svc.window.get_aspect_ratio());
     app.camera->update_view();
     app.camera->update_projection();
-    app.controls = std::make_shared<scene::OrbitalCameraControls>(svc.window.get_glfw_ref(), app.camera, glm::vec3(0.0f));
+    app.controls = std::make_shared<scene::QuaternionCameraControls>(svc.window.get_glfw_ref(), app.camera, glm::vec3(0.0f));
     app.camera_adapter = std::make_unique<scene::CameraInputAdapter>(app.controls.get(), *app.camera);
     svc.window.get_inputmanager()->add_listener(app.camera_adapter.get());
 
