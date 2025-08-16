@@ -34,7 +34,7 @@
 namespace cosmos::core {
 Engine::Engine() {}
 Engine::~Engine() {
-    glfwDestroyWindow(window_->get_glfw_ref());
+    window_.reset();
     glfwTerminate();
 }
 
