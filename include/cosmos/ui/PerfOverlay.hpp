@@ -1,5 +1,7 @@
 #pragma once
-
+// ==
+// Standard Library
+// ==
 #include <imgui.h>
 #include <vector>
 #include <algorithm>
@@ -7,7 +9,14 @@
 #include <cstdio>
 #include <cmath>
 
-#include <cosmos/core/Profiler.hpp> // FrameStats, Profiler
+// ==
+// Third Party
+// ==
+
+// ==
+// Cosmos
+// ==
+#include <cosmos/core/Profiler.hpp>
 
 namespace cosmos::ui {
 
