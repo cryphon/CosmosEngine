@@ -23,9 +23,9 @@
 #include <cosmos/ui/Ui.hpp>
 
 namespace cosmos::render {
-Renderer::Renderer() {}
+Renderer::Renderer() { }
 
-Renderer::~Renderer() {} 
+Renderer::~Renderer() { } 
 
 void Renderer::submit(const render::RenderCommand& render_cmd) {
     render_queue.push_back(render_cmd);
@@ -62,7 +62,8 @@ void Renderer::render_all(const scene::Camera& camera, int screen_width, int scr
 
         material.bind(); // binds textures, etc.
         cmd.mesh->draw(material.vertex_layout());
-    }
+
+            }
     render_queue.clear(); // empty for next frame
 }
 

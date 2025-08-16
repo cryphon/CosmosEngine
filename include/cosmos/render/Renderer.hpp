@@ -23,6 +23,7 @@ namespace cosmos::scene { class Camera; }
 namespace cosmos::assets { class SkyBox; }
 namespace cosmos::render { class VBO; class EBO; class RenderCommand; class Shader; class Texture; }
 namespace cosmos::ui { class UI; }
+namespace cosmos::core { class Profiler; }
 
 namespace cosmos::render {
 
@@ -47,6 +48,8 @@ public:
     void set_selected_object(int id) { selected_object_id = id; }
     void set_highlight_shader(std::shared_ptr<Shader> shader) { highlight_shader = shader; }
 
+    void set_profiler(cosmos::core::Profiler* p) { profiler_ = p; }
+
 private:
     std::vector<RenderCommand> render_queue;
     std::shared_ptr<ui::UI> ui = nullptr;
@@ -62,6 +65,11 @@ private:
     int selected_object_id = -1;
 
     std::shared_ptr<Shader> highlight_shader;
+
+    cosmos::core::Profiler* profiler_ = nullptr;
+
+    GLuint time_q[2] = {0, 0};
+    int tq = 0;
 };
 }
 

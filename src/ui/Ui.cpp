@@ -42,11 +42,17 @@ void UI::initialize(const core::UiContext& ctx) {
 
     renderer = &ctx.renderer;
     scene_manager = &ctx.scene_manager;
+    profiler_ = &ctx.profiler;
     camera_controls = ctx.controls;
     skybox_manager = ctx.skybox_manager;
 }
 
 void UI::render() {
+
+    cosmos::ui::draw_perf_overlay(*profiler_, perf_cfg_);
+
+
+
     if(camera_controls == nullptr) {
         LOG_ERROR("Initialize and add camera controls to UI before calling UI::render");
         exit(-1);
