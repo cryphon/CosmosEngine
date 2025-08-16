@@ -59,6 +59,19 @@ Window::Window(int width, int height, const char* title, bool fullscreen, int sa
         LOG_ERROR("Failed to initialize GLAD");
     } 
 
+    auto s = [](const GLubyte* p){ return p ? reinterpret_cast<const char*>(p) : "null"; };
+    LOG_INFO(std::string("GL_VENDOR:   ")   + s(glGetString(GL_VENDOR)));
+    LOG_INFO(std::string("GL_RENDERER: ")   + s(glGetString(GL_RENDERER)));
+    LOG_INFO(std::string("GL_VERSION:  ")   + s(glGetString(GL_VERSION)));
+    LOG_INFO(std::string("GLSL:        ")   + s(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+
+    GLint bits = 0;
+    glGetQueryiv(GL_TIME_ELAPSED, GL_QUERY_COUNTER_BITS, &bits);
+    LOG_INFO("GL_TIME_ELAPSED counter bits: " + std::to_string(bits));
+
+
+
+
     window_data_ = std::make_shared<WindowData>();
     window_data_->window = this;
     glfwSetWindowUserPointer(window_, window_data_.get());
