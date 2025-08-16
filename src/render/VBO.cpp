@@ -20,13 +20,23 @@ VBO::VBO(const float* vertices, size_t v_size) {
     glBufferData(GL_ARRAY_BUFFER, v_size, vertices, GL_STATIC_DRAW);
 
     size_t float_count = v_size / sizeof(float);
-    vertices_data.assign(vertices, vertices + float_count);
+    vertices_data_.assign(vertices, vertices + float_count);
+}
+
+VBO::~VBO() { reset(); }
+
+void VBO::reset() {
+    if(ID) {
+        glDeleteBuffers(1, &ID); ID = 0;
+        vertices_data_.clear();
+        vertices_data_.shrink_to_fit();
+    }
 }
 
 std::vector<glm::vec3> VBO::get_vertices(int stride) const {
     std::vector<glm::vec3> result;
-    for (size_t i = 0; i + 2 < vertices_data.size(); i += stride) {
-        result.emplace_back(vertices_data[i], vertices_data[i + 1], vertices_data[i + 2]);
+    for (size_t i = 0; i + 2 < vertices_data_.size(); i += stride) {
+        result.emplace_back(vertices_data_[i], vertices_data_[i + 1], vertices_data_[i + 2]);
     }
     return result;
 }
@@ -37,10 +47,6 @@ void VBO::bind() {
 
 void VBO::unbind() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-void VBO::delete_vbo() {
-    glDeleteBuffers(1, &ID);
 }
 
 }
