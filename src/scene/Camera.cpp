@@ -245,16 +245,4 @@ void OrbitalCameraControls::set_angles(float new_yaw, float new_pitch) {
 void OrbitalCameraControls::apply_man_update() {
     update_camera(*camera);
 }
-
-inline glm::quat rotation(float angle_deg, glm::vec3 axis) {
-    return glm::angleAxis(glm::radians(angle_deg), glm::normalize(axis));
-}
-
-
-inline void Rotate(glm::quat& orientation, float angle_deg, glm::vec3 axis, bool world_space = true) {
-    glm::quat dq = rotation(angle_deg, axis);   
-    orientation = glm::normalize(world_space ? (dq * orientation) : (orientation * dq));
-}
-
-
 }
