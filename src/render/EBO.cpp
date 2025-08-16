@@ -21,6 +21,11 @@ EBO::EBO(const unsigned int* indices, size_t i_size) {
     size_t index_count = i_size / sizeof(unsigned int);
     index_data_.assign(indices, indices + index_count);
 }
+EBO::~EBO() { reset(); }
+
+void EBO::reset() {
+    if(ID) { glDeleteBuffers(1, &ID); ID = 0; }
+}
 
 void EBO::bind() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
@@ -30,7 +35,4 @@ void EBO::unbind() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void EBO::delete_ebo() {
-    glDeleteBuffers(1, &ID);
-}
 }

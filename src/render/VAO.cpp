@@ -15,6 +15,13 @@
 #include <cosmos/render/VertexLayout.hpp>
 
 namespace cosmos::render {
+
+VAO::~VAO() { reset(); }
+
+void VAO::reset() {
+    if(ID) { glDeleteVertexArrays(1, &ID); ID = 0; }
+}
+
 void VAO::link_attr(VBO& vbo, GLuint layout, GLuint num_components, GLenum type, GLsizeiptr stride, void* offset) {
     vbo.bind();
     glVertexAttribPointer(layout, num_components, type, GL_FALSE, stride, offset);
@@ -34,10 +41,6 @@ void VAO::unbind() const {
     glBindVertexArray(0);
 }
 
-void VAO::delete_vao() {
-    glDeleteVertexArrays(1, &ID);
-}
-
 // VAO.cpp
 void VAO::link_layout(VBO& vbo, const VertexLayoutView& layout) {
     bind();          // make sure this VAO is current
@@ -50,8 +53,6 @@ void VAO::link_layout(VBO& vbo, const VertexLayoutView& layout) {
         glEnableVertexAttribArray(a.index);
     }
     vbo.unbind();
-    // leave the VAO bound if you’ll continue configuring; else:
-    // unbind();
 }
 
 }

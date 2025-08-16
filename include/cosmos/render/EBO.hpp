@@ -16,18 +16,31 @@
 
 namespace cosmos::render {
 class EBO {
-    public:
-        GLuint ID;
+public:
+    GLuint ID{0};
 
-        EBO(const unsigned int* indices, size_t size);
-        void bind();
-        void unbind();
-        void delete_ebo();
+    EBO() = default; 
+    EBO(const unsigned int* indices, size_t size);
 
-        const std::vector<unsigned int>& get_indices() const { return index_data_; };
+    // --- Non copyable ---
+    EBO(const EBO&) = delete;
+    EBO& operator=(const EBO&) = delete;
+    
+    // --- Movable ---
+    EBO(EBO&& other) noexcept
+        : ID(std::exchange(other.ID, 0)) {}
+    EBO& operator=(EBO&& other) noexcept { if (this != &other) { reset(); ID = std::exchange(other.ID, 0);} return *this; }
+    ~EBO();
 
-    private:
-        std::vector<unsigned int> index_data_;
+    void bind();
+    void unbind();
+
+    void reset();
+
+    const std::vector<unsigned int>& get_indices() const { return index_data_; };
+
+private:
+    std::vector<unsigned int> index_data_;
 };
 }
 

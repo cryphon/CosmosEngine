@@ -258,9 +258,6 @@ const VAO& Mesh::vao_for(const VertexLayoutView& layout) const {
 }
 
 
-Mesh::~Mesh() {
-    if (vbo) vbo->delete_vbo();
-    if (ebo) ebo->delete_ebo();
-}
+Mesh::~Mesh() { }
 
 }

@@ -17,17 +17,40 @@
 namespace cosmos::render {
 
 class VBO {
-    public:
-        GLuint ID;
-        VBO(const float* vertices, size_t v_size);
+public:
+    GLuint ID{0};
+    VBO(const float* vertices, size_t v_size);
 
-        void bind();
-        void unbind();
-        void delete_vbo();
 
-        std::vector<glm::vec3> get_vertices(int stride = 11) const;
+    // --- Non copyable ---
+    VBO(const VBO&) = delete;
+    VBO& operator=(const VBO&) = delete;
 
-    private: 
-        std::vector<float> vertices_data;
+    // --- Movable ---
+    VBO(VBO&& other) noexcept
+        : ID(std::exchange(other.ID, 0))
+        , vertices_data_(std::move(other.vertices_data_)) {}
+
+    VBO& operator=(VBO&& other) noexcept {
+        if(this != &other) {
+            reset();
+            ID = std::exchange(other.ID, 0);
+            vertices_data_ = std::move(other.vertices_data_);
+        }
+        return *this;
+    }
+
+    ~VBO();
+
+
+    void bind();
+    void unbind();
+
+    void reset();
+
+    std::vector<glm::vec3> get_vertices(int stride = 11) const;
+
+private: 
+    std::vector<float> vertices_data_;
 };
 }
