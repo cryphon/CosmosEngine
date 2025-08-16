@@ -2,7 +2,6 @@
 // ==
 // Standard Library
 // ==
-#include <string>
 #include <memory>
 
 // ==
@@ -21,15 +20,15 @@ class SkyBox {
 
     public:
         SkyBox(std::shared_ptr<render::Mesh> mesh, std::shared_ptr<render::Material> material)
-            : mesh(mesh), material(material) {};
+            : mesh_(mesh), material_(material) {};
 
-        std::shared_ptr<render::Mesh> get_mesh() const { return mesh; }
-        std::shared_ptr<render::Material> get_material() const { return material; }
+        std::shared_ptr<render::Mesh> get_mesh() const { return mesh_; }
+        std::shared_ptr<render::Material> get_material() const { return material_; }
 
         void cleanup();
 
     private:
-        std::shared_ptr<render::Mesh> mesh;
-        std::shared_ptr<render::Material> material;
+        std::shared_ptr<render::Mesh> mesh_;
+        std::shared_ptr<render::Material> material_;
 };
 }

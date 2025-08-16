@@ -41,7 +41,7 @@ class ShaderLibrary {
         static std::string get_name(const std::shared_ptr<render::Shader>& shader);
 
     private:
-        static std::unordered_map<std::string, std::shared_ptr<render::Shader>> shaders;
-        static std::unordered_map<std::shared_ptr<render::Shader>, std::string, ShaderPtrHash, ShaderPtrEqual> reverse_lookup;
+        static std::unordered_map<std::string, std::shared_ptr<render::Shader>> shaders_;
+        static std::unordered_map<std::shared_ptr<render::Shader>, std::string, ShaderPtrHash, ShaderPtrEqual> reverse_lookup_;
 };
 }
