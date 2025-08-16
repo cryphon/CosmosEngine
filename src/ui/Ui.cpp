@@ -40,11 +40,11 @@ void UI::initialize(const core::UiContext& ctx) {
     ImGui_ImplOpenGL3_Init("#version 330");
     ImGui::SetNextWindowSize(ImVec2(300, 400));
 
-    renderer = &ctx.renderer;
-    scene_manager = &ctx.scene_manager;
+    renderer_ = &ctx.renderer;
+    scene_manager_ = &ctx.scene_manager;
     profiler_ = &ctx.profiler;
-    camera_controls = ctx.controls;
-    skybox_manager = ctx.skybox_manager;
+    camera_controls_ = ctx.controls;
+    skybox_manager_ = ctx.skybox_manager;
 }
 
 void UI::render() {
@@ -53,11 +53,11 @@ void UI::render() {
 
 
 
-    if(camera_controls == nullptr) {
+    if(camera_controls_ == nullptr) {
         LOG_ERROR("Initialize and add camera controls to UI before calling UI::render");
         exit(-1);
     }
-    if(renderer == nullptr) {
+    if(renderer_ == nullptr) {
         LOG_ERROR("Initialize and add renderer to UI before calling UI::render");
         exit(-1);
     }
@@ -68,8 +68,8 @@ void UI::render() {
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Scene Manager")) {
-            static std::vector<std::string> scene_names = scene_manager->get_scene_names();
-            std::string current_scene = scene_manager->get_current_scene_name();
+            static std::vector<std::string> scene_names = scene_manager_->get_scene_names();
+            std::string current_scene = scene_manager_->get_current_scene_name();
 
             // Find index of current scene
             int current_index = 0;
@@ -87,19 +87,19 @@ void UI::render() {
                         *out_text = names[idx].c_str();
                         return true;
                         }, static_cast<void*>(&scene_names), static_cast<int>(scene_names.size()))) {
-                scene_manager->set_scene(scene_names[current_index]);
+                scene_manager_->set_scene(scene_names[current_index]);
             }
 
 
             if (ImGui::Button("Reload Scene")) {
-                scene_manager->reset_scene();
+                scene_manager_->reset_scene();
             }
 
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Skybox Manager")) {
-            auto skybox_names = skybox_manager->get_skybox_names();
-            std::string current_skybox = skybox_manager->get_current_skybox_name();
+            auto skybox_names = skybox_manager_->get_skybox_names();
+            std::string current_skybox = skybox_manager_->get_current_skybox_name();
 
             // Find current skybox index
             int current_index = 0;
@@ -118,17 +118,17 @@ void UI::render() {
                     return true;
                 }, static_cast<void*>(&skybox_names), static_cast<int>(skybox_names.size()))) {
 
-                scene::RenderableScene* scene = dynamic_cast<scene::RenderableScene*>(scene_manager->get_current_scene_obj());
+                scene::RenderableScene* scene = dynamic_cast<scene::RenderableScene*>(scene_manager_->get_current_scene_obj());
                 if (scene) {
-                    skybox_manager->set_skybox(skybox_names[current_index]);
+                    skybox_manager_->set_skybox(skybox_names[current_index]);
 
-                    std::shared_ptr<assets::SkyBox> skybox = std::shared_ptr<assets::SkyBox>(skybox_manager->get_current_skybox());
+                    std::shared_ptr<assets::SkyBox> skybox = std::shared_ptr<assets::SkyBox>(skybox_manager_->get_current_skybox());
                     scene->set_skybox(skybox);
                 }
             }
 
             if (ImGui::Button("Reload Skybox")) {
-                skybox_manager->set_skybox(current_skybox);
+                skybox_manager_->set_skybox(current_skybox);
             }
 
             ImGui::EndMenu();
@@ -148,7 +148,7 @@ void UI::render() {
     ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
     ImGui::Begin("Scene Objects", nullptr, panelFlags);
-    scene::RenderableScene* scene = static_cast<scene::RenderableScene*>(scene_manager->get_current_scene_obj());
+    scene::RenderableScene* scene = static_cast<scene::RenderableScene*>(scene_manager_->get_current_scene_obj());
 
 
     try {
@@ -206,9 +206,9 @@ void UI::render() {
         ImGui::End();
     } catch(int err) { }
 
-    if (show_debug && camera_controls) {
+    if (show_debug && camera_controls_) {
 
-        std::shared_ptr<scene::CameraControls> base_ptr = camera_controls;
+        std::shared_ptr<scene::CameraControls> base_ptr = camera_controls_;
         std::shared_ptr<scene::OrbitalCameraControls> orbital_ptr = std::dynamic_pointer_cast<scene::OrbitalCameraControls>(base_ptr);
 
         if (orbital_ptr && passive_rotation == false) {
@@ -219,8 +219,8 @@ void UI::render() {
 
         ImGui::Begin("Camera/Debug Options");
         bool changed = false;
-        changed |= ImGui::Checkbox("Show Grid", &renderer->grid_enabled);
-        changed |= ImGui::Checkbox("Show Skybox", &renderer->skybox_enabled);
+        changed |= ImGui::Checkbox("Show Grid", &renderer_->grid_enabled);
+        changed |= ImGui::Checkbox("Show Skybox", &renderer_->skybox_enabled);
         changed |= ImGui::SliderFloat("Yaw", &yaw_slider, -180.0f, 180.0f);
         changed |= ImGui::SliderFloat("Pitch", &pitch_slider, -89.0f, 89.0f);
         changed |= ImGui::Checkbox("Enable Passive Rotation", &passive_rotation);
