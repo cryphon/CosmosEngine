@@ -15,6 +15,7 @@
 // ==
 #include <cosmos/render/VAO.hpp>
 #include <cosmos/scene/Light.hpp>
+#include <cosmos/render/gfx/GLStateCache.hpp>
 
 // ==
 // Forward Declare
@@ -52,6 +53,7 @@ public:
 
 private:
     std::vector<RenderCommand> render_queue;
+    gfx::GLStateCache state_cache_;
     std::shared_ptr<ui::UI> ui = nullptr;
     scene::Light light = scene::Light({2.0f, 2.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
 
