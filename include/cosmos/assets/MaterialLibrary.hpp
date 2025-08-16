@@ -27,11 +27,11 @@ public:
         return std::filesystem::exists(path);
     }
     static void add(const std::string& name, std::shared_ptr<render::PBRMaterial> material) {
-        materials[name] = material;
+        materials_[name] = material;
     }
 
     static std::shared_ptr<render::PBRMaterial> get(const std::string& name) {
-        return materials[name];
+        return materials_[name];
     }
 
     static void load_from_path(const std::string& name, const std::string& path) {
@@ -63,7 +63,7 @@ public:
 
 
 private:
-    static inline std::unordered_map<std::string, std::shared_ptr<render::PBRMaterial>> materials;
+    static inline std::unordered_map<std::string, std::shared_ptr<render::PBRMaterial>> materials_;
 };
 
 }
