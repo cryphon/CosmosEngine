@@ -1,22 +1,36 @@
+// ==
+// Standard Library
+// ==
+
+// ==
+// Third Party
+// ==
+
+// ==
+// Cosmos
+// ==
 #include "SecondScene.hpp"
-#include "Shader.hpp"
-#include "Mesh.hpp"
-#include "Renderer.hpp"
-#include "Material.hpp"
-#include <GLFW/glfw3.h>
-#include "ShaderLibrary.hpp"
-#include "UniformContext.hpp"
-#include "ObjLoader.hpp"
-#include "SkyboxUtils.hpp"
-#include "PBRMaterial.hpp"
-#include "MaterialLibrary.hpp"
+#include <cosmos/render/Shader.hpp>
+#include <cosmos/render/Renderer.hpp>
+#include <cosmos/render/Material.hpp>
+#include <cosmos/render/Mesh.hpp>
+#include <cosmos/render/Transform.hpp>
+#include <cosmos/render/Texture.hpp>
+#include <cosmos/render/PBRMaterial.hpp>
+#include <cosmos/render/UniformContext.hpp>
+#include <cosmos/render/RenderCommand.hpp>
+#include <cosmos/assets/ShaderLibrary.hpp>
+#include <cosmos/assets/MaterialLibrary.hpp>
+#include <cosmos/assets/SkyboxUtils.hpp>
+#include <cosmos/assets/ObjLoader.hpp>
+#include <cosmos/scene/SceneObject.hpp>
 
 void SecondScene::initialize(){ 
 
-        auto pbr_material = MaterialLibrary::get("roofing");
-        auto sphere2 = Mesh::create_uv_sphere(256, 128, 1.0f);
+        auto pbr_material = cosmos::assets::MaterialLibrary::get("rock");
+        auto sphere2 = cosmos::render::Mesh::create_uv_sphere(256, 128, 1.0f);
 
-    Transform t0, t1, t2;
+    cosmos::render::Transform t0, t1, t2;
     t0.position = {0.0f, 0.0f, 0.0f };
     t1.position = { -1.5f, 0.0f, 0.0f };
     t2.position = { 1.5f, 0.0f, 0.0f };
@@ -24,7 +38,6 @@ void SecondScene::initialize(){
     t1.update_matrices();
     t2.update_matrices();
 
-    //objects.emplace_back("basic", std::move(sphere1), default_material, t1);
     objects.emplace_back("pbr",   std::move(sphere2), pbr_material, t0);
 
 }

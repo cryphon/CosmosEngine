@@ -1,7 +1,7 @@
-#include "Application.hpp"
+#include <cosmos/core/Application.hpp>
 
 int main(void) {
-    return Application::run(); 
+    return cosmos::core::Application::run(); 
 }
 
 
