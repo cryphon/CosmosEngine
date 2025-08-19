@@ -26,9 +26,10 @@
 #include <cosmos/scene/SceneObject.hpp>
 
 void SecondScene::initialize(){ 
+    auto& RM = renderer->get_resources();
 
-        auto pbr_material = cosmos::assets::MaterialLibrary::get("rock");
-        auto sphere2 = cosmos::render::Mesh::create_uv_sphere(256, 128, 1.0f);
+    auto marble =  cosmos::assets::MaterialLibrary::get("bricks");
+    auto sphere2 = cosmos::render::Mesh::create_uv_sphere(256, 128, 1.0f);
 
     cosmos::render::Transform t0, t1, t2;
     t0.position = {0.0f, 0.0f, 0.0f };
@@ -38,7 +39,7 @@ void SecondScene::initialize(){
     t1.update_matrices();
     t2.update_matrices();
 
-    objects.emplace_back("pbr",   std::move(sphere2), pbr_material, t0);
+    objects.emplace_back("pbr",   std::move(sphere2), marble, t0);
 
 }
 

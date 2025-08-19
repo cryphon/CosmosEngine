@@ -33,6 +33,30 @@ std::shared_ptr<render::Shader> ShaderLibrary::get(const std::string& name) {
     return shaders_.at(name);
 }
 
+
+std::shared_ptr<render::Shader>
+ShaderLibrary::get_or_create(const std::string& name,
+                             const std::string& vert_path,
+                             const std::string& frag_path)
+{
+    if (auto it = shaders_.find(name); it != shaders_.end())
+        return it->second;
+
+    load(name, vert_path, frag_path);
+    return shaders_.at(name);
+}
+
+std::shared_ptr<render::Shader>
+ShaderLibrary::try_get(const std::string& name) noexcept
+{
+    if (auto it = shaders_.find(name); it != shaders_.end())
+        return it->second;
+    return nullptr;
+}
+
+
+
+
 std::vector<std::string> ShaderLibrary::get_keys() {
     std::vector<std::string> keys;
     for (const auto& pair : shaders_) {

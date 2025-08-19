@@ -16,6 +16,7 @@
 #include <cosmos/render/VAO.hpp>
 #include <cosmos/scene/Light.hpp>
 #include <cosmos/render/gfx/GLStateCache.hpp>
+#include <cosmos/assets/ResourceManager.hpp>
 
 // ==
 // Forward Declare
@@ -50,6 +51,8 @@ public:
     void set_highlight_shader(std::shared_ptr<Shader> shader) { highlight_shader = shader; }
 
     void set_profiler(cosmos::core::Profiler* p) { profiler_ = p; }
+    void set_resources(cosmos::assets::ResourceManager* r) { resources_ = r; }
+    cosmos::assets::ResourceManager& get_resources() { return *resources_; }
 
 private:
     std::vector<RenderCommand> render_queue;
@@ -69,6 +72,7 @@ private:
     std::shared_ptr<Shader> highlight_shader;
 
     cosmos::core::Profiler* profiler_ = nullptr;
+    cosmos::assets::ResourceManager* resources_ = nullptr;
 
     GLuint time_q[2] = {0, 0};
     int tq = 0;
