@@ -54,6 +54,7 @@ bool Engine::init(const EngineConfig& config, IApp& app) {
     renderer_->set_ui(window_->get_ui());
     renderer_->set_profiler(profiler_.get());
 
+    resources_ = std::make_shared<assets::ResourceManager>();
 
     profiler_ = std::make_unique<Profiler>();
 
@@ -63,7 +64,8 @@ bool Engine::init(const EngineConfig& config, IApp& app) {
         *profiler_.get(),
         *scene_manager_,
         *window_->get_ui(),
-        *window_->get_inputmanager()
+        *window_->get_inputmanager(),
+        *resources_
     };
 
     app_ctx_ = std::make_shared<AppContext>();

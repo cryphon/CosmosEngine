@@ -7,6 +7,7 @@
 #include <cosmos/scene/SceneManager.hpp>
 #include <cosmos/assets/ShaderLibrary.hpp>
 #include <cosmos/assets/SkyboxManager.hpp>
+#include <cosmos/assets/ResourceManager.hpp>
 #include <cosmos/assets/SkyboxUtils.hpp>
 #include <cosmos/input/InputManager.hpp>
 #include <cosmos/render/Renderer.hpp>
@@ -39,11 +40,13 @@ void AppBootstrap::bootstrap(cosmos::core::Engine& engine,
 
     svc.renderer.init_grid();
 
+    auto& RM = svc.resources;
+    svc.renderer.set_resources(&RM);
+
     // 2) Load resources (moved from Engine::init)
     app.skybox_manager = std::make_shared<assets::SkyBoxManager>();
     auto studio_skybox = init_hdri_skybox(app.skybox_manager, "studio", "textures/skybox/brown_photostudio.hdr");
     auto loft_skybox = init_hdri_skybox(app.skybox_manager, "loft", "textures/skybox/newport_loft.hdr");
-    assets::ShaderLibrary::load("PBR", "shaders/pbr.vert", "shaders/pbr.frag");
 
     // shader has to be loaded before materials
     assets::MaterialLibrary::load_from_path("roofing", "assets/materials/roofing");

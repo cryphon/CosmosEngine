@@ -11,7 +11,7 @@ namespace cosmos::render{ class Renderer; }
 namespace cosmos::scene { class SceneManager; class Camera; class CameraControls; class CameraInputAdapter; }
 namespace cosmos::ui    { class UI; }
 namespace cosmos::input { class InputManager; }
-namespace cosmos::assets{ class SkyBoxManager; }
+namespace cosmos::assets{ class SkyBoxManager; class ResourceManager; }
 
 
 namespace cosmos::core {
@@ -24,6 +24,7 @@ struct EngineServices {
     scene::SceneManager& scene_manager;
     ui::UI& ui;
     input::InputManager& input_manager;
+    assets::ResourceManager& resources;
 };
 
 // Contstructed by AppBootStrap and given to scenes/UI
