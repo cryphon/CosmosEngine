@@ -28,9 +28,7 @@
 void SecondScene::initialize(){ 
     auto& RM = renderer->get_resources();
 
-    auto marble = RM.get_or_load<cosmos::render::Material>("mat/bricks", []{
-        return cosmos::assets::MaterialLibrary::get("bricks");
-    });    
+    auto marble =  cosmos::assets::MaterialLibrary::get("bricks");
     auto sphere2 = cosmos::render::Mesh::create_uv_sphere(256, 128, 1.0f);
 
     cosmos::render::Transform t0, t1, t2;
