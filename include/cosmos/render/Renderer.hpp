@@ -15,6 +15,8 @@
 // ==
 #include <cosmos/render/VAO.hpp>
 #include <cosmos/scene/Light.hpp>
+#include <cosmos/render/gfx/GLStateCache.hpp>
+#include <cosmos/assets/ResourceManager.hpp>
 
 // ==
 // Forward Declare
@@ -23,6 +25,7 @@ namespace cosmos::scene { class Camera; }
 namespace cosmos::assets { class SkyBox; }
 namespace cosmos::render { class VBO; class EBO; class RenderCommand; class Shader; class Texture; }
 namespace cosmos::ui { class UI; }
+namespace cosmos::core { class Profiler; }
 
 namespace cosmos::render {
 
@@ -47,8 +50,13 @@ public:
     void set_selected_object(int id) { selected_object_id = id; }
     void set_highlight_shader(std::shared_ptr<Shader> shader) { highlight_shader = shader; }
 
+    void set_profiler(cosmos::core::Profiler* p) { profiler_ = p; }
+    void set_resources(cosmos::assets::ResourceManager* r) { resources_ = r; }
+    cosmos::assets::ResourceManager& get_resources() { return *resources_; }
+
 private:
     std::vector<RenderCommand> render_queue;
+    gfx::GLStateCache state_cache_;
     std::shared_ptr<ui::UI> ui = nullptr;
     scene::Light light = scene::Light({2.0f, 2.0f, 2.0f}, {1.0f, 1.0f, 1.0f});
 
@@ -62,6 +70,12 @@ private:
     int selected_object_id = -1;
 
     std::shared_ptr<Shader> highlight_shader;
+
+    cosmos::core::Profiler* profiler_ = nullptr;
+    cosmos::assets::ResourceManager* resources_ = nullptr;
+
+    GLuint time_q[2] = {0, 0};
+    int tq = 0;
 };
 }
 

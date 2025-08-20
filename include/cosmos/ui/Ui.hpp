@@ -15,6 +15,8 @@
 // Cosmos
 // ==
 #include <cosmos/core/AppAPI.hpp>
+#include <cosmos/core/Profiler.hpp>
+#include <cosmos/ui/PerfOverlay.hpp>
 
 // ==
 // Forward Declare
@@ -46,7 +48,7 @@ public:
     void render();
     void update();
     void shutdown();
-    void set_camera_controls(std::shared_ptr<scene::CameraControls> controls) { camera_controls = controls; }
+    void set_camera_controls(std::shared_ptr<scene::CameraControls> controls) { camera_controls_ = controls; }
     void set_renderer(std::shared_ptr<render::Renderer> renderer);
     void set_engine(std::shared_ptr<core::Engine> engine);
     void set_window(std::shared_ptr<core::Window> window);
@@ -54,13 +56,15 @@ public:
     bool EditTextureSlot(const char* label, bool& use_map, std::shared_ptr<render::Texture>& texture, GLenum texture_target = GL_TEXTURE_2D);
 
 private:
-    core::Window* window = nullptr;  // non-owning pointer (comes from EngineServices)
-    render::Renderer* renderer = nullptr;  // non-owning pointer
-    scene::SceneManager* scene_manager = nullptr; // non-owning pointer
+    core::Window* window_ = nullptr;  // non-owning pointer (comes from EngineServices)
+    render::Renderer* renderer_ = nullptr;  // non-owning pointer
+    scene::SceneManager* scene_manager_ = nullptr; // non-owning pointer
+    core::Profiler* profiler_ = nullptr;
+    PerfOverlayConfig perf_cfg_;
 
-    std::shared_ptr<scene::Camera> camera; // shared ownership with AppContext
-    std::shared_ptr<scene::CameraControls> camera_controls; // shared ownership
-    std::shared_ptr<assets::SkyBoxManager> skybox_manager; // shared ownership
+    std::shared_ptr<scene::Camera> camera_; // shared ownership with AppContext
+    std::shared_ptr<scene::CameraControls> camera_controls_; // shared ownership
+    std::shared_ptr<assets::SkyBoxManager> skybox_manager_; // shared ownership
 
     bool show_debug =false; 
 };

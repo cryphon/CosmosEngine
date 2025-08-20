@@ -13,6 +13,7 @@
 // Cosmos
 // ==
 #include <cosmos/render/Transform.hpp>
+#include <cosmos/render/gfx/RenderState.hpp>
 
 // ==
 // Forward Declare
@@ -27,6 +28,7 @@ public:
     std::shared_ptr<Material> material;
     Transform transform;
     int object_id;
+    gfx::RenderState state = gfx::RenderState::Opaque();
 };
 
 }

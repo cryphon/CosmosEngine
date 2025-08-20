@@ -34,14 +34,16 @@ struct ShaderPtrEqual {
 class Shader;
 
 class ShaderLibrary {
-    public:
-        static void load(const std::string& name, const std::string& vert_path, const std::string& frag_path);
-        static std::shared_ptr<render::Shader> get(const std::string& name);
-        static std::vector<std::string> get_keys();
-        static std::string get_name(const std::shared_ptr<render::Shader>& shader);
+public:
+    static void load(const std::string& name, const std::string& vert_path, const std::string& frag_path);
+    static std::shared_ptr<render::Shader> get(const std::string& name);
+    static std::shared_ptr<render::Shader> get_or_create(const std::string& name, const std::string& vert_path, const std::string& frag_path);
+    static std::shared_ptr<render::Shader> try_get(const std::string& name) noexcept;
+    static std::vector<std::string> get_keys();
+    static std::string get_name(const std::shared_ptr<render::Shader>& shader);
 
-    private:
-        static std::unordered_map<std::string, std::shared_ptr<render::Shader>> shaders;
-        static std::unordered_map<std::shared_ptr<render::Shader>, std::string, ShaderPtrHash, ShaderPtrEqual> reverse_lookup;
+private:
+    static std::unordered_map<std::string, std::shared_ptr<render::Shader>> shaders_;
+    static std::unordered_map<std::shared_ptr<render::Shader>, std::string, ShaderPtrHash, ShaderPtrEqual> reverse_lookup_;
 };
 }
