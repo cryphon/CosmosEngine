@@ -65,7 +65,7 @@ public:
         // Build material (create once)
         // If you add ShaderLibrary::get_or_create, prefer that here.
         auto mat = std::make_shared<render::PBRMaterial>(ShaderLibrary::get_or_create("PBR", "shaders/pbr.vert", "shaders/pbr.frag"));
-        mat->bind_uniforms = render::UniformPresets::pbr_bind;
+        mat->bind_uniforms = render::UniformPresets::full_lighting_bind;
 
         const std::string& path = r.path;
         if (file_exists(path + "/albedo.png")) {

@@ -1,5 +1,7 @@
 #version 330 core
 
+#include "glsl/common.glsl"
+
 out vec4 FragColor;
 
 in vec3 Normal;
@@ -8,7 +10,6 @@ in vec3 FragPos;
 in vec3 Tangent;
 in vec3 Bitangent;
 
-uniform vec3 viewPos;
 
 uniform vec3 uAlbedo;
 uniform float uMetallic;
@@ -82,7 +83,7 @@ void main() {
         // parallax mapping
         float height = texture(uDisplacementMap, tiledUV).r;
 
-        vec3 viewDir = normalize(viewPos - FragPos);
+        vec3 viewDir = normalize(uViewPos.xyz - FragPos);
         vec2 offset = viewDir.xy * (height - 0.5) * parallaxStrength;
         displacedUV += offset;
     }
@@ -108,7 +109,7 @@ void main() {
         vec3 map = texture(uNormalMap, tiledUV).rgb * 2.0 - 1.0;
         N = normalize(TBN * map);
 }    // view direction
-    vec3 V = normalize(viewPos - FragPos);
+    vec3 V = normalize(uViewPos.xyz - FragPos);
 
     // Light direction (toward the light) -- fixed in world/view space 
     vec3 L = normalize(vec3(-0.5, 1.0, -0.3)); // directional light

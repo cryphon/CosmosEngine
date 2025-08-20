@@ -47,6 +47,9 @@ void SecondScene::update(float dt) {
     rotation += rotation_speed * dt;
 }
 void SecondScene::render() { 
+    if (skybox) {
+        renderer->render_skybox(*camera, 1000, 1000, skybox);
+    }
     for (auto& obj : objects) {
         if (obj.transform.cache_trigger) {
             obj.transform.update_matrices(); // updates model matrix
@@ -56,9 +59,7 @@ void SecondScene::render() {
     }
     renderer->render_all(*camera, 1000, 1000);
 
-    if (skybox) {
-        renderer->render_skybox(*camera, 1000, 1000, skybox);
-    }
+
 
     renderer->clear();
 }

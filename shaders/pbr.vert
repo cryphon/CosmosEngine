@@ -1,5 +1,7 @@
 #version 330 core
 
+#include "glsl/common.glsl"
+
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec3 aColor;
@@ -15,8 +17,6 @@ out vec3 Bitangent;
 
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
 
 
 uniform sampler2D uDisplacementMap;
@@ -25,7 +25,14 @@ uniform bool useDisplacementMap;
 
 uniform float uTiling;
 
+out vec3 WorldPos;
+out vec3 WorldNormal;
+
 void main() {
+
+    vec4 w = model * vec4(aPos,1.0);
+    WorldPos = w.xyz;
+    WorldNormal = mat3(transpose(inverse(model))) * aNormal;
     Normal = mat3(transpose(inverse(model))) * aNormal;
 
     Tangent = mat3(model) * aTangent;
@@ -45,6 +52,6 @@ void main() {
         displacedPos += aNormal * (displacement - 0.5) * uDisplacementStrength;
     }
 
-    gl_Position = projection * view * model * vec4(displacedPos, 1.0);
+    gl_Position = uProjection * uView * model * vec4(displacedPos, 1.0);
     FragPos = vec3(model * vec4(displacedPos, 1.0));
 }

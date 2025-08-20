@@ -23,7 +23,9 @@
 #include <cosmos/ui/Ui.hpp>
 
 namespace cosmos::render {
-Renderer::Renderer() { }
+Renderer::Renderer() {
+    init_per_view_ubo_();    
+}
 
 Renderer::~Renderer() { } 
 
@@ -32,13 +34,18 @@ void Renderer::submit(const render::RenderCommand& render_cmd) {
 }
 
 void Renderer::render_all(const scene::Camera& camera, int screen_width, int screen_height) {
+
+    glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+
+
+
     UniformContext ctx;
     // View and projection matrices
     ctx.view = camera.get_view_matrix();
     ctx.view_pos = camera.get_position();
     ctx.projection = camera.get_projection_matrix();
-
-    // Light properties (temporary static light)
     ctx.light_pos = light.position;
     ctx.light_color = light.color;
 
@@ -48,6 +55,8 @@ void Renderer::render_all(const scene::Camera& camera, int screen_width, int scr
         ctx.reflectivity = ui->reflectivity_slider;
         ctx.alpha = ui->alpha_slider;
     };
+
+    update_per_view_ubo_(ctx);
 
     for (const auto& cmd : render_queue) {
 
@@ -106,18 +115,20 @@ void Renderer::render_skybox(const scene::Camera& camera, int screen_width, int 
     }
 
     glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
 
-    UniformContext ctx;
-    ctx.view = camera.get_view_matrix();
-    ctx.projection = camera.get_projection_matrix();
 
     skybox_material->shader->activate_shader();
-    if (skybox_material->bind_uniforms)
-        skybox_material->bind_uniforms(*skybox_material->shader, ctx);
+    if (skybox_material->bind_uniforms) {
+        UniformContext dummy{};
+        dummy.model = glm::mat4(1.0f); // if your preset needs model
+        skybox_material->bind_uniforms(*skybox_material->shader, dummy);
+    }
 
     skybox_material->bind();
     skybox_mesh->draw(skybox_material->vertex_layout());
 
+    glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
 }
 
@@ -125,14 +136,49 @@ void Renderer::render_grid(const scene::Camera& camera, int screen_width, int sc
     if (!grid_enabled) return;
 
     grid_shader->activate_shader();
-    grid_shader->set_mat4("view", camera.get_view_matrix());
-    grid_shader->set_mat4("projection", camera.get_projection_matrix());
     grid_shader->set_vec3("gridColor", glm::vec3(0.4f)); // gray
 
     grid_vao.bind();
     glDrawArrays(GL_LINES, 0, grid_vert_cnt);
     grid_vao.unbind();
 }
+
+
+void Renderer::init_per_view_ubo_() {
+    glGenBuffers(1, &per_view_ubo_);
+    glBindBuffer(GL_UNIFORM_BUFFER, per_view_ubo_);
+
+    // Size must match the std140 layout (see struct below).
+    // We'll allocate once and update with glBufferSubData per frame.
+    const GLsizeiptr per_view_size =
+        sizeof(glm::mat4) * 2 +          // view, projection
+        sizeof(glm::vec4) * 4;           // viewPos, lightPos, lightColor, params
+
+    glBufferData(GL_UNIFORM_BUFFER, per_view_size, nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, per_view_ubo_); // binding = 0 matches GLSL
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+
+void Renderer::update_per_view_ubo_(const UniformContext& ctx) {
+    PerViewStd140 data{};
+    data.view       = ctx.view;
+    data.projection = ctx.projection;
+    data.view_pos   = glm::vec4(ctx.view_pos, 1.0f);
+    data.light_pos  = glm::vec4(ctx.light_pos, 1.0f);
+    data.light_color= glm::vec4(ctx.light_color, 1.0f);
+    data.params     = glm::vec4(ctx.reflectivity, ctx.alpha, 0.0f, 0.0f);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, per_view_ubo_);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(PerViewStd140), &data);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+
+
+
+
+
 
 void Renderer::clear() {
     render_queue.clear();

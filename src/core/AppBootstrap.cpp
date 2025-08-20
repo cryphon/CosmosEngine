@@ -8,6 +8,7 @@
 #include <cosmos/assets/ShaderLibrary.hpp>
 #include <cosmos/assets/SkyboxManager.hpp>
 #include <cosmos/assets/ResourceManager.hpp>
+#include <cosmos/assets/ResourceLoaders.hpp>
 #include <cosmos/assets/SkyboxUtils.hpp>
 #include <cosmos/input/InputManager.hpp>
 #include <cosmos/render/Renderer.hpp>
@@ -49,12 +50,24 @@ void AppBootstrap::bootstrap(cosmos::core::Engine& engine,
     auto studio_skybox = init_hdri_skybox(app.skybox_manager, "studio", "textures/skybox/brown_photostudio.hdr");
     auto loft_skybox = init_hdri_skybox(app.skybox_manager, "loft", "textures/skybox/newport_loft.hdr");
 
+
+    auto basic = RM.get_or_load<cosmos::render::Shader>("shaders/basic", []{
+        return cosmos::assets::load_shader("shaders/basic", "shaders/basic.vert", "shaders/basic.frag");
+    }); 
+    auto phong = RM.get_or_load<cosmos::render::Shader>("shaders/phonh", []{
+        return cosmos::assets::load_shader("shaders/phong", "shaders/phong.vert", "shaders/phong.frag");
+    }); 
+    auto xyz = RM.get_or_load<cosmos::render::Shader>("shaders/xyzmap", []{
+        return cosmos::assets::load_shader("shaders/xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
+    }); 
+ 
     // shader has to be loaded before materials
     assets::MaterialLibrary::load_from_path("roofing", "assets/materials/roofing");
     assets::MaterialLibrary::load_from_path("bricks", "assets/materials/bricks");
     assets::MaterialLibrary::load_from_path("marble", "assets/materials/marble");
     assets::MaterialLibrary::load_from_path("gold", "assets/materials/gold");
     assets::MaterialLibrary::load_from_path("rock", "assets/materials/rock");
+
 
     // 3) Register scenes (capture what they need from svc/app)
     svc.scene_manager.register_factory("main", [r=&svc.renderer, cam=app.camera, studio_skybox](){

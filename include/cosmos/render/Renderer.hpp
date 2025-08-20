@@ -14,6 +14,7 @@
 // Cosmos
 // ==
 #include <cosmos/render/VAO.hpp>
+#include <cosmos/render/UniformContext.hpp>
 #include <cosmos/scene/Light.hpp>
 #include <cosmos/render/gfx/GLStateCache.hpp>
 #include <cosmos/assets/ResourceManager.hpp>
@@ -28,6 +29,18 @@ namespace cosmos::ui { class UI; }
 namespace cosmos::core { class Profiler; }
 
 namespace cosmos::render {
+
+
+// C++ pack structure matching the GLSL block (UBO)
+struct PerViewStd140 {
+    glm::mat4 view;
+    glm::mat4 projection;
+    glm::vec4 view_pos;    // xyz used
+    glm::vec4 light_pos;   // xyz used
+    glm::vec4 light_color; // rgb used
+    glm::vec4 params;      // x=reflectivity, y=alpha
+};
+
 
 
 class Renderer {
@@ -53,7 +66,7 @@ public:
     void set_profiler(cosmos::core::Profiler* p) { profiler_ = p; }
     void set_resources(cosmos::assets::ResourceManager* r) { resources_ = r; }
     cosmos::assets::ResourceManager& get_resources() { return *resources_; }
-
+    
 private:
     std::vector<RenderCommand> render_queue;
     gfx::GLStateCache state_cache_;
@@ -76,6 +89,11 @@ private:
 
     GLuint time_q[2] = {0, 0};
     int tq = 0;
+
+
+    GLuint per_view_ubo_ = 0;
+    void init_per_view_ubo_();
+    void update_per_view_ubo_(const UniformContext& ctx);
 };
 }
 
