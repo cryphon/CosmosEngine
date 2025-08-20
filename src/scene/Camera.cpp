@@ -245,6 +245,4 @@ void OrbitalCameraControls::set_angles(float new_yaw, float new_pitch) {
 void OrbitalCameraControls::apply_man_update() {
     update_camera(*camera);
 }
-
-
 }
