@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <imgui.h>
 
 
 // ==
@@ -42,15 +43,19 @@ void QuaternionCameraControls::on_mouse_button(int button, int action, int mods)
         first_mouse = true;
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             mode_ = MouseMode::FreeLook;
+            rotating_ = true;
         } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             mode_ = MouseMode::Pan;
+            rotating_ = true;
         }
     } else if (action == GLFW_RELEASE) {
         mode_ = MouseMode::None;
+        rotating_ = false;
     }
 }
 
 void QuaternionCameraControls::on_mouse_move(double xpos, double ypos) {
+    if (!rotating_ || ImGui::GetIO().WantCaptureMouse) return;
     if (mode_ == MouseMode::None) return;
 
     if (first_mouse) {

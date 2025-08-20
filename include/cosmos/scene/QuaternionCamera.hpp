@@ -59,5 +59,7 @@ class QuaternionCameraControls : public CameraControls {
         float sensitivity = 0.3f;
         float zoom_speed = 0.5f;
         float radius = 10.0f;
+
+        bool rotating_ = false;
 };
 }
