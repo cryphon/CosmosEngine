@@ -26,10 +26,11 @@ class QuaternionCameraControls : public CameraControls {
         
         void on_mouse_move(double xpos, double ypos) override;
         void on_mouse_button(int button, int action, int mods) override;
-        // void on_scroll(double xoffset, double yoffset) override;
+        void on_scroll(double xoffset, double yoffset) override;
 
         void sync_from_camera();
-        void apply_orientation_to_camera();
+        void apply_orientation_to_camera(QuaternionCameraControls& self);
+        void scaled_pan(float dx, float dy);
 
     private:
         GLFWwindow* window;
