@@ -17,7 +17,7 @@
 namespace cosmos::core {
 
 int Application::run() {
-    Logger::set_level(core::LogLevel::DEBUG);
+    Logger::set_level(core::LogLevel::INFO);
     cosmos::core::Engine engine;
     AppBootstrap app;
     cosmos::core::EngineConfig cfg { 1600, 900, false, 4, "cosmos" };

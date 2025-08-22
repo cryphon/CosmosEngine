@@ -13,6 +13,7 @@
 #include <cosmos/assets/SkyboxUtils.hpp>
 #include <cosmos/scene/SceneObject.hpp>
 #include <cosmos/assets/ObjLoader.hpp>
+#include <cosmos/assets/Skybox.hpp>
 
 
 void MainScene::initialize(){ 
@@ -25,6 +26,11 @@ void MainScene::initialize(){
 
     auto basic_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::try_get("shaders/basic"));
     basic_material->bind_uniforms = cosmos::render::UniformPresets::basic_bind;
+
+    auto reflect_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::try_get("shaders/reflect"));
+    reflect_material->bind_uniforms = cosmos::render::UniformPresets::basic_bind;
+    reflect_material->sampler_name = "skybox";
+    reflect_material->texture = skybox->get_material()->texture;
 
     // --- Light Shader ---
     cosmos::scene::Light light1({1.0f, 10.0f, 5.0f}, {1.0f, 1.0f, 1.0f});
@@ -42,7 +48,7 @@ void MainScene::initialize(){
     transform.position = {0.0f, 0.0f, 0.0f};
     transform.cache_trigger = true;
     transform.update_matrices();
-    objects.emplace_back("human", mesh, xyz_material, transform);
+    objects.emplace_back("human", mesh, reflect_material, transform);
 
 }
 

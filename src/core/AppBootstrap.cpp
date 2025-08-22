@@ -60,6 +60,10 @@ void AppBootstrap::bootstrap(cosmos::core::Engine& engine,
     auto xyz = RM.get_or_load<cosmos::render::Shader>("shaders/xyzmap", []{
         return cosmos::assets::load_shader("shaders/xyzmap", "shaders/xyzmap.vert", "shaders/xyzmap.frag");
     }); 
+
+    auto reflect = RM.get_or_load<cosmos::render::Shader>("shaders/reflect", []{
+        return cosmos::assets::load_shader("shaders/reflect", "shaders/reflect.vert", "shaders/reflect.frag");
+    });
  
     // shader has to be loaded before materials
     assets::MaterialLibrary::load_from_path("roofing", "assets/materials/roofing");
