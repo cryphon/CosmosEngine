@@ -15,6 +15,7 @@
 // ==
 #include <cosmos/render/Shader.hpp>
 #include <cosmos/render/VertexLayouts.hpp>
+#include <cosmos/render/gfx/RenderState.hpp>
 
 // ==
 // Forward Declare
@@ -22,6 +23,15 @@
 namespace cosmos::render { class UniformContext; class Texture; }
 
 namespace cosmos::render {
+
+
+
+enum AlphaMode {
+    Opaque,
+    Mask,
+    Blend 
+};
+
 class Material {
 public:
     Material(std::shared_ptr<Shader> shader,
@@ -47,6 +57,11 @@ public:
         shader->activate_shader();
         if(bind_uniforms) bind_uniforms(*shader, ctx);
     }
+
+    gfx::RenderState default_state = gfx::RenderState::Opaque();
+    AlphaMode alpha_mode = AlphaMode::Opaque;
+    float opacity = 0.1;
+    float alpha_cutoff;
 
 private:
     VertexLayoutDesc layout_;   // points to a static layout singleton

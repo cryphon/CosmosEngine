@@ -23,7 +23,7 @@ struct RenderState {
     bool cull_face = true;
     GLenum cull_mode = GL_BACK;
     GLenum depth_func = GL_LESS;
-    BlendFunc blend{};
+    BlendFunc blend{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
 
     static RenderState Opaque() {
         RenderState s; /* defaults are fine */ return s;
