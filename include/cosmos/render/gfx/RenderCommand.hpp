@@ -29,6 +29,8 @@ public:
     Transform transform;
     int object_id;
     gfx::RenderState state = gfx::RenderState::Opaque();
+    float depth = 0.0f;
+    bool transparent = false;
 };
 
 }

@@ -12,6 +12,7 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform bool use_texture;
+uniform float uAlpha;
 
 void main() {
     vec3 norm = normalize(Normal);
@@ -26,7 +27,7 @@ void main() {
     }
 
 
-    FragColor = vec4((0.2 + diffuse) * baseColor, 1.0);
+    FragColor = vec4((0.2 + diffuse) * baseColor, uAlpha);
 }
 
 

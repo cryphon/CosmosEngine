@@ -31,45 +31,95 @@ void Renderer::submit(const render::RenderCommand& render_cmd) {
     render_queue.push_back(render_cmd);
 }
 
-void Renderer::render_all(const scene::Camera& camera, int screen_width, int screen_height) {
-    UniformContext ctx;
-    // View and projection matrices
-    ctx.view = camera.get_view_matrix();
-    ctx.view_pos = camera.get_position();
-    ctx.projection = camera.get_projection_matrix();
+// Renderer.cpp  (replace your current render_all with this)
+void Renderer::render_all(const scene::Camera& camera, int screen_w, int screen_h) {
+    // == Build the per-frame base context (unchanged from your style)
+    UniformContext base;
+    base.view        = camera.get_view_matrix();
+    base.view_pos    = camera.get_position();
+    base.projection  = camera.get_projection_matrix();
+    base.light_pos   = light.position;
+    base.light_color = light.color;
 
-    // Light properties (temporary static light)
-    ctx.light_pos = light.position;
-    ctx.light_color = light.color;
+    if (ui) { // keep whatever UI fields you already expose
+        base.reflectivity = ui->reflectivity_slider;
+        base.alpha        = ui->alpha_slider;
+    }
 
+    // == Partition render_queue into opaque / transparent and compute depth
+    std::vector<const RenderCommand*> opaque;
+    std::vector<const RenderCommand*> transparent;
+    opaque.reserve(render_queue.size());
+    transparent.reserve(render_queue.size());
 
-    // set ui controlled ctx vars
-    if(ui) {
-        ctx.reflectivity = ui->reflectivity_slider;
-        ctx.alpha = ui->alpha_slider;
+    const glm::vec3 cam_pos = base.view_pos;
+    for (auto& cmd : render_queue) {
+        // depth: distance from camera to model translation
+        const glm::vec3 pos = glm::vec3(cmd.transform.model_matrix[3]);
+        const float d = glm::length(pos - cam_pos);
+        // store depth on the command (if mutable) or keep it local:
+        const_cast<RenderCommand&>(cmd).depth = d;
+
+        (cmd.transparent ? transparent : opaque).push_back(&cmd);
+    }
+
+    // == Sort opaque to minimize state changes: shader -> material -> mesh
+    auto by_pipeline = [](const RenderCommand* a, const RenderCommand* b){
+        if (a->material->shader.get() != b->material->shader.get())
+            return a->material->shader.get() < b->material->shader.get();
+        if (a->material != b->material)
+            return a->material < b->material;
+        return a->mesh < b->mesh;
     };
+    std::sort(opaque.begin(), opaque.end(), by_pipeline);
 
-    for (const auto& cmd : render_queue) {
+    // == Sort transparent back-to-front (largest depth first)
+    std::sort(transparent.begin(), transparent.end(),
+              [](const RenderCommand* a, const RenderCommand* b){
+                  return a->depth > b->depth;
+              });
 
-        // --- Apply pipeline state for this draw (once per pass)
-        state_cache_.apply(cmd.state);
-
+    // == Draw helper (applies state cache, binds, draws) --------------------
+    auto draw_cmd = [&](const RenderCommand& cmd, const gfx::RenderState& pass_override){
+        // Start from the command's own state; override pass-specific bits.
+        gfx::RenderState s = cmd.state;
+        s.blending    = pass_override.blending;
+        s.depth_write = pass_override.depth_write;
+        s.blend       = pass_override.blend;
+        state_cache_.apply(s);                      
 
         auto& material = *cmd.material;
         auto shader = material.shader;
         shader->activate_shader();
 
+        UniformContext ctx = base;
         ctx.model = cmd.transform.model_matrix;
 
-        if (material.bind_uniforms) {
-            material.bind_uniforms(*shader, ctx);
-        }
-
-        material.bind(); // binds textures, etc.
+        if (material.bind_uniforms) material.bind_uniforms(*shader, ctx);
+        material.bind();
         cmd.mesh->draw(material.vertex_layout());
+    };
 
-            }
-    render_queue.clear(); // empty for next frame
+    // == OPAQUE PASS: depth write ON, blending OFF --------------------------
+    {
+        gfx::RenderState pass{};
+        pass.depth_write = true;
+        pass.blending    = false;
+        pass.blend       = {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}; // not used, for consistency
+        for (auto* p : opaque) draw_cmd(*p, pass);
+    }
+
+    // == TRANSPARENT PASS: depth write OFF, blending ON ---------------------
+    {
+        gfx::RenderState pass{};
+        pass.depth_write = false;                    // read depth, don't write
+        pass.blending    = true;
+        pass.blend       = {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
+        for (auto* p : transparent) draw_cmd(*p, pass);
+    }
+
+
+    render_queue.clear();
 }
 
 void Renderer::init_grid(float size, float step){
@@ -105,6 +155,7 @@ void Renderer::render_skybox(const scene::Camera& camera, int screen_width, int 
         return;
     }
 
+    glDepthMask(GL_FALSE);
     glDepthFunc(GL_LEQUAL);
 
     UniformContext ctx;
@@ -119,6 +170,7 @@ void Renderer::render_skybox(const scene::Camera& camera, int screen_width, int 
     skybox_mesh->draw(skybox_material->vertex_layout());
 
     glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
 }
 
 void Renderer::render_grid(const scene::Camera& camera, int screen_width, int screen_height, float size, float step) {

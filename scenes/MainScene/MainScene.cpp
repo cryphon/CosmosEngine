@@ -36,14 +36,18 @@ void MainScene::initialize(){
     shader.set_vec3("lightColor", ctx.light_color);
 
     shader.set_bool("selected", false);       // change this if highlighting
-    shader.set_bool("use_texture", true);     // set to false if no texture is used
+    shader.set_bool("use_texture", false);     // set to false if no texture is used
+
+    shader.set_float("uAlpha", ctx.alpha);
     };
 
     auto default_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::get("default"));
     default_material->bind_uniforms = default_bind;
+    default_material->default_state = cosmos::render::gfx::RenderState::Transparent();
 
     auto xyz_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::get("xyzmap"));
     xyz_material->bind_uniforms = cosmos::render::UniformPresets::normal_debug_bind; 
+    xyz_material->default_state = cosmos::render::gfx::RenderState::Opaque();
 
     auto basic_material = std::make_shared<cosmos::render::Material>(cosmos::assets::ShaderLibrary::get("basic"));
     basic_material->bind_uniforms = cosmos::render::UniformPresets::basic_bind; 
@@ -64,7 +68,7 @@ void MainScene::initialize(){
     transform.position = {0.0f, 0.0f, 0.0f};
     transform.cache_trigger = true;
     transform.update_matrices();
-    objects.emplace_back("human", mesh, default_material, transform);
+    objects.emplace_back("Reflective", mesh, default_material, transform);
 
 }
 
@@ -83,19 +87,32 @@ void MainScene::update(float dt) {
 }
 
 void MainScene::render() { 
+
+     if (skybox) {
+        renderer->render_skybox(*camera, 1000, 1000, skybox);
+    }
+
     for (auto& obj : objects) {
         if (obj.transform.cache_trigger) {
             obj.transform.update_matrices(); // updates model matrix
         }
-        // Convert SceneObject into RenderCommand
-        renderer->submit({ obj.mesh, obj.material, obj.transform, obj.get_id()});
+
+        cosmos::render::RenderCommand cmd;
+        cmd.mesh = obj.mesh;
+        cmd.material = obj.material;
+        cmd.transform = obj.transform;
+        cmd.object_id = obj.get_id();
+
+        cmd.state = cmd.material->default_state;
+        cmd.transparent = 
+            (cmd.material->alpha_mode == cosmos::render::AlphaMode::Blend) ||
+            cmd.state.blending ||
+            (cmd.material->opacity < 0.999f);
+        renderer->submit(cmd);
     }
     renderer->render_all(*camera, 1000, 1000);
 
-    if (skybox) {
-        renderer->render_skybox(*camera, 1000, 1000, skybox);
-    }
-
+   
     renderer->clear();
 }
 
